@@ -5,6 +5,11 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { PageTransition, CountUp } from '@/components/ui/motion'
+import {
+  WeeklyActivityChart,
+  MonthlyProgressChart,
+  TaskDistributionChart,
+} from '@/components/charts'
 import { useActiveHabits } from '@/stores/habits'
 import { useTasksStore } from '@/stores/tasks'
 import { useGamificationStore } from '@/stores/gamification'
@@ -17,6 +22,8 @@ import {
   TrendingUp,
   Calendar,
   Target,
+  BarChart3,
+  PieChart,
 } from 'lucide-react'
 
 function getLast30Days(): string[] {
@@ -192,38 +199,38 @@ export default function StatsPage() {
         </Card>
       </div>
 
-      {/* Period Stats */}
+      {/* Charts Section */}
       <div className="grid gap-4 lg:grid-cols-2">
+        {/* Weekly Activity Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Calendar className="h-5 w-5" />
-              {t('last7Days')}
+              <BarChart3 className="h-5 w-5" />
+              {t('weeklyActivity')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t('habitCompletions')}</span>
-                <CountUp to={habitCompletionsLast7} duration={1} className="font-medium" />
-              </div>
+            {mounted && <WeeklyActivityChart height={180} />}
+            <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+              <span>{t('habitCompletions')}</span>
+              <CountUp to={habitCompletionsLast7} duration={1} className="font-medium text-foreground" />
             </div>
           </CardContent>
         </Card>
 
+        {/* Monthly Progress Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <TrendingUp className="h-5 w-5" />
-              {t('last30Days')}
+              {t('monthlyTrend')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t('habitCompletions')}</span>
-                <CountUp to={habitCompletionsLast30} duration={1} className="font-medium" />
-              </div>
+            {mounted && <MonthlyProgressChart height={180} />}
+            <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+              <span>{t('last30Days')}</span>
+              <CountUp to={habitCompletionsLast30} duration={1} className="font-medium text-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -232,17 +239,23 @@ export default function StatsPage() {
       {/* Tasks Overview */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{t('tasksOverview')}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <PieChart className="h-5 w-5" />
+            {t('taskDistribution')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg bg-muted/50 p-4 text-center">
-              <CountUp to={pendingTasks.length} duration={1} className="text-3xl font-bold" />
-              <p className="text-sm text-muted-foreground">{t('pending')}</p>
-            </div>
-            <div className="rounded-lg bg-green-500/10 p-4 text-center">
-              <CountUp to={completedTasks.length} duration={1} className="text-3xl font-bold text-green-500" />
-              <p className="text-sm text-muted-foreground">{t('completed')}</p>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {mounted && <TaskDistributionChart height={200} />}
+            <div className="flex flex-col justify-center gap-4">
+              <div className="rounded-lg bg-muted/50 p-4 text-center">
+                <CountUp to={pendingTasks.length} duration={1} className="text-3xl font-bold" />
+                <p className="text-sm text-muted-foreground">{t('pending')}</p>
+              </div>
+              <div className="rounded-lg bg-green-500/10 p-4 text-center">
+                <CountUp to={completedTasks.length} duration={1} className="text-3xl font-bold text-green-500" />
+                <p className="text-sm text-muted-foreground">{t('completed')}</p>
+              </div>
             </div>
           </div>
         </CardContent>

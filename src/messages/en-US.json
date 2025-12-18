@@ -193,7 +193,10 @@
     "habitCompletions": "Habit completions",
     "tasksOverview": "Tasks overview",
     "pending": "Pending",
-    "completed": "Completed"
+    "completed": "Completed",
+    "weeklyActivity": "Weekly activity",
+    "monthlyTrend": "Monthly trend",
+    "taskDistribution": "Task distribution"
   },
   "achievements": {
     "title": "Achievements",

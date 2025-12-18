@@ -193,7 +193,10 @@
     "habitCompletions": "Conclusões de hábitos",
     "tasksOverview": "Visão geral de tarefas",
     "pending": "Pendentes",
-    "completed": "Concluídas"
+    "completed": "Concluídas",
+    "weeklyActivity": "Atividade semanal",
+    "monthlyTrend": "Tendência mensal",
+    "taskDistribution": "Distribuição de tarefas"
   },
   "achievements": {
     "title": "Conquistas",

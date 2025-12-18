@@ -14,6 +14,7 @@ import { useTodayTasks, useTasksStore } from '@/stores/tasks'
 import { useGamificationStore } from '@/stores/gamification'
 import { useSettingsStore } from '@/stores/settings'
 import { HabitFormDialog } from '@/components/habits'
+import { StreakSparkline } from '@/components/charts'
 import { Flame, Star, CheckCircle2, Plus, ChevronRight } from 'lucide-react'
 
 function getTodayString(): string {
@@ -120,21 +121,28 @@ export default function HomePage() {
 
       {/* Quick Stats */}
       <motion.div
-        className="flex items-center gap-4"
+        className="flex items-center justify-between"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
       >
-        <div className="flex items-center gap-2">
-          <Flame className="h-5 w-5 text-orange-500" />
-          <span className="text-sm font-medium">
-            {t('streak', { count: displayStreak })}
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Flame className="h-5 w-5 text-orange-500" />
+            <span className="text-sm font-medium">
+              {t('streak', { count: displayStreak })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            <span className="text-sm font-medium">{t('level', { level: displayLevel })}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Star className="h-5 w-5 text-yellow-500" />
-          <span className="text-sm font-medium">{t('level', { level: displayLevel })}</span>
-        </div>
+        {mounted && (
+          <div className="hidden sm:block">
+            <StreakSparkline width={100} height={36} color="hsl(var(--primary))" />
+          </div>
+        )}
       </motion.div>
 
       {/* Content Grid - 2 columns on desktop */}
