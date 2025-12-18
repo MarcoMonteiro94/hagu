@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { PageTransition, CountUp } from '@/components/ui/motion'
 import { useActiveHabits } from '@/stores/habits'
 import { useTasksStore } from '@/stores/tasks'
 import { useGamificationStore } from '@/stores/gamification'
@@ -91,7 +92,7 @@ export default function StatsPage() {
 
 
   return (
-    <div className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
+    <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
       <header>
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -109,24 +110,24 @@ export default function StatsPage() {
               <div>
                 <p className="text-3xl font-bold">{t('level', { level: displayLevel })}</p>
                 <p className="text-sm text-muted-foreground">
-                  {displayTotalXp} XP {t('total')}
+                  <CountUp to={displayTotalXp} duration={1.5} className="font-medium" /> XP {t('total')}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Flame className="h-6 w-6 text-orange-500" />
-              <span className="text-2xl font-bold">{displayStreak}</span>
+              <CountUp to={displayStreak} duration={1} className="text-2xl font-bold" />
               <span className="text-sm text-muted-foreground">{t('days')}</span>
             </div>
           </div>
           <div className="mt-4">
             <div className="flex justify-between text-sm">
               <span>{t('progressToNextLevel')}</span>
-              <span>{displayXpProgress}%</span>
+              <span><CountUp to={displayXpProgress} duration={1} />%</span>
             </div>
             <Progress value={displayXpProgress} className="mt-2 h-3" />
             <p className="mt-1 text-xs text-muted-foreground">
-              {displayXpForNext} XP {t('forNextLevel')}
+              <CountUp to={displayXpForNext} duration={1} /> XP {t('forNextLevel')}
             </p>
           </div>
         </CardContent>
@@ -141,7 +142,7 @@ export default function StatsPage() {
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{displayHabitsCompleted}</p>
+                <CountUp to={displayHabitsCompleted} duration={1.2} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">{t('habitsCompleted')}</p>
               </div>
             </div>
@@ -155,7 +156,7 @@ export default function StatsPage() {
                 <ListTodo className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{displayTasksCompleted}</p>
+                <CountUp to={displayTasksCompleted} duration={1.2} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">{t('tasksCompleted')}</p>
               </div>
             </div>
@@ -169,7 +170,7 @@ export default function StatsPage() {
                 <Target className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{habits.length}</p>
+                <CountUp to={habits.length} duration={1.2} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">{t('activeHabits')}</p>
               </div>
             </div>
@@ -183,7 +184,7 @@ export default function StatsPage() {
                 <Trophy className="h-5 w-5 text-yellow-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalHabitCompletions}</p>
+                <CountUp to={totalHabitCompletions} duration={1.2} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">{t('totalCompletions')}</p>
               </div>
             </div>
@@ -204,7 +205,7 @@ export default function StatsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{t('habitCompletions')}</span>
-                <span className="font-medium">{habitCompletionsLast7}</span>
+                <CountUp to={habitCompletionsLast7} duration={1} className="font-medium" />
               </div>
             </div>
           </CardContent>
@@ -221,7 +222,7 @@ export default function StatsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{t('habitCompletions')}</span>
-                <span className="font-medium">{habitCompletionsLast30}</span>
+                <CountUp to={habitCompletionsLast30} duration={1} className="font-medium" />
               </div>
             </div>
           </CardContent>
@@ -236,18 +237,16 @@ export default function StatsPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-lg bg-muted/50 p-4 text-center">
-              <p className="text-3xl font-bold">{pendingTasks.length}</p>
+              <CountUp to={pendingTasks.length} duration={1} className="text-3xl font-bold" />
               <p className="text-sm text-muted-foreground">{t('pending')}</p>
             </div>
             <div className="rounded-lg bg-green-500/10 p-4 text-center">
-              <p className="text-3xl font-bold text-green-500">
-                {completedTasks.length}
-              </p>
+              <CountUp to={completedTasks.length} duration={1} className="text-3xl font-bold text-green-500" />
               <p className="text-sm text-muted-foreground">{t('completed')}</p>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   )
 }

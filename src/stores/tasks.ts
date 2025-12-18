@@ -30,6 +30,7 @@ interface TasksState {
   getTasksForDate: (date: string) => Task[]
   getTodayTasks: () => Task[]
   getProjectById: (id: string) => Project | undefined
+  reorderTasks: (activeId: string, overId: string) => void
 }
 
 function generateId(): string {
@@ -190,6 +191,21 @@ export const useTasksStore = create<TasksState>()(
       },
 
       getProjectById: (id) => get().projects.find((project) => project.id === id),
+
+      reorderTasks: (activeId, overId) => {
+        set((state) => {
+          const oldIndex = state.tasks.findIndex((t) => t.id === activeId)
+          const newIndex = state.tasks.findIndex((t) => t.id === overId)
+
+          if (oldIndex === -1 || newIndex === -1) return state
+
+          const newTasks = [...state.tasks]
+          const [movedTask] = newTasks.splice(oldIndex, 1)
+          newTasks.splice(newIndex, 0, movedTask)
+
+          return { tasks: newTasks }
+        })
+      },
     }),
     {
       name: 'hagu-tasks',

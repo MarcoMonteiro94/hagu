@@ -1,35 +1,62 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
-import { TaskFormDialog } from '@/components/tasks'
+import { PageTransition } from '@/components/ui/motion'
+import { TaskFormDialog, SortableTaskCard } from '@/components/tasks'
 import { useTasksStore } from '@/stores/tasks'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
-  const { tasks, setTaskStatus } = useTasksStore()
+  const { tasks, setTaskStatus, reorderTasks } = useTasksStore()
 
   const pendingTasks = tasks.filter((task) => task.status !== 'done')
   const completedTasks = tasks.filter((task) => task.status === 'done')
 
-  const priorityColors = {
-    low: 'bg-green-500',
-    medium: 'bg-yellow-500',
-    high: 'bg-orange-500',
-    urgent: 'bg-red-500',
-  }
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const handleToggle = (taskId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
     setTaskStatus(taskId, newStatus as 'pending' | 'done')
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      reorderTasks(active.id as string, over.id as string)
+    }
+  }
+
   return (
-    <div className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
+    <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -68,35 +95,30 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            <>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
               {pendingTasks.length > 0 && (
                 <div className="space-y-2">
                   <h2 className="text-sm font-medium text-muted-foreground">
                     {t('filters.all')} ({pendingTasks.length})
                   </h2>
-                  {pendingTasks.map((task) => (
-                    <Card key={task.id}>
-                      <CardContent className="flex items-center gap-3 p-3">
-                        <Checkbox
-                          checked={false}
-                          onCheckedChange={() => handleToggle(task.id, task.status)}
+                  <SortableContext
+                    items={pendingTasks.map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {pendingTasks.map((task) => (
+                        <SortableTaskCard
+                          key={task.id}
+                          task={task}
+                          onToggle={handleToggle}
                         />
-                        <div className="flex-1">
-                          <p>{task.title}</p>
-                          {task.dueDate && (
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(task.dueDate).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                        {task.priority && (
-                          <div
-                            className={`h-2 w-2 rounded-full ${priorityColors[task.priority]}`}
-                          />
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                      ))}
+                    </div>
+                  </SortableContext>
                 </div>
               )}
 
@@ -105,20 +127,23 @@ export default function TasksPage() {
                   <h2 className="text-sm font-medium text-muted-foreground">
                     {t('filters.completed')} ({completedTasks.length})
                   </h2>
-                  {completedTasks.slice(0, 5).map((task) => (
-                    <Card key={task.id} className="opacity-60">
-                      <CardContent className="flex items-center gap-3 p-3">
-                        <Checkbox
-                          checked={true}
-                          onCheckedChange={() => handleToggle(task.id, task.status)}
+                  <SortableContext
+                    items={completedTasks.map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {completedTasks.slice(0, 5).map((task) => (
+                        <SortableTaskCard
+                          key={task.id}
+                          task={task}
+                          onToggle={handleToggle}
                         />
-                        <p className="flex-1 line-through">{task.title}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      ))}
+                    </div>
+                  </SortableContext>
                 </div>
               )}
-            </>
+            </DndContext>
           )}
         </TabsContent>
 
@@ -138,6 +163,6 @@ export default function TasksPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   )
 }
