@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/shared/theme-provider'
 import { AppShell } from '@/components/shared/app-shell'
+import { AchievementProvider } from '@/components/achievements'
 import './globals.css'
 
 const geistSans = Geist({
@@ -57,7 +58,9 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <AppShell>{children}</AppShell>
+            <AchievementProvider>
+              <AppShell>{children}</AppShell>
+            </AchievementProvider>
             <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>

@@ -16,11 +16,12 @@ import {
   BarChart3,
   Flame,
   Star,
+  Trophy,
 } from 'lucide-react'
 
 interface NavItem {
   href: string
-  labelKey: 'home' | 'habits' | 'tasks' | 'areas' | 'stats' | 'settings'
+  labelKey: 'home' | 'habits' | 'tasks' | 'areas' | 'stats' | 'achievements' | 'settings'
   icon: React.ReactNode
 }
 
@@ -30,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/tasks', labelKey: 'tasks', icon: <ListTodo className="h-5 w-5" /> },
   { href: '/areas', labelKey: 'areas', icon: <LayoutGrid className="h-5 w-5" /> },
   { href: '/stats', labelKey: 'stats', icon: <BarChart3 className="h-5 w-5" /> },
+  { href: '/achievements', labelKey: 'achievements', icon: <Trophy className="h-5 w-5" /> },
 ]
 
 const BOTTOM_ITEMS: NavItem[] = [
