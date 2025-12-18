@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   DndContext,
@@ -20,16 +21,28 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
 import { PageTransition } from '@/components/ui/motion'
-import { TaskFormDialog, SortableTaskCard, KanbanBoard, CalendarView } from '@/components/tasks'
+import {
+  TaskFormDialog,
+  SortableTaskCard,
+  KanbanBoard,
+  CalendarView,
+  TaskFiltersComponent,
+  filterTasks,
+  DEFAULT_FILTERS,
+} from '@/components/tasks'
+import type { TaskFilters } from '@/components/tasks'
 import { useTasksStore } from '@/stores/tasks'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
   const { tasks, setTaskStatus, reorderTasks } = useTasksStore()
+  const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
 
-  const pendingTasks = tasks.filter((task) => task.status !== 'done')
-  const completedTasks = tasks.filter((task) => task.status === 'done')
+  // Apply filters to tasks
+  const filteredTasks = filterTasks(tasks, filters)
+  const pendingTasks = filteredTasks.filter((task) => task.status !== 'done')
+  const completedTasks = filteredTasks.filter((task) => task.status === 'done')
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -60,7 +73,10 @@ export default function TasksPage() {
       {/* Header */}
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <TaskFormDialog />
+        <div className="flex items-center gap-2">
+          <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} />
+          <TaskFormDialog />
+        </div>
       </header>
 
       {/* View Tabs */}
