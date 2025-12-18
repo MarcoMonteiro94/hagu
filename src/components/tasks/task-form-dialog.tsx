@@ -22,8 +22,10 @@ import {
 } from '@/components/ui/select'
 import { useTasksStore } from '@/stores/tasks'
 import { useOrderedAreas } from '@/stores/areas'
-import type { TaskPriority } from '@/types'
-import { Plus, Flag, Calendar, FolderOpen, Clock } from 'lucide-react'
+import type { TaskPriority, RecurrencePattern } from '@/types'
+import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat } from 'lucide-react'
+
+type RecurrenceType = RecurrencePattern['type'] | 'none'
 
 interface TaskFormDialogProps {
   children?: React.ReactNode
@@ -62,6 +64,9 @@ export function TaskFormDialog({
   const [areaId, setAreaId] = useState(defaultAreaId || '')
   const [projectId, setProjectId] = useState('')
   const [estimatedMinutes, setEstimatedMinutes] = useState('')
+  const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
+  const [recurrenceInterval, setRecurrenceInterval] = useState('1')
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
 
   const resetForm = () => {
     setTitle('')
@@ -71,12 +76,24 @@ export function TaskFormDialog({
     setAreaId(defaultAreaId || '')
     setProjectId('')
     setEstimatedMinutes('')
+    setRecurrenceType('none')
+    setRecurrenceInterval('1')
+    setRecurrenceEndDate('')
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!title.trim()) return
+
+    const recurrence: RecurrencePattern | undefined =
+      recurrenceType !== 'none'
+        ? {
+            type: recurrenceType,
+            interval: parseInt(recurrenceInterval) || 1,
+            endDate: recurrenceEndDate || undefined,
+          }
+        : undefined
 
     addTask({
       title: title.trim(),
@@ -86,6 +103,7 @@ export function TaskFormDialog({
       areaId: areaId || undefined,
       projectId: projectId || undefined,
       estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+      recurrence,
       status: 'pending',
       tags: [],
     })
@@ -252,6 +270,67 @@ export function TaskFormDialog({
                 min={1}
               />
             </div>
+          </div>
+
+          {/* Recurrence */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Repeat className="h-4 w-4" />
+              {t('recurrence')}
+            </Label>
+            <Select
+              value={recurrenceType}
+              onValueChange={(value) => setRecurrenceType(value as RecurrenceType)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('recurrenceNone')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('recurrenceNone')}</SelectItem>
+                <SelectItem value="daily">{t('recurrenceDaily')}</SelectItem>
+                <SelectItem value="weekly">{t('recurrenceWeekly')}</SelectItem>
+                <SelectItem value="monthly">{t('recurrenceMonthly')}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {recurrenceType !== 'none' && (
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    {t('recurrenceInterval')}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={recurrenceInterval}
+                      onChange={(e) => setRecurrenceInterval(e.target.value)}
+                      className="w-16"
+                      min={1}
+                      max={99}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {recurrenceType === 'daily' &&
+                        t('recurrenceIntervalDays', { count: parseInt(recurrenceInterval) || 1 })}
+                      {recurrenceType === 'weekly' &&
+                        t('recurrenceIntervalWeeks', { count: parseInt(recurrenceInterval) || 1 })}
+                      {recurrenceType === 'monthly' &&
+                        t('recurrenceIntervalMonths', { count: parseInt(recurrenceInterval) || 1 })}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    {t('recurrenceEndDate')}
+                  </Label>
+                  <Input
+                    type="date"
+                    value={recurrenceEndDate}
+                    onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                    min={dueDate || getTodayString()}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

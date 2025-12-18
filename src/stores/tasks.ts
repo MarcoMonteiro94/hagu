@@ -1,7 +1,31 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
-import type { Task, TaskStatus, Project } from '@/types'
+import type { Task, TaskStatus, Project, RecurrencePattern } from '@/types'
+
+function calculateNextDueDate(
+  currentDueDate: string,
+  recurrence: RecurrencePattern
+): string {
+  const date = new Date(currentDueDate)
+
+  switch (recurrence.type) {
+    case 'daily':
+      date.setDate(date.getDate() + recurrence.interval)
+      break
+    case 'weekly':
+      date.setDate(date.getDate() + recurrence.interval * 7)
+      break
+    case 'monthly':
+      date.setMonth(date.getMonth() + recurrence.interval)
+      break
+    case 'yearly':
+      date.setFullYear(date.getFullYear() + recurrence.interval)
+      break
+  }
+
+  return date.toISOString().split('T')[0]
+}
 
 interface TasksState {
   tasks: Task[]
@@ -73,17 +97,47 @@ export const useTasksStore = create<TasksState>()(
       },
 
       setTaskStatus: (id, status) => {
-        set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id
+        const task = get().tasks.find((t) => t.id === id)
+
+        set((state) => {
+          const updatedTasks = state.tasks.map((t) =>
+            t.id === id
               ? {
-                  ...task,
+                  ...t,
                   status,
                   completedAt: status === 'done' ? new Date().toISOString() : undefined,
                 }
-              : task
-          ),
-        }))
+              : t
+          )
+
+          // Generate next recurring task when completing a recurring task
+          if (status === 'done' && task?.recurrence && task.dueDate) {
+            const nextDueDate = calculateNextDueDate(task.dueDate, task.recurrence)
+
+            // Check if we should create the next occurrence
+            const shouldCreate =
+              !task.recurrence.endDate || nextDueDate <= task.recurrence.endDate
+
+            if (shouldCreate) {
+              const newTask: Task = {
+                ...task,
+                id: generateId(),
+                status: 'pending',
+                dueDate: nextDueDate,
+                completedAt: undefined,
+                createdAt: new Date().toISOString(),
+                subtasks: task.subtasks.map((st) => ({
+                  ...st,
+                  id: generateId(),
+                  done: false,
+                })),
+              }
+              updatedTasks.push(newTask)
+            }
+          }
+
+          return { tasks: updatedTasks }
+        })
       },
 
       toggleSubtask: (taskId, subtaskId) => {

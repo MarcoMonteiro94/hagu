@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { GripVertical, Calendar, Clock } from 'lucide-react'
+import { GripVertical, Calendar, Clock, Repeat } from 'lucide-react'
 import type { Task } from '@/types'
 
 interface SortableTaskCardProps {
@@ -92,6 +92,12 @@ export function SortableTaskCard({ task, onToggle }: SortableTaskCardProps) {
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {task.estimatedMinutes}min
+                </span>
+              )}
+
+              {task.recurrence && (
+                <span className="flex items-center gap-1 text-primary">
+                  <Repeat className="h-3 w-3" />
                 </span>
               )}
 

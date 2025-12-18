@@ -33,6 +33,7 @@ import {
   Calendar,
   Flag,
   Plus,
+  Repeat,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TaskFormDialog } from './task-form-dialog'
@@ -137,6 +138,13 @@ function KanbanTaskCard({ task, isDragging }: KanbanTaskCardProps) {
               <span>
                 {subtasksDone}/{task.subtasks.length}
               </span>
+            </div>
+          )}
+
+          {/* Recurrence indicator */}
+          {task.recurrence && (
+            <div className="flex items-center gap-1 text-primary">
+              <Repeat className="h-3 w-3" />
             </div>
           )}
         </div>
