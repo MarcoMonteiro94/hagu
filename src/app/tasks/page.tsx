@@ -20,7 +20,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
 import { PageTransition } from '@/components/ui/motion'
-import { TaskFormDialog, SortableTaskCard } from '@/components/tasks'
+import { TaskFormDialog, SortableTaskCard, KanbanBoard } from '@/components/tasks'
 import { useTasksStore } from '@/stores/tasks'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
 
@@ -148,11 +148,7 @@ export default function TasksPage() {
         </TabsContent>
 
         <TabsContent value="kanban" className="mt-4">
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              Kanban view coming soon...
-            </CardContent>
-          </Card>
+          <KanbanBoard />
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-4">
