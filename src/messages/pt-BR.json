@@ -234,5 +234,46 @@
     "thu": "Qui",
     "fri": "Sex",
     "sat": "Sáb"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bem-vindo ao Hagu!",
+      "subtitle": "Seu companheiro para construir hábitos e alcançar seus objetivos",
+      "start": "Começar"
+    },
+    "name": {
+      "title": "Como podemos te chamar?",
+      "subtitle": "Personalize sua experiência",
+      "placeholder": "Seu nome"
+    },
+    "theme": {
+      "title": "Escolha seu tema",
+      "subtitle": "Você pode mudar isso depois nas configurações",
+      "dark": "Escuro",
+      "light": "Claro",
+      "system": "Sistema"
+    },
+    "language": {
+      "title": "Idioma preferido",
+      "subtitle": "Em qual idioma você prefere usar o app?"
+    },
+    "habits": {
+      "title": "Comece com alguns hábitos",
+      "subtitle": "Selecione hábitos para adicionar ou pule esta etapa",
+      "drinkWater": "Beber água",
+      "exercise": "Exercitar",
+      "read": "Ler",
+      "meditate": "Meditar",
+      "sleep": "Dormir bem"
+    },
+    "done": {
+      "title": "Tudo pronto!",
+      "subtitle": "Sua jornada de crescimento começa agora",
+      "subtitleWithName": "{name}, sua jornada de crescimento começa agora!",
+      "start": "Vamos lá!"
+    },
+    "back": "Voltar",
+    "continue": "Continuar",
+    "skip": "Pular"
   }
 }

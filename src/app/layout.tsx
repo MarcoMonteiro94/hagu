@@ -4,8 +4,7 @@ import { getLocale, getMessages } from 'next-intl/server'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/shared/theme-provider'
-import { BottomNav } from '@/components/shared/bottom-nav'
-import { Sidebar } from '@/components/shared/sidebar'
+import { AppShell } from '@/components/shared/app-shell'
 import './globals.css'
 
 const geistSans = Geist({
@@ -58,20 +57,7 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <div className="relative min-h-screen">
-              {/* Desktop Sidebar */}
-              <Sidebar />
-
-              {/* Main Content */}
-              <main className="min-h-screen pb-20 lg:pb-0 lg:pl-64">
-                <div className="mx-auto max-w-6xl">
-                  {children}
-                </div>
-              </main>
-
-              {/* Mobile Bottom Nav */}
-              <BottomNav />
-            </div>
+            <AppShell>{children}</AppShell>
             <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>

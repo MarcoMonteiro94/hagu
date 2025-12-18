@@ -10,6 +10,7 @@ interface HabitsState {
   deleteHabit: (id: string) => void
   archiveHabit: (id: string) => void
   toggleCompletion: (habitId: string, date: string, value?: number) => void
+  reorderHabits: (activeId: string, overId: string) => void
   getHabitById: (id: string) => Habit | undefined
   getHabitsByArea: (areaId: string) => Habit[]
   getActiveHabits: () => Habit[]
@@ -93,6 +94,21 @@ export const useHabitsStore = create<HabitsState>()(
             }
           }),
         }))
+      },
+
+      reorderHabits: (activeId, overId) => {
+        set((state) => {
+          const oldIndex = state.habits.findIndex((h) => h.id === activeId)
+          const newIndex = state.habits.findIndex((h) => h.id === overId)
+
+          if (oldIndex === -1 || newIndex === -1) return state
+
+          const newHabits = [...state.habits]
+          const [movedHabit] = newHabits.splice(oldIndex, 1)
+          newHabits.splice(newIndex, 0, movedHabit)
+
+          return { habits: newHabits }
+        })
       },
 
       getHabitById: (id) => {

@@ -234,5 +234,46 @@
     "thu": "Thu",
     "fri": "Fri",
     "sat": "Sat"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Hagu!",
+      "subtitle": "Your companion for building habits and achieving your goals",
+      "start": "Get Started"
+    },
+    "name": {
+      "title": "What should we call you?",
+      "subtitle": "Personalize your experience",
+      "placeholder": "Your name"
+    },
+    "theme": {
+      "title": "Choose your theme",
+      "subtitle": "You can change this later in settings",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    },
+    "language": {
+      "title": "Preferred language",
+      "subtitle": "Which language do you prefer?"
+    },
+    "habits": {
+      "title": "Start with some habits",
+      "subtitle": "Select habits to add or skip this step",
+      "drinkWater": "Drink water",
+      "exercise": "Exercise",
+      "read": "Read",
+      "meditate": "Meditate",
+      "sleep": "Sleep well"
+    },
+    "done": {
+      "title": "You're all set!",
+      "subtitle": "Your growth journey starts now",
+      "subtitleWithName": "{name}, your growth journey starts now!",
+      "start": "Let's go!"
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "skip": "Skip"
   }
 }

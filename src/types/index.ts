@@ -129,6 +129,8 @@ export interface UserSettings {
   locale: Locale
   weekStartsOn: 0 | 1 // 0 = Sunday, 1 = Monday
   notificationsEnabled: boolean
+  onboardingCompleted: boolean
+  userName?: string
 }
 
 // App Data for Export/Import

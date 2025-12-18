@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
+import { PageTransition, StaggerContainer, StaggerItem, motion } from '@/components/ui/motion'
 import { useActiveHabits, useHabitsStore } from '@/stores/habits'
 import { useTodayTasks, useTasksStore } from '@/stores/tasks'
 import { useGamificationStore } from '@/stores/gamification'
@@ -96,15 +97,34 @@ export default function HomePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
+    <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold capitalize">{formatDate(displayLocale)}</h1>
-        <p className="text-muted-foreground">{t('greeting')}</p>
+        <motion.h1
+          className="text-2xl font-bold capitalize"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {formatDate(displayLocale)}
+        </motion.h1>
+        <motion.p
+          className="text-muted-foreground"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+        >
+          {t('greeting')}
+        </motion.p>
       </header>
 
       {/* Quick Stats */}
-      <div className="flex items-center gap-4">
+      <motion.div
+        className="flex items-center gap-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.3 }}
+      >
         <div className="flex items-center gap-2">
           <Flame className="h-5 w-5 text-orange-500" />
           <span className="text-sm font-medium">
@@ -115,7 +135,7 @@ export default function HomePage() {
           <Star className="h-5 w-5 text-yellow-500" />
           <span className="text-sm font-medium">{t('level', { level: displayLevel })}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Content Grid - 2 columns on desktop */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -275,11 +295,22 @@ export default function HomePage() {
       {todayHabits.length > 0 &&
         completedHabits.length === todayHabits.length &&
         tasks.length === 0 && (
-          <div className="rounded-lg bg-green-500/10 p-4 text-center">
-            <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-green-500" />
+          <motion.div
+            className="rounded-lg bg-green-500/10 p-4 text-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', duration: 0.5 }}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+            >
+              <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-green-500" />
+            </motion.div>
             <p className="font-medium text-green-500">{t('allDone')}</p>
-          </div>
+          </motion.div>
         )}
-    </div>
+    </PageTransition>
   )
 }
