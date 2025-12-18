@@ -21,6 +21,11 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useSettingsStore } from '@/stores/settings'
 import { downloadData, importData, clearAllData } from '@/lib/data'
+import {
+  requestNotificationPermission,
+  getNotificationPermission,
+  isNotificationSupported,
+} from '@/lib/notifications'
 import { Moon, Sun, Monitor, Globe, Bell, Download, Upload, Trash2, Loader2 } from 'lucide-react'
 
 export default function SettingsPage() {
@@ -83,6 +88,28 @@ export default function SettingsPage() {
     clearAllData()
     toast.success('Todos os dados foram excluídos! Recarregando...')
     setTimeout(() => window.location.reload(), 1500)
+  }
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (enabled) {
+      if (!isNotificationSupported()) {
+        toast.error('Notificações não são suportadas neste navegador')
+        return
+      }
+
+      const permission = await requestNotificationPermission()
+      if (permission === 'granted') {
+        setNotificationsEnabled(true)
+        toast.success('Notificações ativadas!')
+      } else if (permission === 'denied') {
+        toast.error('Permissão de notificações negada. Verifique as configurações do navegador.')
+      } else {
+        toast.info('Permissão de notificações não concedida')
+      }
+    } else {
+      setNotificationsEnabled(false)
+      toast.success('Notificações desativadas')
+    }
   }
 
   return (
@@ -165,7 +192,7 @@ export default function SettingsPage() {
             <Switch
               id="notifications"
               checked={notificationsEnabled}
-              onCheckedChange={setNotificationsEnabled}
+              onCheckedChange={handleNotificationToggle}
             />
           </div>
         </CardContent>
