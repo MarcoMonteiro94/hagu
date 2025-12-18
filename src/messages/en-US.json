@@ -19,7 +19,8 @@
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
     "thisWeek": "This week",
-    "thisMonth": "This month"
+    "thisMonth": "This month",
+    "completed": "Completed"
   },
   "nav": {
     "home": "Home",
@@ -110,7 +111,9 @@
     "addNew": "New area",
     "editArea": "Edit area",
     "deleteArea": "Delete area",
+    "deleteConfirmation": "Are you sure you want to delete this area? Associated habits and tasks will not be deleted.",
     "areaName": "Area name",
+    "areaNotFound": "Area not found",
     "health": "Health",
     "studies": "Studies",
     "finances": "Finances",
@@ -119,7 +122,14 @@
     "tasks": "Tasks",
     "metrics": "Metrics",
     "goals": "Goals",
-    "noAreas": "You don't have any custom areas yet"
+    "noAreas": "You don't have any custom areas yet",
+    "noHabits": "No habits in this area",
+    "noTasks": "No tasks in this area",
+    "createFirst": "Create first",
+    "todayProgress": "Today",
+    "weeklyRate": "Weekly rate",
+    "last7Days": "7 days",
+    "more": "more"
   },
   "health": {
     "title": "Health",

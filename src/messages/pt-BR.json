@@ -19,7 +19,8 @@
     "yesterday": "Ontem",
     "tomorrow": "Amanhã",
     "thisWeek": "Esta semana",
-    "thisMonth": "Este mês"
+    "thisMonth": "Este mês",
+    "completed": "Concluídos"
   },
   "nav": {
     "home": "Início",
@@ -110,7 +111,9 @@
     "addNew": "Nova área",
     "editArea": "Editar área",
     "deleteArea": "Excluir área",
+    "deleteConfirmation": "Tem certeza que deseja excluir esta área? Os hábitos e tarefas associados não serão excluídos.",
     "areaName": "Nome da área",
+    "areaNotFound": "Área não encontrada",
     "health": "Saúde",
     "studies": "Estudos",
     "finances": "Finanças",
@@ -119,7 +122,14 @@
     "tasks": "Tarefas",
     "metrics": "Métricas",
     "goals": "Metas",
-    "noAreas": "Você ainda não tem áreas personalizadas"
+    "noAreas": "Você ainda não tem áreas personalizadas",
+    "noHabits": "Nenhum hábito nesta área",
+    "noTasks": "Nenhuma tarefa nesta área",
+    "createFirst": "Criar primeiro",
+    "todayProgress": "Hoje",
+    "weeklyRate": "Taxa semanal",
+    "last7Days": "7 dias",
+    "more": "mais"
   },
   "health": {
     "title": "Saúde",

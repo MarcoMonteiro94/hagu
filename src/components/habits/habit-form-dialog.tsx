@@ -58,10 +58,11 @@ function getInitialUnit(habit?: Habit): string {
 interface HabitFormDialogProps {
   children?: React.ReactNode
   habit?: Habit // If provided, edit mode
+  defaultAreaId?: string // Pre-select area when creating
   onClose?: () => void
 }
 
-export function HabitFormDialog({ children, habit, onClose }: HabitFormDialogProps) {
+export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAreaId, onClose }: HabitFormDialogProps) {
   const t = useTranslations('habits')
   const tDays = useTranslations('days')
   const tCommon = useTranslations('common')
@@ -71,7 +72,7 @@ export function HabitFormDialog({ children, habit, onClose }: HabitFormDialogPro
   const areas = useOrderedAreas()
 
   const isEditing = !!habit
-  const defaultAreaId = areas[0]?.id || 'health'
+  const defaultAreaId = propDefaultAreaId || areas[0]?.id || 'health'
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState(habit?.title || '')
