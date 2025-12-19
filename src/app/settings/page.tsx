@@ -26,10 +26,12 @@ import {
   getNotificationPermission,
   isNotificationSupported,
 } from '@/lib/notifications'
-import { Moon, Sun, Monitor, Globe, Bell, Download, Upload, Trash2, Loader2 } from 'lucide-react'
+import { Moon, Sun, Monitor, Globe, Bell, Download, Upload, Trash2, Loader2, LogOut, User } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function SettingsPage() {
   const t = useTranslations('settings')
+  const { user, signOut } = useAuth()
   const {
     theme,
     locale,
@@ -283,6 +285,33 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
       </div>
+
+      {/* Account */}
+      {user && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <User className="h-5 w-5" />
+              {t('account')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Email</span>
+              <span className="truncate max-w-[200px]">{user.email}</span>
+            </div>
+            <Separator />
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={signOut}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              {t('logout')}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* About */}
       <Card>

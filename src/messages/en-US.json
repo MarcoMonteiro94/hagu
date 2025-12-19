@@ -382,7 +382,9 @@
     "importData": "Import data",
     "deleteAllData": "Delete all data",
     "about": "About",
-    "version": "Version"
+    "version": "Version",
+    "account": "Account",
+    "logout": "Log out"
   },
   "days": {
     "sunday": "Sunday",

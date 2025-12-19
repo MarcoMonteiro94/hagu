@@ -382,7 +382,9 @@
     "importData": "Importar dados",
     "deleteAllData": "Excluir todos os dados",
     "about": "Sobre",
-    "version": "Versão"
+    "version": "Versão",
+    "account": "Conta",
+    "logout": "Sair"
   },
   "days": {
     "sunday": "Domingo",
