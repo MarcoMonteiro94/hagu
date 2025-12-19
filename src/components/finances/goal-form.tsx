@@ -13,7 +13,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useCreateGoal } from '@/hooks/queries/use-finances'
 import { Plus, Target } from 'lucide-react'
 
 const GOAL_COLORS = [
@@ -34,7 +35,9 @@ interface GoalFormProps {
 
 export function GoalForm({ trigger, onSuccess }: GoalFormProps) {
   const t = useTranslations()
-  const { addGoal, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const createGoalMutation = useCreateGoal()
+  const currency = settings?.currency ?? 'BRL'
 
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
@@ -51,24 +54,28 @@ export function GoalForm({ trigger, onSuccess }: GoalFormProps) {
     setColor(GOAL_COLORS[0])
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
     const numericAmount = parseFloat(targetAmount.replace(',', '.'))
     if (isNaN(numericAmount) || numericAmount <= 0) return
     if (!name.trim()) return
 
-    addGoal({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      targetAmount: numericAmount,
-      deadline: deadline || undefined,
-      color,
-    })
+    try {
+      await createGoalMutation.mutateAsync({
+        name: name.trim(),
+        description: description.trim() || undefined,
+        targetAmount: numericAmount,
+        deadline: deadline || undefined,
+        color,
+      })
 
-    resetForm()
-    setOpen(false)
-    onSuccess?.()
+      resetForm()
+      setOpen(false)
+      onSuccess?.()
+    } catch (error) {
+      console.error('Failed to create goal:', error)
+    }
   }
 
   return (
@@ -165,8 +172,8 @@ export function GoalForm({ trigger, onSuccess }: GoalFormProps) {
           </div>
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full">
-            {t('finances.goals.create')}
+          <Button type="submit" className="w-full" disabled={createGoalMutation.isPending}>
+            {createGoalMutation.isPending ? t('common.saving') : t('finances.goals.create')}
           </Button>
         </form>
       </DialogContent>

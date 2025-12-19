@@ -18,7 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useAddGoalContribution, useDeleteGoal } from '@/hooks/queries/use-finances'
 import { formatCurrency, formatPercentage } from '@/lib/finances'
 import type { FinancialGoal } from '@/types/finances'
 import {
@@ -38,7 +39,10 @@ interface GoalCardProps {
 
 export function GoalCard({ goal }: GoalCardProps) {
   const t = useTranslations()
-  const { addGoalContribution, deleteGoal, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const addContributionMutation = useAddGoalContribution()
+  const deleteGoalMutation = useDeleteGoal()
+  const currency = settings?.currency ?? 'BRL'
 
   const [showContribution, setShowContribution] = useState(false)
   const [contributionAmount, setContributionAmount] = useState('')
@@ -47,13 +51,20 @@ export function GoalCard({ goal }: GoalCardProps) {
   const remaining = goal.targetAmount - goal.currentAmount
   const isCompleted = goal.completedAt !== undefined
 
-  function handleAddContribution() {
+  async function handleAddContribution() {
     const amount = parseFloat(contributionAmount.replace(',', '.'))
     if (isNaN(amount) || amount <= 0) return
 
-    addGoalContribution(goal.id, amount)
-    setContributionAmount('')
-    setShowContribution(false)
+    try {
+      await addContributionMutation.mutateAsync({
+        goalId: goal.id,
+        amount,
+      })
+      setContributionAmount('')
+      setShowContribution(false)
+    } catch (error) {
+      console.error('Failed to add contribution:', error)
+    }
   }
 
   function formatDeadline(deadline: string): string {
@@ -164,7 +175,7 @@ export function GoalCard({ goal }: GoalCardProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     className="text-destructive"
-                    onClick={() => deleteGoal(goal.id)}
+                    onClick={() => deleteGoalMutation.mutate(goal.id)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     {t('common.delete')}
@@ -203,8 +214,14 @@ export function GoalCard({ goal }: GoalCardProps) {
                 autoFocus
               />
             </div>
-            <Button onClick={handleAddContribution} className="w-full">
-              {t('finances.goals.contribute')}
+            <Button
+              onClick={handleAddContribution}
+              className="w-full"
+              disabled={addContributionMutation.isPending}
+            >
+              {addContributionMutation.isPending
+                ? t('common.saving')
+                : t('finances.goals.contribute')}
             </Button>
           </div>
         </DialogContent>

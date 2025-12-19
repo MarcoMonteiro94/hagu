@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useDeleteTransaction } from '@/hooks/queries/use-finances'
 import { getCategoryById } from '@/config/finance-categories'
 import { formatCurrency } from '@/lib/finances'
 import { TransactionForm } from './transaction-form'
@@ -33,8 +34,11 @@ interface TransactionCardProps {
 
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const t = useTranslations()
-  const { deleteTransaction, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const deleteTransactionMutation = useDeleteTransaction()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+
+  const currency = settings?.currency ?? 'BRL'
   const category = getCategoryById(transaction.categoryId)
 
   const isExpense = transaction.type === 'expense'
@@ -116,7 +120,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
-              onClick={() => deleteTransaction(transaction.id)}
+              onClick={() => deleteTransactionMutation.mutate(transaction.id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               {t('common.delete')}

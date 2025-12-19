@@ -3,7 +3,8 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useTransactions } from '@/hooks/queries/use-finances'
 import {
   formatCurrency,
   getLastNMonths,
@@ -26,7 +27,9 @@ interface MonthlyChartProps {
 
 export function MonthlyChart({ months = 6 }: MonthlyChartProps) {
   const t = useTranslations()
-  const { transactions, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const { data: transactions = [] } = useTransactions()
+  const currency = settings?.currency ?? 'BRL'
 
   const chartData = useMemo(() => {
     const lastMonths = getLastNMonths(months)

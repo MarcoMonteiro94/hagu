@@ -21,7 +21,7 @@ import {
   GoalsSection,
   InvestmentCalculator,
 } from '@/components/finances'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings, useUpdateSettings } from '@/hooks/queries/use-settings'
 import { getCurrentMonth, getLastNMonths, getMonthName } from '@/lib/finances'
 import type { CurrencyCode } from '@/types/finances'
 import { CURRENCIES } from '@/types/finances'
@@ -38,14 +38,15 @@ import {
 export default function FinancesPage() {
   const t = useTranslations()
   const [mounted, setMounted] = useState(false)
-  const { currency, setCurrency, processRecurringTransactions } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const updateSettingsMutation = useUpdateSettings()
+  const currency = settings?.currency ?? 'BRL'
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
   const [activeTab, setActiveTab] = useState('transactions')
 
   useEffect(() => {
     setMounted(true)
-    processRecurringTransactions()
-  }, [processRecurringTransactions])
+  }, [])
 
   const months = getLastNMonths(12)
 
@@ -81,7 +82,9 @@ export default function FinancesPage() {
           {/* Currency Selector */}
           <Select
             value={currency}
-            onValueChange={(v) => setCurrency(v as CurrencyCode)}
+            onValueChange={(v) =>
+              updateSettingsMutation.mutate({ currency: v as CurrencyCode })
+            }
           >
             <SelectTrigger className="w-[100px]">
               <SelectValue />

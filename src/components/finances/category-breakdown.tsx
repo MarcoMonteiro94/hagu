@@ -4,7 +4,8 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useTransactionsByMonth } from '@/hooks/queries/use-finances'
 import { getCategoryById } from '@/config/finance-categories'
 import { formatCurrency, getCurrentMonth, formatPercentage } from '@/lib/finances'
 import type { TransactionType } from '@/types/finances'
@@ -29,9 +30,25 @@ export function CategoryBreakdown({
   showChart = true,
 }: CategoryBreakdownProps) {
   const t = useTranslations()
-  const { getCategorySummaries, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const currency = settings?.currency ?? 'BRL'
+  const { data: transactions = [] } = useTransactionsByMonth(month)
 
-  const summaries = getCategorySummaries(month, type)
+  // Compute category summaries from transactions
+  const summaries = useMemo(() => {
+    const filtered = transactions.filter((t) => t.type === type)
+    const byCategory: Record<string, number> = {}
+    filtered.forEach((t) => {
+      byCategory[t.categoryId] = (byCategory[t.categoryId] || 0) + t.amount
+    })
+    const total = filtered.reduce((sum, t) => sum + t.amount, 0)
+    return Object.entries(byCategory).map(([categoryId, categoryTotal]) => ({
+      categoryId,
+      total: categoryTotal,
+      percentage: total > 0 ? (categoryTotal / total) * 100 : 0,
+      count: filtered.filter((t) => t.categoryId === categoryId).length,
+    }))
+  }, [transactions, type])
 
   const chartData = useMemo(() => {
     return summaries

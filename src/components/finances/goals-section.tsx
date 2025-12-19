@@ -4,12 +4,12 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GoalForm } from './goal-form'
 import { GoalCard } from './goal-card'
-import { useFinancesStore } from '@/stores/finances'
-import { Target } from 'lucide-react'
+import { useFinancialGoals } from '@/hooks/queries/use-finances'
+import { Target, Loader2 } from 'lucide-react'
 
 export function GoalsSection() {
   const t = useTranslations()
-  const { goals } = useFinancesStore()
+  const { data: goals = [], isLoading } = useFinancialGoals()
 
   // Sort: incomplete first, then by creation date
   const sortedGoals = [...goals].sort((a, b) => {
@@ -31,7 +31,11 @@ export function GoalsSection() {
         <GoalForm />
       </CardHeader>
       <CardContent className="space-y-3">
-        {goals.length === 0 ? (
+        {isLoading ? (
+          <div className="py-8 text-center">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : goals.length === 0 ? (
           <div className="py-8 text-center">
             <Target className="mx-auto h-12 w-12 text-muted-foreground/50" />
             <p className="mt-4 text-muted-foreground">

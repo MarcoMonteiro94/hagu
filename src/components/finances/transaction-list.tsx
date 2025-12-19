@@ -11,11 +11,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { TransactionCard } from './transaction-card'
-import { useFinancesStore } from '@/stores/finances'
-import { sortTransactionsByDate, filterTransactionsByMonth } from '@/lib/finances'
+import { useTransactions, useTransactionsByMonth } from '@/hooks/queries/use-finances'
+import { sortTransactionsByDate } from '@/lib/finances'
 import type { Transaction, TransactionType } from '@/types/finances'
 import { getCategoriesByType, ALL_CATEGORIES } from '@/config/finance-categories'
-import { ListFilter, Calendar } from 'lucide-react'
+import { ListFilter, Calendar, Loader2 } from 'lucide-react'
 
 interface TransactionListProps {
   month?: string // YYYY-MM format
@@ -31,18 +31,20 @@ export function TransactionList({
   showFilters = true,
 }: TransactionListProps) {
   const t = useTranslations()
-  const { transactions } = useFinancesStore()
+
+  // Use month-specific query if month is provided, otherwise get all
+  const allTransactionsQuery = useTransactions()
+  const monthTransactionsQuery = useTransactionsByMonth(month ?? '')
+
+  const { data: transactions = [], isLoading } = month
+    ? monthTransactionsQuery
+    : allTransactionsQuery
 
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
 
   const filteredTransactions = useMemo(() => {
-    let result = transactions
-
-    // Filter by month if provided
-    if (month) {
-      result = filterTransactionsByMonth(result, month)
-    }
+    let result = [...transactions]
 
     // Filter by type
     if (filterType !== 'all') {
@@ -63,7 +65,7 @@ export function TransactionList({
     }
 
     return result
-  }, [transactions, month, filterType, filterCategory, limit])
+  }, [transactions, filterType, filterCategory, limit])
 
   // Get categories for filter based on selected type
   const availableCategories = useMemo(() => {
@@ -155,7 +157,11 @@ export function TransactionList({
       )}
 
       {/* Transaction Groups */}
-      {groupedTransactions.length === 0 ? (
+      {isLoading ? (
+        <div className="py-12 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : groupedTransactions.length === 0 ? (
         <div className="py-12 text-center">
           <Calendar className="mx-auto h-12 w-12 text-muted-foreground/50" />
           <p className="mt-4 text-muted-foreground">

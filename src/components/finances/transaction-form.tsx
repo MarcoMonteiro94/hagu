@@ -22,11 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useCreateTransaction, useUpdateTransaction } from '@/hooks/queries/use-finances'
 import { getCategoriesByType, PAYMENT_METHODS } from '@/config/finance-categories'
-import { formatCurrency, getTodayString } from '@/lib/finances'
+import { getTodayString } from '@/lib/finances'
 import type { Transaction, TransactionType, RecurrenceFrequency } from '@/types/finances'
-import { Plus, ArrowDownCircle, ArrowUpCircle, Pencil } from 'lucide-react'
+import { Plus, ArrowDownCircle, ArrowUpCircle } from 'lucide-react'
 
 interface TransactionFormProps {
   trigger?: React.ReactNode
@@ -57,8 +58,11 @@ export function TransactionForm({
   onOpenChange,
 }: TransactionFormProps) {
   const t = useTranslations()
-  const { addTransaction, updateTransaction, currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const createTransaction = useCreateTransaction()
+  const updateTransactionMutation = useUpdateTransaction()
 
+  const currency = settings?.currency ?? 'BRL'
   const isEditMode = !!transaction
   const [internalOpen, setInternalOpen] = useState(false)
 
@@ -110,47 +114,47 @@ export function TransactionForm({
     setCategoryId('') // Reset category when type changes
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
     const numericAmount = parseFloat(amount.replace(',', '.'))
     if (isNaN(numericAmount) || numericAmount <= 0) return
     if (!categoryId) return
 
-    if (isEditMode && transaction) {
-      // Update existing transaction
-      updateTransaction(transaction.id, {
-        type,
-        amount: numericAmount,
-        categoryId,
-        description,
-        date,
-        paymentMethod: paymentMethod || undefined,
-        isRecurring,
-        recurrence: isRecurring
-          ? { frequency: recurrenceFrequency }
-          : undefined,
-      })
-    } else {
-      // Add new transaction
-      addTransaction({
-        type,
-        amount: numericAmount,
-        categoryId,
-        description,
-        date,
-        paymentMethod: paymentMethod || undefined,
-        isRecurring,
-        recurrence: isRecurring
-          ? { frequency: recurrenceFrequency }
-          : undefined,
-      })
+    const transactionData = {
+      type,
+      amount: numericAmount,
+      categoryId,
+      description,
+      date,
+      paymentMethod: paymentMethod || undefined,
+      isRecurring,
+      recurrence: isRecurring
+        ? { frequency: recurrenceFrequency }
+        : undefined,
     }
 
-    resetForm()
-    setOpen(false)
-    onSuccess?.()
+    try {
+      if (isEditMode && transaction) {
+        // Update existing transaction
+        await updateTransactionMutation.mutateAsync({
+          id: transaction.id,
+          updates: transactionData,
+        })
+      } else {
+        // Add new transaction
+        await createTransaction.mutateAsync(transactionData)
+      }
+
+      resetForm()
+      setOpen(false)
+      onSuccess?.()
+    } catch (error) {
+      console.error('Failed to save transaction:', error)
+    }
   }
+
+  const isSubmitting = createTransaction.isPending || updateTransactionMutation.isPending
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -315,12 +319,14 @@ export function TransactionForm({
           )}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full">
-            {isEditMode
-              ? t('finances.saveChanges')
-              : type === 'expense'
-                ? t('finances.addExpense')
-                : t('finances.addIncome')}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting
+              ? t('common.saving')
+              : isEditMode
+                ? t('finances.saveChanges')
+                : type === 'expense'
+                  ? t('finances.addExpense')
+                  : t('finances.addIncome')}
           </Button>
         </form>
       </DialogContent>

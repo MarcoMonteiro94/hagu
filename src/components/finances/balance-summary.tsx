@@ -2,8 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
-import { useFinancesStore, useCurrentMonthBalance } from '@/stores/finances'
-import { formatCurrency } from '@/lib/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
+import { useMonthlyBalance, useTotalBalance } from '@/hooks/queries/use-finances'
+import { formatCurrency, getCurrentMonth } from '@/lib/finances'
 import { cn } from '@/lib/utils'
 import {
   Wallet,
@@ -15,11 +16,14 @@ import {
 
 export function BalanceSummary() {
   const t = useTranslations()
-  const { currency, getTotalBalance } = useFinancesStore()
-  const monthlyBalance = useCurrentMonthBalance()
-  const totalBalance = getTotalBalance()
+  const { data: settings } = useSettings()
+  const currency = settings?.currency ?? 'BRL'
 
-  const isPositive = monthlyBalance.balance >= 0
+  const currentMonth = getCurrentMonth()
+  const { data: monthlyBalance } = useMonthlyBalance(currentMonth)
+  const { data: totalBalance = 0 } = useTotalBalance()
+
+  const isPositive = (monthlyBalance?.balance ?? 0) >= 0
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -56,7 +60,7 @@ export function BalanceSummary() {
                   isPositive ? 'text-green-500' : 'text-red-500'
                 )}
               >
-                {formatCurrency(monthlyBalance.balance, currency)}
+                {formatCurrency(monthlyBalance?.balance ?? 0, currency)}
               </p>
             </div>
             <div
@@ -84,7 +88,7 @@ export function BalanceSummary() {
                 {t('finances.income')}
               </p>
               <p className="text-2xl font-bold text-green-500">
-                {formatCurrency(monthlyBalance.totalIncome, currency)}
+                {formatCurrency(monthlyBalance?.totalIncome ?? 0, currency)}
               </p>
             </div>
             <div className="rounded-full bg-green-500/10 p-3">
@@ -103,7 +107,7 @@ export function BalanceSummary() {
                 {t('finances.expenses')}
               </p>
               <p className="text-2xl font-bold text-red-500">
-                {formatCurrency(monthlyBalance.totalExpenses, currency)}
+                {formatCurrency(monthlyBalance?.totalExpenses ?? 0, currency)}
               </p>
             </div>
             <div className="rounded-full bg-red-500/10 p-3">
