@@ -80,13 +80,13 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
   const [color, setColor] = useState(habit?.color || COLORS[3])
 
-  // Update areaId when areas load if we don't have a valid one
+  // Update areaId when areas first load if we started with empty value
   useEffect(() => {
-    const currentAreaValid = areas.some((a) => a.id === areaId)
-    if (!currentAreaValid && areas.length > 0) {
+    if (areas.length > 0 && !areaId) {
       setAreaId(areas[0].id)
     }
-  }, [areas, areaId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [areas])
 
   // Frequency state
   const [frequencyType, setFrequencyType] = useState<'daily' | 'weekly' | 'specificDays' | 'monthly'>(getInitialFrequencyType(habit))
