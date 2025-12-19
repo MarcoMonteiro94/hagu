@@ -398,6 +398,41 @@
     "fri": "Sex",
     "sat": "Sáb"
   },
+  "auth": {
+    "login": "Entrar",
+    "signUp": "Criar conta",
+    "signup": "Criar conta",
+    "logout": "Sair",
+    "email": "Email",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPassword": "Redefinir senha",
+    "account": "Minha Conta",
+    "profile": "Perfil",
+    "noAccount": "Ainda não tem conta?",
+    "hasAccount": "Já tem uma conta?",
+    "or": "ou",
+    "orContinueWith": "Ou continue com",
+    "continueWith": "Continuar com",
+    "google": "Google",
+    "github": "GitHub",
+    "welcomeBack": "Bem-vindo de volta!",
+    "loginDescription": "Entre na sua conta",
+    "signUpDescription": "Crie sua conta",
+    "loginSubtitle": "Entre para continuar sua jornada",
+    "signupTitle": "Crie sua conta",
+    "signupSubtitle": "Comece sua jornada de crescimento pessoal",
+    "checkEmail": "Verifique seu email para confirmar sua conta",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+    "errors": {
+      "invalidEmail": "Email inválido",
+      "invalidPassword": "Senha deve ter pelo menos 6 caracteres",
+      "passwordMismatch": "Senhas não coincidem",
+      "generic": "Algo deu errado. Tente novamente."
+    }
+  },
   "onboarding": {
     "welcome": {
       "title": "Bem-vindo ao Hagu!",

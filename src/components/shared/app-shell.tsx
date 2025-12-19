@@ -1,10 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useSettingsStore } from '@/stores/settings'
 import { OnboardingFlow } from '@/components/onboarding'
 import { Sidebar } from './sidebar'
 import { BottomNav } from './bottom-nav'
+
+// Routes that should not show navigation
+const AUTH_ROUTES = ['/login', '/signup', '/auth']
 
 interface AppShellProps {
   children: React.ReactNode
@@ -12,11 +16,19 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
   const onboardingCompleted = useSettingsStore((state) => state.onboardingCompleted)
+
+  const isAuthRoute = AUTH_ROUTES.some((route) => pathname?.startsWith(route))
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Auth pages - render without navigation
+  if (isAuthRoute) {
+    return <>{children}</>
+  }
 
   // Show nothing until mounted to prevent hydration mismatch
   if (!mounted) {

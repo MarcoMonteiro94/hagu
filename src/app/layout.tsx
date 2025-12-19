@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/shared/theme-provider'
 import { AppShell } from '@/components/shared/app-shell'
 import { AchievementProvider } from '@/components/achievements'
 import { NotificationProvider } from '@/components/notifications'
+import { QueryProvider } from '@/providers/query-provider'
 import './globals.css'
 
 const geistSans = Geist({
@@ -57,16 +58,18 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider>
-            <NotificationProvider>
-              <AchievementProvider>
-                <AppShell>{children}</AppShell>
-              </AchievementProvider>
-            </NotificationProvider>
-            <Toaster />
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <QueryProvider>
+          <NextIntlClientProvider messages={messages}>
+            <ThemeProvider>
+              <NotificationProvider>
+                <AchievementProvider>
+                  <AppShell>{children}</AppShell>
+                </AchievementProvider>
+              </NotificationProvider>
+              <Toaster />
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </QueryProvider>
       </body>
     </html>
   )

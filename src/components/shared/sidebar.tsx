@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useGamificationStore } from '@/stores/gamification'
 import { Progress } from '@/components/ui/progress'
+import { UserMenu } from '@/components/auth'
 import {
   Home,
   CheckCircle2,
@@ -115,7 +116,7 @@ export function Sidebar() {
         </nav>
 
         {/* Bottom Navigation */}
-        <div className="border-t p-3">
+        <div className="border-t p-3 space-y-1">
           {BOTTOM_ITEMS.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== '/' && pathname.startsWith(item.href))
@@ -136,6 +137,8 @@ export function Sidebar() {
               </Link>
             )
           })}
+          {/* User Menu */}
+          <UserMenu />
         </div>
       </div>
     </aside>

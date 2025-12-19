@@ -398,6 +398,41 @@
     "fri": "Fri",
     "sat": "Sat"
   },
+  "auth": {
+    "login": "Log in",
+    "signUp": "Sign up",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset password",
+    "account": "My Account",
+    "profile": "Profile",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "or": "or",
+    "orContinueWith": "Or continue with",
+    "continueWith": "Continue with",
+    "google": "Google",
+    "github": "GitHub",
+    "welcomeBack": "Welcome back!",
+    "loginDescription": "Sign in to your account",
+    "signUpDescription": "Create your account",
+    "loginSubtitle": "Sign in to continue your journey",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "Start your personal growth journey",
+    "checkEmail": "Check your email to confirm your account",
+    "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "errors": {
+      "invalidEmail": "Invalid email",
+      "invalidPassword": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords don't match",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
   "onboarding": {
     "welcome": {
       "title": "Welcome to Hagu!",
