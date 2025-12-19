@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 import { createClient } from '@/lib/supabase/client'
 import { userStatsService } from '@/services/gamification.service'
 
@@ -158,8 +159,14 @@ export const usePomodoroStore = create<PomodoroState>()(
           }))
 
           // Award XP for completing a focus session (20 XP)
-          const supabase = createClient()
-          userStatsService.addXp(supabase, 20)
+          if (typeof window !== 'undefined') {
+            try {
+              const supabase = createClient()
+              userStatsService.addXp(supabase, 20)
+            } catch (error) {
+              console.error('Failed to award XP:', error)
+            }
+          }
         }
 
         // Determine next phase
@@ -220,7 +227,7 @@ export const usePomodoroStore = create<PomodoroState>()(
 // Selector hooks
 export function useTodaySessions(): PomodoroSession[] {
   const today = getTodayString()
-  return usePomodoroStore((state) =>
-    state.sessions.filter((s) => s.date === today)
+  return usePomodoroStore(
+    useShallow((state) => state.sessions.filter((s) => s.date === today))
   )
 }

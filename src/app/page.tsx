@@ -19,6 +19,7 @@ import {
 } from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
 import { HabitFormDialog } from '@/components/habits'
+import { TaskFormDialog } from '@/components/tasks'
 import { StreakSparkline } from '@/components/charts'
 import { Flame, Star, CheckCircle2, Plus, ChevronRight } from 'lucide-react'
 
@@ -163,12 +164,19 @@ export default function HomePage() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{tNav('habits')}</CardTitle>
-            <Badge variant="secondary">
-              {t('habitsProgress', {
-                completed: completedHabits.length,
-                total: todayHabits.length,
-              })}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                {t('habitsProgress', {
+                  completed: completedHabits.length,
+                  total: todayHabits.length,
+                })}
+              </Badge>
+              <HabitFormDialog>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </HabitFormDialog>
+            </div>
           </div>
           {todayHabits.length > 0 && (
             <Progress value={habitProgress} className="h-2" />
@@ -176,17 +184,9 @@ export default function HomePage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {todayHabits.length === 0 ? (
-            <div className="py-4 text-center">
-              <p className="mb-3 text-sm text-muted-foreground">
-                {t('noHabitsToday')}
-              </p>
-              <HabitFormDialog>
-                <Button variant="outline" size="sm">
-                  <Plus className="mr-1 h-4 w-4" />
-                  Criar hábito
-                </Button>
-              </HabitFormDialog>
-            </div>
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              {t('noHabitsToday')}
+            </p>
           ) : (
             <>
               {todayHabits.map((habit) => {
@@ -241,9 +241,16 @@ export default function HomePage() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{tNav('tasks')}</CardTitle>
-            <Badge variant="secondary">
-              {t('tasksRemaining', { count: tasks.length })}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                {t('tasksRemaining', { count: tasks.length })}
+              </Badge>
+              <TaskFormDialog>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TaskFormDialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
