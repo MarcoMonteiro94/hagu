@@ -2,9 +2,13 @@
 
 import { useEffect, useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { useGamificationStore } from '@/stores/gamification'
-import { useHabitsStore } from '@/stores/habits'
-import { useTasksStore } from '@/stores/tasks'
+import {
+  useUserStats,
+  useAchievements,
+  useUnlockAchievement,
+} from '@/hooks/queries/use-gamification'
+import { useHabits } from '@/hooks/queries/use-habits'
+import { useTasks } from '@/hooks/queries/use-tasks'
 import { ACHIEVEMENT_DEFINITIONS, getAchievementDefinition } from '@/config/achievements'
 import { showAchievementToast } from './achievement-toast'
 
@@ -16,19 +20,23 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
     level: number
   } | null>(null)
 
-  const {
-    habitsCompleted,
-    tasksCompleted,
-    currentStreak,
-    longestStreak,
-    level,
-    hasAchievement,
-    unlockAchievement,
-    achievements,
-  } = useGamificationStore()
+  const { data: stats } = useUserStats()
+  const { data: achievements = [] } = useAchievements()
+  const unlockAchievementMutation = useUnlockAchievement()
 
-  const habits = useHabitsStore((state) => state.habits)
-  const tasks = useTasksStore((state) => state.tasks)
+  const habitsCompleted = stats?.habitsCompleted ?? 0
+  const tasksCompleted = stats?.tasksCompleted ?? 0
+  const currentStreak = stats?.currentStreak ?? 0
+  const longestStreak = stats?.longestStreak ?? 0
+  const level = stats?.level ?? 1
+
+  const hasAchievement = useCallback(
+    (type: string) => achievements.some((a) => a.type === type),
+    [achievements]
+  )
+
+  const { data: habits = [] } = useHabits()
+  const { data: tasks = [] } = useTasks()
 
   const checkAndUnlock = useCallback(() => {
     const today = new Date().toISOString().split('T')[0]
@@ -96,7 +104,7 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
       }
 
       if (shouldUnlock) {
-        unlockAchievement(def.type)
+        unlockAchievementMutation.mutate({ type: def.type })
         newlyUnlocked.push(def.type)
       }
     }
@@ -123,7 +131,7 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
     longestStreak,
     level,
     hasAchievement,
-    unlockAchievement,
+    unlockAchievementMutation,
     t,
   ])
 

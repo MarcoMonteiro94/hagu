@@ -20,8 +20,12 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { PageTransition, CountUp } from '@/components/ui/motion'
-import { useHabitsStore } from '@/stores/habits'
-import { useGamificationStore } from '@/stores/gamification'
+import { useHabit, useDeleteHabit, useToggleCompletion } from '@/hooks/queries/use-habits'
+import {
+  useHabitStreak,
+  useUpdateGamificationStreak,
+  useIncrementHabitsCompleted,
+} from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
 import { HabitYearHeatmap, HabitFormDialog } from '@/components/habits'
 import {
@@ -56,12 +60,12 @@ export default function HabitDetailPage({ params }: HabitDetailPageProps) {
   const tCommon = useTranslations('common')
   const [mounted, setMounted] = useState(false)
 
-  const habit = useHabitsStore((state) => state.getHabitById(id))
-  const deleteHabit = useHabitsStore((state) => state.deleteHabit)
-  const toggleCompletion = useHabitsStore((state) => state.toggleCompletion)
-  const streak = useGamificationStore((state) => state.getStreakForHabit(id))
-  const updateStreak = useGamificationStore((state) => state.updateStreak)
-  const incrementHabitsCompleted = useGamificationStore((state) => state.incrementHabitsCompleted)
+  const { data: habit, isLoading: isLoadingHabit } = useHabit(id)
+  const deleteHabitMutation = useDeleteHabit()
+  const toggleCompletionMutation = useToggleCompletion()
+  const { data: streak } = useHabitStreak(id)
+  const updateStreakMutation = useUpdateGamificationStreak()
+  const incrementHabitsMutation = useIncrementHabitsCompleted()
   const locale = useSettingsStore((state) => state.locale)
 
   useEffect(() => {
@@ -144,6 +148,14 @@ export default function HabitDetailPage({ params }: HabitDetailPageProps) {
     }
   }, [habit, dayNames])
 
+  if (isLoadingHabit) {
+    return (
+      <PageTransition className="container mx-auto max-w-md p-4 lg:max-w-4xl lg:p-6">
+        <p className="text-center text-muted-foreground">Carregando...</p>
+      </PageTransition>
+    )
+  }
+
   if (!habit || !stats) {
     return (
       <PageTransition className="container mx-auto max-w-md p-4 lg:max-w-4xl lg:p-6">
@@ -157,21 +169,27 @@ export default function HabitDetailPage({ params }: HabitDetailPageProps) {
   }
 
   const handleToggleToday = () => {
+    if (!habit) return
     const today = getTodayString()
-    const wasCompleted = stats.isCompletedToday
+    const wasCompleted = stats?.isCompletedToday
 
-    toggleCompletion(habit.id, today)
+    toggleCompletionMutation.mutate({ habitId: habit.id, date: today })
 
     // Update gamification when completing (not uncompleting)
     if (!wasCompleted) {
-      updateStreak(habit.id, today)
-      incrementHabitsCompleted()
+      updateStreakMutation.mutate({ habitId: habit.id, date: today })
+      incrementHabitsMutation.mutate()
     }
   }
 
-  const handleDelete = () => {
-    deleteHabit(habit.id)
-    router.push('/habits')
+  const handleDelete = async () => {
+    if (!habit) return
+    try {
+      await deleteHabitMutation.mutateAsync(habit.id)
+      router.push('/habits')
+    } catch (error) {
+      console.error('Failed to delete habit:', error)
+    }
   }
 
   const displayStreak = mounted ? (streak?.currentStreak || 0) : 0

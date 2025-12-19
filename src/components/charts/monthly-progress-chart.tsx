@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { useActiveHabits } from '@/stores/habits'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
 import { useSettingsStore } from '@/stores/settings'
 
 function getLast30Days(): { date: string; dayLabel: string }[] {
@@ -36,7 +36,7 @@ export function MonthlyProgressChart({
   showGrid = true,
   gradientColor = 'var(--primary)',
 }: MonthlyProgressChartProps) {
-  const habits = useActiveHabits()
+  const { data: habits = [] } = useActiveHabits()
 
   const data = useMemo(() => {
     const last30Days = getLast30Days()

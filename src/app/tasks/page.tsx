@@ -31,12 +31,15 @@ import {
   DEFAULT_FILTERS,
 } from '@/components/tasks'
 import type { TaskFilters } from '@/components/tasks'
-import { useTasksStore } from '@/stores/tasks'
+import { useTasks, useSetTaskStatus, useReorderTasks } from '@/hooks/queries/use-tasks'
+import { arrayMove } from '@dnd-kit/sortable'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
-  const { tasks, setTaskStatus, reorderTasks } = useTasksStore()
+  const { data: tasks = [] } = useTasks()
+  const setTaskStatusMutation = useSetTaskStatus()
+  const reorderTasksMutation = useReorderTasks()
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
 
   // Apply filters to tasks
@@ -57,14 +60,19 @@ export default function TasksPage() {
 
   const handleToggle = (taskId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
-    setTaskStatus(taskId, newStatus as 'pending' | 'done')
+    setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      reorderTasks(active.id as string, over.id as string)
+      const oldIndex = tasks.findIndex((t) => t.id === active.id)
+      const newIndex = tasks.findIndex((t) => t.id === over.id)
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(tasks, oldIndex, newIndex)
+        reorderTasksMutation.mutate(newOrder.map((t) => t.id))
+      }
     }
   }
 

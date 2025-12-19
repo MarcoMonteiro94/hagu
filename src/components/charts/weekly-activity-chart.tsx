@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
-import { useActiveHabits } from '@/stores/habits'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
 import { useSettingsStore } from '@/stores/settings'
 
 function getLast7Days(): { date: string; dayLabel: string }[] {
@@ -38,7 +38,7 @@ export function WeeklyActivityChart({
   showGrid = true,
   barColor = 'var(--primary)',
 }: WeeklyActivityChartProps) {
-  const habits = useActiveHabits()
+  const { data: habits = [] } = useActiveHabits()
 
   const data = useMemo(() => {
     const last7Days = getLast7Days()

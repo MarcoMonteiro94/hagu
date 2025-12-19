@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { useGamificationStore } from '@/stores/gamification'
+import { useUserStats, useXpProgress } from '@/hooks/queries/use-gamification'
 import { Progress } from '@/components/ui/progress'
 import { UserMenu } from '@/components/auth'
 import {
@@ -45,16 +45,17 @@ export function Sidebar() {
   const pathname = usePathname()
   const t = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
-  const { currentStreak, level, getXpProgress } = useGamificationStore()
+  const { data: stats } = useUserStats()
+  const xpProgress = useXpProgress()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   // Use default values during SSR to prevent hydration mismatch
-  const displayLevel = mounted ? level : 1
-  const displayStreak = mounted ? currentStreak : 0
-  const displayProgress = mounted ? getXpProgress() : 0
+  const displayLevel = mounted ? (stats?.level ?? 1) : 1
+  const displayStreak = mounted ? (stats?.currentStreak ?? 0) : 0
+  const displayProgress = mounted ? xpProgress.percentage : 0
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r bg-card lg:block">

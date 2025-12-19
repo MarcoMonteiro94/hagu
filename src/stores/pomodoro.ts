@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { useGamificationStore } from './gamification'
+import { createClient } from '@/lib/supabase/client'
+import { userStatsService } from '@/services/gamification.service'
 
 export type PomodoroPhase = 'focus' | 'shortBreak' | 'longBreak'
 export type TimerStatus = 'idle' | 'running' | 'paused'
@@ -157,7 +158,8 @@ export const usePomodoroStore = create<PomodoroState>()(
           }))
 
           // Award XP for completing a focus session (20 XP)
-          useGamificationStore.getState().addXp(20)
+          const supabase = createClient()
+          userStatsService.addXp(supabase, 20)
         }
 
         // Determine next phase

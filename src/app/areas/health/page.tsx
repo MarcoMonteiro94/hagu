@@ -22,8 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useAreasStore } from '@/stores/areas'
-import { useActiveHabits } from '@/stores/habits'
+import { useMetricsByArea, useCreateMetric } from '@/hooks/queries/use-areas'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
 import { MetricChart } from '@/components/health/metric-chart'
 import {
   ArrowLeft,
@@ -111,38 +111,50 @@ export default function HealthPage() {
   const t = useTranslations('health')
   const tCommon = useTranslations('common')
 
-  const { addMetric, getMetricsByType } = useAreasStore()
-  const habits = useActiveHabits()
+  const { data: allMetrics = [] } = useMetricsByArea('health')
+  const createMetricMutation = useCreateMetric()
+  const { data: habits = [] } = useActiveHabits()
   const healthHabits = habits.filter((h) => h.areaId === 'health')
+
+  // Helper to filter metrics by type
+  const getMetricsByType = (type: MetricType) => {
+    return allMetrics
+      .filter((m) => m.type === type)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  }
 
   const [isAddingMetric, setIsAddingMetric] = useState(false)
   const [selectedMetricType, setSelectedMetricType] = useState<MetricType>('weight')
   const [metricValue, setMetricValue] = useState('')
   const [metricDate, setMetricDate] = useState(getTodayString())
 
-  const handleAddMetric = () => {
+  const handleAddMetric = async () => {
     if (!metricValue) return
 
-    addMetric({
-      areaId: 'health',
-      type: selectedMetricType,
-      value: parseFloat(metricValue),
-      unit: METRIC_CONFIGS.find((c) => c.type === selectedMetricType)?.unit,
-      date: metricDate,
-    })
+    try {
+      await createMetricMutation.mutateAsync({
+        areaId: 'health',
+        type: selectedMetricType,
+        value: parseFloat(metricValue),
+        unit: METRIC_CONFIGS.find((c) => c.type === selectedMetricType)?.unit,
+        date: metricDate,
+      })
 
-    setMetricValue('')
-    setMetricDate(getTodayString())
-    setIsAddingMetric(false)
+      setMetricValue('')
+      setMetricDate(getTodayString())
+      setIsAddingMetric(false)
+    } catch (error) {
+      console.error('Failed to add metric:', error)
+    }
   }
 
   const getLatestMetric = (type: MetricType) => {
-    const typeMetrics = getMetricsByType('health', type)
+    const typeMetrics = getMetricsByType(type)
     return typeMetrics.length > 0 ? typeMetrics[typeMetrics.length - 1] : null
   }
 
   const getMetricTrend = (type: MetricType) => {
-    const typeMetrics = getMetricsByType('health', type)
+    const typeMetrics = getMetricsByType(type)
     if (typeMetrics.length < 2) return 'neutral'
 
     const latest = typeMetrics[typeMetrics.length - 1]
@@ -272,9 +284,9 @@ export default function HealthPage() {
                 <Button
                   className="flex-1"
                   onClick={handleAddMetric}
-                  disabled={!metricValue}
+                  disabled={!metricValue || createMetricMutation.isPending}
                 >
-                  {tCommon('save')}
+                  {createMetricMutation.isPending ? tCommon('saving') : tCommon('save')}
                 </Button>
               </div>
             </div>
@@ -336,7 +348,7 @@ export default function HealthPage() {
         </TabsList>
 
         {METRIC_CONFIGS.map((config) => {
-          const typeMetrics = getMetricsByType('health', config.type)
+          const typeMetrics = getMetricsByType(config.type)
 
           return (
             <TabsContent key={config.type} value={config.type} className="mt-4">

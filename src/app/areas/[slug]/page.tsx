@@ -21,9 +21,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { AreaFormDialog } from '@/components/areas'
 import { HabitFormDialog } from '@/components/habits'
-import { useAreasStore } from '@/stores/areas'
-import { useActiveHabits, useHabitsStore } from '@/stores/habits'
-import { useTasksStore } from '@/stores/tasks'
+import { useAreaBySlug, useDeleteArea } from '@/hooks/queries/use-areas'
+import { useActiveHabits, useToggleCompletion } from '@/hooks/queries/use-habits'
+import { useTasks, useUpdateTask } from '@/hooks/queries/use-tasks'
 import {
   ArrowLeft,
   Plus,
@@ -97,17 +97,16 @@ export default function AreaDetailPage({
 
   const [mounted, setMounted] = useState(false)
 
-  const { getAreaBySlug, deleteArea } = useAreasStore()
-  const allHabits = useActiveHabits()
-  const { toggleCompletion } = useHabitsStore()
-  const tasks = useTasksStore((state) => state.tasks)
-  const updateTask = useTasksStore((state) => state.updateTask)
+  const { data: area, isLoading: isLoadingArea } = useAreaBySlug(slug)
+  const deleteAreaMutation = useDeleteArea()
+  const { data: allHabits = [] } = useActiveHabits()
+  const toggleCompletionMutation = useToggleCompletion()
+  const { data: tasks = [] } = useTasks()
+  const updateTaskMutation = useUpdateTask()
 
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  const area = getAreaBySlug(slug)
 
   if (!mounted) {
     return (
@@ -160,26 +159,30 @@ export default function AreaDetailPage({
       ? Math.round((totalCompletionsLast7 / possibleCompletionsLast7) * 100)
       : 0
 
-  const handleDeleteArea = () => {
-    deleteArea(area.id)
-    router.push('/areas')
+  const handleDeleteArea = async () => {
+    if (!area) return
+    try {
+      await deleteAreaMutation.mutateAsync(area.id)
+      router.push('/areas')
+    } catch (error) {
+      console.error('Failed to delete area:', error)
+    }
   }
 
   const handleToggleHabit = (habitId: string) => {
-    const habit = areaHabits.find((h) => h.id === habitId)
-    if (!habit) return
-
-    const isCompleted = habit.completions.some((c) => c.date === today)
-    toggleCompletion(habitId, today, isCompleted ? 0 : 1)
+    toggleCompletionMutation.mutate({ habitId, date: today })
   }
 
   const handleToggleTask = (taskId: string) => {
     const task = areaTasks.find((t) => t.id === taskId)
     if (!task) return
 
-    updateTask(taskId, {
-      status: task.status === 'done' ? 'pending' : 'done',
-      completedAt: task.status === 'done' ? undefined : new Date().toISOString(),
+    updateTaskMutation.mutate({
+      id: taskId,
+      updates: {
+        status: task.status === 'done' ? 'pending' : 'done',
+        completedAt: task.status === 'done' ? undefined : new Date().toISOString(),
+      },
     })
   }
 

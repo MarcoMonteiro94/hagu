@@ -138,7 +138,26 @@ export function useHasAchievement(type: string) {
   return achievements?.some((a) => a.type === type) ?? false
 }
 
-// Streaks Hooks (use hooks from use-habits.ts for habit-specific streaks)
+// Streaks Hooks
+
+export function useAllStreaks() {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: gamificationKeys.streaks(),
+    queryFn: () => habitStreaksService.getAll(supabase),
+  })
+}
+
+export function useHabitStreak(habitId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: gamificationKeys.streak(habitId),
+    queryFn: () => habitStreaksService.getForHabit(supabase, habitId),
+    enabled: !!habitId,
+  })
+}
 
 export function useUpdateGamificationStreak() {
   const supabase = createClient()

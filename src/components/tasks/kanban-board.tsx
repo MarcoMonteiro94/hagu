@@ -23,8 +23,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useTasksStore } from '@/stores/tasks'
-import { useOrderedAreas } from '@/stores/areas'
+import { useTasks, useSetTaskStatus, useReorderTasks } from '@/hooks/queries/use-tasks'
+import { arrayMove } from '@dnd-kit/sortable'
+import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import {
   Circle,
   Clock,
@@ -80,7 +81,7 @@ interface KanbanTaskCardProps {
 }
 
 function KanbanTaskCard({ task, isDragging }: KanbanTaskCardProps) {
-  const areas = useOrderedAreas()
+  const { data: areas = [] } = useOrderedAreas()
   const area = areas.find((a) => a.id === task.areaId)
 
   const subtasksDone = task.subtasks.filter((s) => s.done).length
@@ -252,7 +253,9 @@ function KanbanColumnComponent({ column, tasks }: KanbanColumnProps) {
 }
 
 export function KanbanBoard() {
-  const { tasks, setTaskStatus, reorderTasks } = useTasksStore()
+  const { data: tasks = [] } = useTasks()
+  const setTaskStatusMutation = useSetTaskStatus()
+  const reorderTasksMutation = useReorderTasks()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
 
   const sensors = useSensors(
@@ -285,20 +288,20 @@ export function KanbanBoard() {
     const overId = over.id as string
 
     // Find which column the task is being dragged over
-    const activeTask = tasks.find((t) => t.id === activeId)
-    if (!activeTask) return
+    const draggedTask = tasks.find((t) => t.id === activeId)
+    if (!draggedTask) return
 
     // Check if dragging over a column
     const overColumn = COLUMNS.find((col) => col.id === overId)
-    if (overColumn && activeTask.status !== overColumn.id) {
-      setTaskStatus(activeId, overColumn.id)
+    if (overColumn && draggedTask.status !== overColumn.id) {
+      setTaskStatusMutation.mutate({ id: activeId, status: overColumn.id })
       return
     }
 
     // Check if dragging over another task
     const overTask = tasks.find((t) => t.id === overId)
-    if (overTask && activeTask.status !== overTask.status) {
-      setTaskStatus(activeId, overTask.status)
+    if (overTask && draggedTask.status !== overTask.status) {
+      setTaskStatusMutation.mutate({ id: activeId, status: overTask.status })
     }
   }
 
@@ -313,11 +316,17 @@ export function KanbanBoard() {
 
     if (activeId !== overId) {
       // Check if dropped on same status tasks for reordering
-      const activeTask = tasks.find((t) => t.id === activeId)
+      const draggedTask = tasks.find((t) => t.id === activeId)
       const overTask = tasks.find((t) => t.id === overId)
 
-      if (activeTask && overTask && activeTask.status === overTask.status) {
-        reorderTasks(activeId, overId)
+      if (draggedTask && overTask && draggedTask.status === overTask.status) {
+        const statusTasks = tasks.filter((t) => t.status === draggedTask.status)
+        const oldIndex = statusTasks.findIndex((t) => t.id === activeId)
+        const newIndex = statusTasks.findIndex((t) => t.id === overId)
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const newOrder = arrayMove(statusTasks, oldIndex, newIndex)
+          reorderTasksMutation.mutate(newOrder.map((t) => t.id))
+        }
       }
     }
   }

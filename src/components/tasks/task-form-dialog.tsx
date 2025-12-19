@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useTasksStore } from '@/stores/tasks'
-import { useOrderedAreas } from '@/stores/areas'
+import { useCreateTask } from '@/hooks/queries/use-tasks'
+import { useActiveProjects } from '@/hooks/queries/use-projects'
+import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import type { TaskPriority, RecurrencePattern } from '@/types'
 import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat } from 'lucide-react'
 
@@ -54,9 +55,9 @@ export function TaskFormDialog({
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
 
-  const addTask = useTasksStore((state) => state.addTask)
-  const projects = useTasksStore((state) => state.projects)
-  const areas = useOrderedAreas()
+  const createTaskMutation = useCreateTask()
+  const { data: projects = [] } = useActiveProjects()
+  const { data: areas = [] } = useOrderedAreas()
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -97,7 +98,7 @@ export function TaskFormDialog({
           }
         : undefined
 
-    addTask({
+    createTaskMutation.mutate({
       title: title.trim(),
       description: description.trim() || undefined,
       dueDate: dueDate || undefined,

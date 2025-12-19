@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageTransition } from '@/components/ui/motion'
 import { AreaFormDialog } from '@/components/areas'
-import { useOrderedAreas, useAreasStore } from '@/stores/areas'
-import { useHabitsStore } from '@/stores/habits'
-import { useTasksStore } from '@/stores/tasks'
+import { useOrderedAreas, useReorderAreas } from '@/hooks/queries/use-areas'
+import { useHabits } from '@/hooks/queries/use-habits'
+import { useTasks } from '@/hooks/queries/use-tasks'
 import {
   DndContext,
   closestCenter,
@@ -129,10 +129,10 @@ function SortableAreaCard({ area, habitsCount, tasksCount, t }: SortableAreaCard
 export default function AreasPage() {
   const t = useTranslations('areas')
   const [mounted, setMounted] = useState(false)
-  const areas = useOrderedAreas()
-  const { reorderAreas } = useAreasStore()
-  const habits = useHabitsStore((state) => state.habits)
-  const tasks = useTasksStore((state) => state.tasks)
+  const { data: areas = [], isLoading } = useOrderedAreas()
+  const reorderAreasMutation = useReorderAreas()
+  const { data: habits = [] } = useHabits()
+  const { data: tasks = [] } = useTasks()
 
   useEffect(() => {
     setMounted(true)
@@ -160,7 +160,7 @@ export default function AreasPage() {
         const newOrder = [...areas]
         const [movedItem] = newOrder.splice(oldIndex, 1)
         newOrder.splice(newIndex, 0, movedItem)
-        reorderAreas(newOrder.map((a) => a.id))
+        reorderAreasMutation.mutate(newOrder.map((a) => a.id))
       }
     }
   }

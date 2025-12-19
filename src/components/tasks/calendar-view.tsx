@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useTasksStore } from '@/stores/tasks'
-import { useActiveHabits, useHabitsStore } from '@/stores/habits'
+import { useTasks, useUpdateTask } from '@/hooks/queries/use-tasks'
+import { useActiveHabits, useToggleCompletion } from '@/hooks/queries/use-habits'
 import { useSettingsStore } from '@/stores/settings'
 import {
   ChevronLeft,
@@ -205,10 +205,10 @@ export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null)
 
-  const tasks = useTasksStore((state) => state.tasks)
-  const { updateTask } = useTasksStore()
-  const habits = useActiveHabits()
-  const { toggleCompletion } = useHabitsStore()
+  const { data: tasks = [] } = useTasks()
+  const updateTaskMutation = useUpdateTask()
+  const { data: habits = [] } = useActiveHabits()
+  const toggleCompletionMutation = useToggleCompletion()
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -249,8 +249,8 @@ export function CalendarView() {
   }
 
   const handleToggleHabit = (habitId: string, date: string, completed: boolean) => {
-    toggleCompletion(habitId, date, completed ? 0 : 1)
-    // Update selected day data
+    toggleCompletionMutation.mutate({ habitId, date })
+    // Update selected day data (optimistic update for UI)
     if (selectedDay) {
       setSelectedDay({
         ...selectedDay,
@@ -265,9 +265,12 @@ export function CalendarView() {
     const task = tasks.find((t) => t.id === taskId)
     if (task) {
       const newStatus = task.status === 'done' ? 'pending' : 'done'
-      updateTask(taskId, {
-        status: newStatus,
-        completedAt: newStatus === 'done' ? new Date().toISOString() : undefined,
+      updateTaskMutation.mutate({
+        id: taskId,
+        updates: {
+          status: newStatus,
+          completedAt: newStatus === 'done' ? new Date().toISOString() : undefined,
+        },
       })
       // Update selected day data
       if (selectedDay) {

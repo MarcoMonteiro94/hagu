@@ -1,5 +1,6 @@
-import { useGamificationStore } from '@/stores/gamification'
-import { useHabitsStore } from '@/stores/habits'
+import { useCallback } from 'react'
+import { useUserStats, useAchievements, useUnlockAchievement } from '@/hooks/queries/use-gamification'
+import { useHabits } from '@/hooks/queries/use-habits'
 import { ACHIEVEMENT_DEFINITIONS } from '@/config/achievements'
 
 interface CheckContext {
@@ -71,19 +72,28 @@ function checkAndUnlockAchievements(context: CheckContext): string[] {
 }
 
 export function useAchievementChecker() {
-  const {
-    habitsCompleted,
-    tasksCompleted,
-    currentStreak,
-    longestStreak,
-    level,
-    hasAchievement,
-    unlockAchievement,
-  } = useGamificationStore()
+  const { data: stats } = useUserStats()
+  const { data: achievements = [] } = useAchievements()
+  const unlockAchievementMutation = useUnlockAchievement()
+  const { data: habits = [] } = useHabits()
 
-  const habits = useHabitsStore((state) => state.habits)
+  const habitsCompleted = stats?.habitsCompleted ?? 0
+  const tasksCompleted = stats?.tasksCompleted ?? 0
+  const currentStreak = stats?.currentStreak ?? 0
+  const longestStreak = stats?.longestStreak ?? 0
+  const level = stats?.level ?? 1
 
-  const checkAchievements = (): string[] => {
+  const hasAchievement = useCallback(
+    (type: string) => achievements.some((a) => a.type === type),
+    [achievements]
+  )
+
+  const unlockAchievement = useCallback(
+    (type: string) => unlockAchievementMutation.mutate({ type }),
+    [unlockAchievementMutation]
+  )
+
+  const checkAchievements = useCallback((): string[] => {
     const today = new Date().toISOString().split('T')[0]
     const activeHabits = habits.filter((h) => !h.archivedAt)
     const todayCompletedHabits = activeHabits.filter((h) =>
@@ -101,7 +111,16 @@ export function useAchievementChecker() {
       activeHabitsCount: activeHabits.length,
       todayCompletedHabits,
     })
-  }
+  }, [
+    habits,
+    habitsCompleted,
+    tasksCompleted,
+    currentStreak,
+    longestStreak,
+    level,
+    hasAchievement,
+    unlockAchievement,
+  ])
 
   return { checkAchievements }
 }

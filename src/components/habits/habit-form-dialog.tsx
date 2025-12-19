@@ -13,8 +13,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useHabitsStore } from '@/stores/habits'
-import { useOrderedAreas } from '@/stores/areas'
+import { useCreateHabit, useUpdateHabit } from '@/hooks/queries/use-habits'
+import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import type { Habit, HabitFrequency, HabitTracking } from '@/types'
 import { Plus, Check, Edit } from 'lucide-react'
 
@@ -67,9 +67,9 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const tDays = useTranslations('days')
   const tCommon = useTranslations('common')
 
-  const addHabit = useHabitsStore((state) => state.addHabit)
-  const updateHabit = useHabitsStore((state) => state.updateHabit)
-  const areas = useOrderedAreas()
+  const createHabitMutation = useCreateHabit()
+  const updateHabitMutation = useUpdateHabit()
+  const { data: areas = [] } = useOrderedAreas()
 
   const isEditing = !!habit
   const defaultAreaId = propDefaultAreaId || areas[0]?.id || 'health'
@@ -121,7 +121,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!title.trim()) return
@@ -149,30 +149,39 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       tracking = { type: 'quantitative', target, unit }
     }
 
-    if (isEditing && habit) {
-      updateHabit(habit.id, {
-        title: title.trim(),
-        description: description.trim() || undefined,
-        areaId,
-        frequency,
-        tracking,
-        color,
-      })
-    } else {
-      addHabit({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        areaId,
-        frequency,
-        tracking,
-        color,
-      })
-    }
+    try {
+      if (isEditing && habit) {
+        await updateHabitMutation.mutateAsync({
+          id: habit.id,
+          updates: {
+            title: title.trim(),
+            description: description.trim() || undefined,
+            areaId,
+            frequency,
+            tracking,
+            color,
+          },
+        })
+      } else {
+        await createHabitMutation.mutateAsync({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          areaId,
+          frequency,
+          tracking,
+          color,
+        })
+      }
 
-    resetForm()
-    setOpen(false)
-    onClose?.()
+      resetForm()
+      setOpen(false)
+      onClose?.()
+    } catch (error) {
+      console.error('Failed to save habit:', error)
+    }
   }
+
+  const isSubmitting = createHabitMutation.isPending || updateHabitMutation.isPending
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
@@ -391,11 +400,12 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
               variant="outline"
               className="flex-1"
               onClick={() => handleOpenChange(false)}
+              disabled={isSubmitting}
             >
               {tCommon('cancel')}
             </Button>
-            <Button type="submit" className="flex-1">
-              {isEditing ? tCommon('save') : tCommon('create')}
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? 'Salvando...' : isEditing ? tCommon('save') : tCommon('create')}
             </Button>
           </div>
         </form>

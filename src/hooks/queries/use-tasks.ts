@@ -17,7 +17,7 @@ export const tasksKeys = {
   detail: (id: string) => [...tasksKeys.details(), id] as const,
 }
 
-// Tasks Hooks
+// Task Hooks
 
 export function useTasks() {
   const supabase = createClient()
@@ -197,9 +197,9 @@ export function useAddSubtask() {
   return useMutation({
     mutationFn: ({ taskId, title }: { taskId: string; title: string }) =>
       subtasksService.add(supabase, taskId, title),
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(variables.taskId) })
+      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(taskId) })
     },
   })
 }
@@ -209,7 +209,7 @@ export function useToggleSubtask() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ subtaskId, taskId }: { subtaskId: string; taskId: string }) =>
+    mutationFn: ({ subtaskId }: { subtaskId: string; taskId: string }) =>
       subtasksService.toggle(supabase, subtaskId),
     onMutate: async ({ subtaskId, taskId }) => {
       await queryClient.cancelQueries({ queryKey: tasksKeys.lists() })
@@ -237,9 +237,9 @@ export function useToggleSubtask() {
         queryClient.setQueryData(tasksKeys.list(), context.previousTasks)
       }
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _err, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(variables.taskId) })
+      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(taskId) })
     },
   })
 }
@@ -249,11 +249,11 @@ export function useDeleteSubtask() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ subtaskId, taskId }: { subtaskId: string; taskId: string }) =>
+    mutationFn: ({ subtaskId }: { subtaskId: string; taskId: string }) =>
       subtasksService.delete(supabase, subtaskId),
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(variables.taskId) })
+      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(taskId) })
     },
   })
 }
@@ -264,53 +264,23 @@ export function useTodayTasks() {
   const { data: tasks } = useTasks()
   const today = new Date().toISOString().split('T')[0]
 
-  return tasks?.filter((task) => task.dueDate === today && task.status !== 'done') ?? []
+  if (!tasks) return []
+
+  return tasks.filter((task) => task.dueDate === today && task.status !== 'done')
 }
 
 export function usePendingTasks() {
   const { data: tasks } = useTasks()
-  return tasks?.filter((task) => task.status === 'pending') ?? []
+
+  if (!tasks) return []
+
+  return tasks.filter((task) => task.status === 'pending')
 }
 
-export function useOverdueTasks() {
+export function useTasksForDate(date: string) {
   const { data: tasks } = useTasks()
-  const today = new Date().toISOString().split('T')[0]
 
-  return tasks?.filter(
-    (task) => task.dueDate && task.dueDate < today && task.status !== 'done'
-  ) ?? []
-}
+  if (!tasks) return []
 
-export function useUpcomingTasks(days: number = 7) {
-  const { data: tasks } = useTasks()
-  const today = new Date()
-  const futureDate = new Date()
-  futureDate.setDate(today.getDate() + days)
-
-  const todayStr = today.toISOString().split('T')[0]
-  const futureDateStr = futureDate.toISOString().split('T')[0]
-
-  return tasks?.filter(
-    (task) =>
-      task.dueDate &&
-      task.dueDate > todayStr &&
-      task.dueDate <= futureDateStr &&
-      task.status !== 'done'
-  ) ?? []
-}
-
-export function useTasksGroupedByStatus() {
-  const { data: tasks, ...rest } = useTasks()
-
-  const grouped = {
-    pending: [] as Task[],
-    in_progress: [] as Task[],
-    done: [] as Task[],
-  }
-
-  tasks?.forEach((task) => {
-    grouped[task.status].push(task)
-  })
-
-  return { ...rest, data: grouped }
+  return tasks.filter((task) => task.dueDate === date)
 }

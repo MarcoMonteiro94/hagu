@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useGamificationStore } from '@/stores/gamification'
+import { useHabitStreak } from '@/hooks/queries/use-gamification'
 import { Flame, TrendingUp, GripVertical } from 'lucide-react'
 import type { Habit } from '@/types'
 
@@ -17,7 +17,7 @@ interface SortableHabitCardProps {
 
 export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) {
   const t = useTranslations('habits')
-  const getStreakForHabit = useGamificationStore((state) => state.getStreakForHabit)
+  const { data: streak } = useHabitStreak(habit.id)
 
   const {
     attributes,
@@ -33,7 +33,6 @@ export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) 
     transition,
   }
 
-  const streak = getStreakForHabit(habit.id)
   const completionsThisWeek = habit.completions.filter((c) =>
     last7Days.includes(c.date)
   ).length

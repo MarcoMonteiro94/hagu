@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useOrderedAreas } from '@/stores/areas'
+import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import { Filter, X } from 'lucide-react'
 import type { TaskPriority } from '@/types'
 
@@ -41,7 +41,7 @@ const DEFAULT_FILTERS: TaskFilters = {
 
 export function TaskFiltersComponent({ filters, onFiltersChange }: TaskFiltersProps) {
   const t = useTranslations('tasks')
-  const areas = useOrderedAreas()
+  const { data: areas = [] } = useOrderedAreas()
 
   const activeFilterCount = [
     filters.areaId,

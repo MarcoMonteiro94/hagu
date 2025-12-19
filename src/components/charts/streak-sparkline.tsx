@@ -6,7 +6,7 @@ import {
   Line,
   ResponsiveContainer,
 } from 'recharts'
-import { useActiveHabits } from '@/stores/habits'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
 
 function getLast7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
@@ -27,7 +27,7 @@ export function StreakSparkline({
   height = 32,
   color = 'var(--primary)',
 }: StreakSparklineProps) {
-  const habits = useActiveHabits()
+  const { data: habits = [] } = useActiveHabits()
 
   const data = useMemo(() => {
     const last7Days = getLast7Days()

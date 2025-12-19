@@ -10,9 +10,10 @@ import {
   MonthlyProgressChart,
   TaskDistributionChart,
 } from '@/components/charts'
-import { useActiveHabits } from '@/stores/habits'
-import { useTasksStore } from '@/stores/tasks'
-import { useGamificationStore } from '@/stores/gamification'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
+import { useTasks } from '@/hooks/queries/use-tasks'
+import { useUserStats, useXpProgress } from '@/hooks/queries/use-gamification'
+import { getXpForNextLevel } from '@/services/gamification.service'
 import {
   Flame,
   Star,
@@ -45,30 +46,23 @@ function getLast7Days(): string[] {
 export default function StatsPage() {
   const t = useTranslations('stats')
   const [mounted, setMounted] = useState(false)
-  const habits = useActiveHabits()
-  const tasks = useTasksStore((state) => state.tasks)
-  const {
-    currentStreak,
-    level,
-    totalXp,
-    habitsCompleted,
-    tasksCompleted,
-    getXpProgress,
-    getXpForNextLevel,
-  } = useGamificationStore()
+  const { data: habits = [] } = useActiveHabits()
+  const { data: tasks = [] } = useTasks()
+  const { data: stats } = useUserStats()
+  const xpProgress = useXpProgress()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   // Use default values during SSR to prevent hydration mismatch
-  const displayStreak = mounted ? currentStreak : 0
-  const displayLevel = mounted ? level : 1
-  const displayTotalXp = mounted ? totalXp : 0
-  const displayHabitsCompleted = mounted ? habitsCompleted : 0
-  const displayTasksCompleted = mounted ? tasksCompleted : 0
-  const displayXpProgress = mounted ? getXpProgress() : 0
-  const displayXpForNext = mounted ? getXpForNextLevel() : 100
+  const displayStreak = mounted ? (stats?.currentStreak ?? 0) : 0
+  const displayLevel = mounted ? (stats?.level ?? 1) : 1
+  const displayTotalXp = mounted ? (stats?.totalXp ?? 0) : 0
+  const displayHabitsCompleted = mounted ? (stats?.habitsCompleted ?? 0) : 0
+  const displayTasksCompleted = mounted ? (stats?.tasksCompleted ?? 0) : 0
+  const displayXpProgress = mounted ? xpProgress.percentage : 0
+  const displayXpForNext = mounted ? getXpForNextLevel(stats?.level ?? 1) : 100
 
   const last30Days = getLast30Days()
   const last7Days = getLast7Days()

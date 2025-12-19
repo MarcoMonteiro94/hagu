@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 import { useSettingsStore } from '@/stores/settings'
-import { useActiveHabits } from '@/stores/habits'
-import { useTodayTasks } from '@/stores/tasks'
+import { useActiveHabits } from '@/hooks/queries/use-habits'
+import { useTodayTasks } from '@/hooks/queries/use-tasks'
 import {
   sendDailySummary,
   getNotificationPermission,
@@ -19,7 +19,7 @@ export function NotificationProvider({
   children: React.ReactNode
 }) {
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled)
-  const habits = useActiveHabits()
+  const { data: habits = [] } = useActiveHabits()
   const tasks = useTodayTasks()
   const lastNotificationDate = useRef<string | null>(null)
 

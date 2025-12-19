@@ -10,7 +10,7 @@ import {
   Legend,
   Tooltip,
 } from 'recharts'
-import { useTasksStore } from '@/stores/tasks'
+import { useTasks } from '@/hooks/queries/use-tasks'
 
 const STATUS_COLORS = {
   pending: '#6b7280',
@@ -28,7 +28,7 @@ export function TaskDistributionChart({
   showLegend = true,
 }: TaskDistributionChartProps) {
   const t = useTranslations('tasks')
-  const tasks = useTasksStore((state) => state.tasks)
+  const { data: tasks = [] } = useTasks()
 
   const data = useMemo(() => {
     const pending = tasks.filter((t) => t.status === 'pending').length

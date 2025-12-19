@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAreasStore } from '@/stores/areas'
+import { useCreateArea, useUpdateArea } from '@/hooks/queries/use-areas'
 import {
   Heart,
   BookOpen,
@@ -85,7 +85,8 @@ function generateSlug(name: string): string {
 export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
   const t = useTranslations('areas')
   const tCommon = useTranslations('common')
-  const { addArea, updateArea } = useAreasStore()
+  const createAreaMutation = useCreateArea()
+  const updateAreaMutation = useUpdateArea()
 
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
@@ -106,29 +107,37 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
     }
   }, [open, area])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!name.trim()) return
 
-    if (isEditing && area) {
-      updateArea(area.id, {
-        name: name.trim(),
-        slug: generateSlug(name.trim()),
-        color,
-        icon,
-      })
-    } else {
-      addArea({
-        name: name.trim(),
-        slug: generateSlug(name.trim()),
-        color,
-        icon,
-      })
+    try {
+      if (isEditing && area) {
+        await updateAreaMutation.mutateAsync({
+          id: area.id,
+          updates: {
+            name: name.trim(),
+            slug: generateSlug(name.trim()),
+            color,
+            icon,
+          },
+        })
+      } else {
+        await createAreaMutation.mutateAsync({
+          name: name.trim(),
+          slug: generateSlug(name.trim()),
+          color,
+          icon,
+        })
+      }
+      setOpen(false)
+    } catch (error) {
+      console.error('Failed to save area:', error)
     }
-
-    setOpen(false)
   }
+
+  const isSubmitting = createAreaMutation.isPending || updateAreaMutation.isPending
 
   const SelectedIcon = AREA_ICONS.find((i) => i.name === icon)?.icon || Heart
 
@@ -224,8 +233,8 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
             >
               {tCommon('cancel')}
             </Button>
-            <Button type="submit" className="flex-1" disabled={!name.trim()}>
-              {isEditing ? tCommon('save') : tCommon('create')}
+            <Button type="submit" className="flex-1" disabled={!name.trim() || isSubmitting}>
+              {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
             </Button>
           </div>
         </form>

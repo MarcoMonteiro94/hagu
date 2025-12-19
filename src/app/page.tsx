@@ -9,9 +9,14 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { PageTransition, StaggerContainer, StaggerItem, motion } from '@/components/ui/motion'
-import { useActiveHabits, useHabitsStore } from '@/stores/habits'
-import { useTodayTasks, useTasksStore } from '@/stores/tasks'
-import { useGamificationStore } from '@/stores/gamification'
+import { useActiveHabits, useToggleCompletion } from '@/hooks/queries/use-habits'
+import { useTodayTasks, useSetTaskStatus } from '@/hooks/queries/use-tasks'
+import {
+  useUserStats,
+  useUpdateGamificationStreak,
+  useIncrementHabitsCompleted,
+  useIncrementTasksCompleted,
+} from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
 import { HabitFormDialog } from '@/components/habits'
 import { StreakSparkline } from '@/components/charts'
@@ -34,12 +39,18 @@ export default function HomePage() {
   const tNav = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
 
-  const habits = useActiveHabits()
+  const { data: habits = [] } = useActiveHabits()
   const tasks = useTodayTasks()
-  const toggleCompletion = useHabitsStore((state) => state.toggleCompletion)
-  const setTaskStatus = useTasksStore((state) => state.setTaskStatus)
-  const { currentStreak, level, updateStreak, incrementHabitsCompleted, incrementTasksCompleted } = useGamificationStore()
+  const toggleCompletionMutation = useToggleCompletion()
+  const setTaskStatusMutation = useSetTaskStatus()
+  const { data: stats } = useUserStats()
+  const updateStreakMutation = useUpdateGamificationStreak()
+  const incrementHabitsMutation = useIncrementHabitsCompleted()
+  const incrementTasksMutation = useIncrementTasksCompleted()
   const locale = useSettingsStore((state) => state.locale)
+
+  const currentStreak = stats?.currentStreak ?? 0
+  const level = stats?.level ?? 1
 
   useEffect(() => {
     setMounted(true)
@@ -78,22 +89,22 @@ export default function HomePage() {
     const habit = habits.find((h) => h.id === habitId)
     const wasCompleted = habit?.completions.some((c) => c.date === today)
 
-    toggleCompletion(habitId, today)
+    toggleCompletionMutation.mutate({ habitId, date: today })
 
     // Update gamification when completing (not uncompleting)
     if (!wasCompleted) {
-      updateStreak(habitId, today)
-      incrementHabitsCompleted()
+      updateStreakMutation.mutate({ habitId, date: today })
+      incrementHabitsMutation.mutate()
     }
   }
 
   const handleTaskToggle = (taskId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
-    setTaskStatus(taskId, newStatus as 'pending' | 'done')
+    setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
 
     // Award XP when completing task
     if (newStatus === 'done') {
-      incrementTasksCompleted()
+      incrementTasksMutation.mutate()
     }
   }
 

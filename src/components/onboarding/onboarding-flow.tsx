@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useSettingsStore } from '@/stores/settings'
-import { useHabitsStore } from '@/stores/habits'
+import { useCreateHabit } from '@/hooks/queries/use-habits'
 import {
   Sparkles,
   Sun,
@@ -55,7 +55,7 @@ export function OnboardingFlow() {
 
   const { theme, locale, setTheme, setLocale, setUserName, completeOnboarding } =
     useSettingsStore()
-  const addHabit = useHabitsStore((state) => state.addHabit)
+  const createHabit = useCreateHabit()
 
   const step = STEPS[currentStep]
 
@@ -102,7 +102,7 @@ export function OnboardingFlow() {
     selectedHabits.forEach((titleKey) => {
       const habit = SUGGESTED_HABITS.find((h) => h.titleKey === titleKey)
       if (habit) {
-        addHabit({
+        createHabit.mutate({
           title: t(`habits.${titleKey}`),
           areaId: 'health',
           frequency: { type: 'daily' },

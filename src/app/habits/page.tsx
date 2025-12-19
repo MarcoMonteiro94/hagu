@@ -19,8 +19,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PageTransition } from '@/components/ui/motion'
 import { HabitFormDialog, SortableHabitCard } from '@/components/habits'
-import { useActiveHabits, useHabitsStore } from '@/stores/habits'
+import { useActiveHabits, useReorderHabits } from '@/hooks/queries/use-habits'
 import { Plus } from 'lucide-react'
+import { arrayMove } from '@dnd-kit/sortable'
 
 function getLast7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
@@ -32,8 +33,8 @@ function getLast7Days(): string[] {
 
 export default function HabitsPage() {
   const t = useTranslations('habits')
-  const habits = useActiveHabits()
-  const reorderHabits = useHabitsStore((state) => state.reorderHabits)
+  const { data: habits = [] } = useActiveHabits()
+  const reorderHabitsMutation = useReorderHabits()
 
   const last7Days = getLast7Days()
 
@@ -52,7 +53,13 @@ export default function HabitsPage() {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      reorderHabits(active.id as string, over.id as string)
+      const oldIndex = habits.findIndex((h) => h.id === active.id)
+      const newIndex = habits.findIndex((h) => h.id === over.id)
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(habits, oldIndex, newIndex)
+        reorderHabitsMutation.mutate(newOrder.map((h) => h.id))
+      }
     }
   }
 

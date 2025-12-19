@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageTransition, CountUp } from '@/components/ui/motion'
-import { useGamificationStore } from '@/stores/gamification'
+import { useUserStats, useAchievements } from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
 import {
   ACHIEVEMENT_DEFINITIONS,
@@ -132,13 +132,13 @@ export default function AchievementsPage() {
   const [mounted, setMounted] = useState(false)
 
   const locale = useSettingsStore((state) => state.locale)
-  const {
-    achievements,
-    habitsCompleted,
-    tasksCompleted,
-    currentStreak,
-    level,
-  } = useGamificationStore()
+  const { data: userStats } = useUserStats()
+  const { data: achievements = [] } = useAchievements()
+
+  const habitsCompleted = userStats?.habitsCompleted ?? 0
+  const tasksCompleted = userStats?.tasksCompleted ?? 0
+  const currentStreak = userStats?.currentStreak ?? 0
+  const level = userStats?.level ?? 1
 
   useEffect(() => {
     setMounted(true)
