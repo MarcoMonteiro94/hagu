@@ -191,17 +191,17 @@ export function InvestmentCalculator() {
                 <AreaChart data={chartData}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
+                    stroke="var(--border)"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="year"
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                    tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                    axisLine={{ stroke: 'var(--border)' }}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(value) => {
@@ -212,14 +212,17 @@ export function InvestmentCalculator() {
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
+                      backgroundColor: 'var(--card)',
+                      border: '1px solid var(--border)',
                       borderRadius: '8px',
+                      color: 'var(--card-foreground)',
                     }}
+                    labelStyle={{ color: 'var(--card-foreground)' }}
+                    itemStyle={{ color: 'var(--card-foreground)' }}
                     formatter={(value) => formatCurrency(value as number, currency)}
                     labelFormatter={(label) => `${t('finances.calculator.year')} ${label}`}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ color: 'var(--foreground)' }} />
                   <Area
                     type="monotone"
                     dataKey="contributed"

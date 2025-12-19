@@ -36,7 +36,7 @@ interface WeeklyActivityChartProps {
 export function WeeklyActivityChart({
   height = 200,
   showGrid = true,
-  barColor = 'hsl(var(--primary))',
+  barColor = 'var(--primary)',
 }: WeeklyActivityChartProps) {
   const habits = useActiveHabits()
 
@@ -80,18 +80,21 @@ export function WeeklyActivityChart({
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: 'hsl(var(--background))',
-            border: '1px solid hsl(var(--border))',
+            backgroundColor: 'var(--background)',
+            border: '1px solid var(--border)',
             borderRadius: '8px',
             fontSize: '12px',
+            color: 'var(--foreground)',
           }}
+          labelStyle={{ color: 'var(--foreground)' }}
+          itemStyle={{ color: 'var(--foreground)' }}
           formatter={(value) => [value, 'Completions']}
         />
         <Bar dataKey="completions" radius={[4, 4, 0, 0]}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={entry.isToday ? 'hsl(var(--primary))' : barColor}
+              fill={entry.isToday ? 'var(--primary)' : barColor}
               opacity={entry.isToday ? 1 : 0.7}
             />
           ))}

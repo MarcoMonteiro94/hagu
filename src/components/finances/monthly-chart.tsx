@@ -75,17 +75,17 @@ export function MonthlyChart({ months = 6 }: MonthlyChartProps) {
             <BarChart data={chartData} barGap={4}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
+                stroke="var(--border)"
                 vertical={false}
               />
               <XAxis
                 dataKey="month"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
+                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                axisLine={{ stroke: 'var(--border)' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(value) => {
@@ -95,10 +95,13 @@ export function MonthlyChart({ months = 6 }: MonthlyChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
+                  backgroundColor: 'var(--card)',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
+                  color: 'var(--card-foreground)',
                 }}
+                labelStyle={{ color: 'var(--card-foreground)' }}
+                itemStyle={{ color: 'var(--card-foreground)' }}
                 formatter={(value, name) => [
                   formatCurrency(value as number, currency),
                   name === 'income'
@@ -108,6 +111,7 @@ export function MonthlyChart({ months = 6 }: MonthlyChartProps) {
                 labelFormatter={(label) => label}
               />
               <Legend
+                wrapperStyle={{ color: 'var(--foreground)' }}
                 formatter={(value) =>
                   value === 'income'
                     ? t('finances.income')

@@ -140,7 +140,7 @@ export default function HomePage() {
         </div>
         {mounted && (
           <div className="hidden sm:block">
-            <StreakSparkline width={100} height={36} color="hsl(var(--primary))" />
+            <StreakSparkline width={100} height={36} color="var(--primary)" />
           </div>
         )}
       </motion.div>

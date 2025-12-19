@@ -99,10 +99,13 @@ export function CategoryBreakdown({
                 <Tooltip
                   formatter={(value) => formatCurrency(value as number, currency)}
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
+                    backgroundColor: 'var(--card)',
+                    border: '1px solid var(--border)',
                     borderRadius: '8px',
+                    color: 'var(--card-foreground)',
                   }}
+                  labelStyle={{ color: 'var(--card-foreground)' }}
+                  itemStyle={{ color: 'var(--card-foreground)' }}
                 />
               </PieChart>
             </ResponsiveContainer>

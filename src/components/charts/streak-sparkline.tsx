@@ -25,7 +25,7 @@ interface StreakSparklineProps {
 export function StreakSparkline({
   width = 80,
   height = 32,
-  color = 'hsl(var(--primary))',
+  color = 'var(--primary)',
 }: StreakSparklineProps) {
   const habits = useActiveHabits()
 
