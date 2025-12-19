@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
@@ -329,20 +330,27 @@ export const useFinancesStore = create<FinancesState>()(
   )
 )
 
-// Selector hooks
+// Selector hooks - use useMemo to cache computed values
 export function useCurrentMonthBalance(): MonthlyBalance {
+  const transactions = useFinancesStore((state) => state.transactions)
   const currentMonth = getCurrentMonth()
-  return useFinancesStore((state) =>
-    calculateMonthlyBalance(state.transactions, currentMonth)
+
+  // useMemo to avoid recalculating on every render
+  return useMemo(
+    () => calculateMonthlyBalance(transactions, currentMonth),
+    [transactions, currentMonth]
   )
 }
 
 export function useRecentTransactions(limit: number = 10): Transaction[] {
-  return useFinancesStore((state) =>
-    [...state.transactions]
-      .sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-      .slice(0, limit)
+  const transactions = useFinancesStore((state) => state.transactions)
+
+  // useMemo to avoid sorting on every render
+  return useMemo(
+    () =>
+      [...transactions]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, limit),
+    [transactions, limit]
   )
 }
