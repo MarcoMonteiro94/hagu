@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useFinancesStore } from '@/stores/finances'
+import { useSettings } from '@/hooks/queries/use-settings'
 import { formatCurrency, calculateCompoundInterest } from '@/lib/finances'
 import type { CompoundingFrequency } from '@/types/finances'
 import {
@@ -33,7 +33,8 @@ import { Calculator, TrendingUp, PiggyBank, Percent } from 'lucide-react'
 
 export function InvestmentCalculator() {
   const t = useTranslations()
-  const { currency } = useFinancesStore()
+  const { data: settings } = useSettings()
+  const currency = settings?.currency ?? 'BRL'
 
   const [initialAmount, setInitialAmount] = useState('1000')
   const [monthlyContribution, setMonthlyContribution] = useState('500')
