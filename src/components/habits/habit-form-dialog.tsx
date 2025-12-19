@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   Dialog,
@@ -72,13 +72,21 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const { data: areas = [] } = useOrderedAreas()
 
   const isEditing = !!habit
-  const defaultAreaId = propDefaultAreaId || areas[0]?.id || 'health'
+  const defaultAreaId = propDefaultAreaId || areas[0]?.id || ''
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState(habit?.title || '')
   const [description, setDescription] = useState(habit?.description || '')
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
   const [color, setColor] = useState(habit?.color || COLORS[3])
+
+  // Update areaId when areas load if we don't have a valid one
+  useEffect(() => {
+    const currentAreaValid = areas.some((a) => a.id === areaId)
+    if (!currentAreaValid && areas.length > 0) {
+      setAreaId(areas[0].id)
+    }
+  }, [areas, areaId])
 
   // Frequency state
   const [frequencyType, setFrequencyType] = useState<'daily' | 'weekly' | 'specificDays' | 'monthly'>(getInitialFrequencyType(habit))
@@ -125,6 +133,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
     e.preventDefault()
 
     if (!title.trim()) return
+    if (!areaId || !areas.some((a) => a.id === areaId)) return
 
     let frequency: HabitFrequency
     switch (frequencyType) {
@@ -177,7 +186,8 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setOpen(false)
       onClose?.()
     } catch (error) {
-      console.error('Failed to save habit:', error)
+      const err = error as Error
+      console.error('Failed to save habit:', err.message || err)
     }
   }
 
