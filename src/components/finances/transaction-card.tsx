@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,11 +9,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useFinancesStore } from '@/stores/finances'
 import { getCategoryById } from '@/config/finance-categories'
 import { formatCurrency } from '@/lib/finances'
+import { TransactionForm } from './transaction-form'
 import type { Transaction } from '@/types/finances'
 import {
   MoreHorizontal,
@@ -20,6 +23,7 @@ import {
   Repeat,
   ArrowDownCircle,
   ArrowUpCircle,
+  Pencil,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +34,7 @@ interface TransactionCardProps {
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const t = useTranslations()
   const { deleteTransaction, currency } = useFinancesStore()
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const category = getCategoryById(transaction.categoryId)
 
   const isExpense = transaction.type === 'expense'
@@ -104,6 +109,11 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              {t('common.edit')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
               onClick={() => deleteTransaction(transaction.id)}
@@ -113,6 +123,14 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Edit Dialog */}
+        <TransactionForm
+          transaction={transaction}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          trigger={null}
+        />
       </div>
     </Card>
   )

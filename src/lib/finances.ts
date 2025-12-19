@@ -49,17 +49,30 @@ export function parseCurrencyInput(value: string): number {
 }
 
 /**
- * Get the current month in YYYY-MM format
+ * Get a date string in YYYY-MM-DD format using local timezone
  */
-export function getCurrentMonth(): string {
-  return new Date().toISOString().slice(0, 7)
+export function getLocalDateString(date: Date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 /**
- * Get today's date in YYYY-MM-DD format
+ * Get the current month in YYYY-MM format using local timezone
+ */
+export function getCurrentMonth(): string {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
+}
+
+/**
+ * Get today's date in YYYY-MM-DD format using local timezone
  */
 export function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
+  return getLocalDateString()
 }
 
 /**
@@ -148,7 +161,9 @@ export function calculateNextRecurrenceDate(
   currentDate: string,
   frequency: RecurrenceFrequency
 ): string {
-  const date = new Date(currentDate)
+  // Parse date parts to avoid timezone issues
+  const [year, month, day] = currentDate.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
 
   switch (frequency) {
     case 'daily':
@@ -168,7 +183,16 @@ export function calculateNextRecurrenceDate(
       break
   }
 
-  return date.toISOString().split('T')[0]
+  return getLocalDateString(date)
+}
+
+/**
+ * Get local month string in YYYY-MM format
+ */
+function getLocalMonthString(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
 }
 
 /**
@@ -176,11 +200,13 @@ export function calculateNextRecurrenceDate(
  */
 export function getMonthsBetween(startMonth: string, endMonth: string): string[] {
   const months: string[] = []
-  const start = new Date(startMonth + '-01')
-  const end = new Date(endMonth + '-01')
+  const [startYear, startMon] = startMonth.split('-').map(Number)
+  const [endYear, endMon] = endMonth.split('-').map(Number)
+  const start = new Date(startYear, startMon - 1, 1)
+  const end = new Date(endYear, endMon - 1, 1)
 
   while (start <= end) {
-    months.push(start.toISOString().slice(0, 7))
+    months.push(getLocalMonthString(start))
     start.setMonth(start.getMonth() + 1)
   }
 
@@ -195,7 +221,7 @@ export function getLastNMonths(n: number): string[] {
   const date = new Date()
 
   for (let i = 0; i < n; i++) {
-    months.unshift(date.toISOString().slice(0, 7))
+    months.unshift(getLocalMonthString(date))
     date.setMonth(date.getMonth() - 1)
   }
 

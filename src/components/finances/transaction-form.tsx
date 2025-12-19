@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   Dialog,
@@ -24,14 +24,20 @@ import {
 } from '@/components/ui/select'
 import { useFinancesStore } from '@/stores/finances'
 import { getCategoriesByType, PAYMENT_METHODS } from '@/config/finance-categories'
-import { formatCurrency } from '@/lib/finances'
-import type { TransactionType, RecurrenceFrequency } from '@/types/finances'
-import { Plus, ArrowDownCircle, ArrowUpCircle } from 'lucide-react'
+import { formatCurrency, getTodayString } from '@/lib/finances'
+import type { Transaction, TransactionType, RecurrenceFrequency } from '@/types/finances'
+import { Plus, ArrowDownCircle, ArrowUpCircle, Pencil } from 'lucide-react'
 
 interface TransactionFormProps {
   trigger?: React.ReactNode
   defaultType?: TransactionType
   onSuccess?: () => void
+  /** Transaction to edit (if provided, form enters edit mode) */
+  transaction?: Transaction
+  /** Control dialog open state externally */
+  open?: boolean
+  /** Callback when dialog open state changes */
+  onOpenChange?: (open: boolean) => void
 }
 
 const RECURRENCE_OPTIONS: { value: RecurrenceFrequency; labelKey: string }[] = [
@@ -46,31 +52,57 @@ export function TransactionForm({
   trigger,
   defaultType = 'expense',
   onSuccess,
+  transaction,
+  open: controlledOpen,
+  onOpenChange,
 }: TransactionFormProps) {
   const t = useTranslations()
-  const { addTransaction, currency } = useFinancesStore()
+  const { addTransaction, updateTransaction, currency } = useFinancesStore()
 
-  const [open, setOpen] = useState(false)
-  const [type, setType] = useState<TransactionType>(defaultType)
-  const [amount, setAmount] = useState('')
-  const [categoryId, setCategoryId] = useState('')
-  const [description, setDescription] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
-  const [paymentMethod, setPaymentMethod] = useState('')
-  const [isRecurring, setIsRecurring] = useState(false)
+  const isEditMode = !!transaction
+  const [internalOpen, setInternalOpen] = useState(false)
+
+  // Support both controlled and uncontrolled dialog state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setOpen = onOpenChange || setInternalOpen
+
+  const [type, setType] = useState<TransactionType>(transaction?.type || defaultType)
+  const [amount, setAmount] = useState(transaction?.amount?.toString() || '')
+  const [categoryId, setCategoryId] = useState(transaction?.categoryId || '')
+  const [description, setDescription] = useState(transaction?.description || '')
+  const [date, setDate] = useState(transaction?.date || getTodayString())
+  const [paymentMethod, setPaymentMethod] = useState(transaction?.paymentMethod || '')
+  const [isRecurring, setIsRecurring] = useState(transaction?.isRecurring || false)
   const [recurrenceFrequency, setRecurrenceFrequency] =
-    useState<RecurrenceFrequency>('monthly')
+    useState<RecurrenceFrequency>(transaction?.recurrence?.frequency || 'monthly')
+
+  // Reset form when transaction prop changes (for edit mode)
+  useEffect(() => {
+    if (transaction) {
+      setType(transaction.type)
+      setAmount(transaction.amount.toString())
+      setCategoryId(transaction.categoryId)
+      setDescription(transaction.description)
+      setDate(transaction.date)
+      setPaymentMethod(transaction.paymentMethod || '')
+      setIsRecurring(transaction.isRecurring)
+      setRecurrenceFrequency(transaction.recurrence?.frequency || 'monthly')
+    }
+  }, [transaction])
 
   const categories = getCategoriesByType(type)
 
   function resetForm() {
-    setAmount('')
-    setCategoryId('')
-    setDescription('')
-    setDate(new Date().toISOString().split('T')[0])
-    setPaymentMethod('')
-    setIsRecurring(false)
-    setRecurrenceFrequency('monthly')
+    if (!isEditMode) {
+      setType(defaultType)
+      setAmount('')
+      setCategoryId('')
+      setDescription('')
+      setDate(getTodayString())
+      setPaymentMethod('')
+      setIsRecurring(false)
+      setRecurrenceFrequency('monthly')
+    }
   }
 
   function handleTypeChange(newType: TransactionType) {
@@ -85,18 +117,35 @@ export function TransactionForm({
     if (isNaN(numericAmount) || numericAmount <= 0) return
     if (!categoryId) return
 
-    addTransaction({
-      type,
-      amount: numericAmount,
-      categoryId,
-      description,
-      date,
-      paymentMethod: paymentMethod || undefined,
-      isRecurring,
-      recurrence: isRecurring
-        ? { frequency: recurrenceFrequency }
-        : undefined,
-    })
+    if (isEditMode && transaction) {
+      // Update existing transaction
+      updateTransaction(transaction.id, {
+        type,
+        amount: numericAmount,
+        categoryId,
+        description,
+        date,
+        paymentMethod: paymentMethod || undefined,
+        isRecurring,
+        recurrence: isRecurring
+          ? { frequency: recurrenceFrequency }
+          : undefined,
+      })
+    } else {
+      // Add new transaction
+      addTransaction({
+        type,
+        amount: numericAmount,
+        categoryId,
+        description,
+        date,
+        paymentMethod: paymentMethod || undefined,
+        isRecurring,
+        recurrence: isRecurring
+          ? { frequency: recurrenceFrequency }
+          : undefined,
+      })
+    }
 
     resetForm()
     setOpen(false)
@@ -105,17 +154,21 @@ export function TransactionForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('finances.addTransaction')}
-          </Button>
-        )}
-      </DialogTrigger>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              {t('finances.addTransaction')}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('finances.addTransaction')}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? t('finances.editTransaction') : t('finances.addTransaction')}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -263,9 +316,11 @@ export function TransactionForm({
 
           {/* Submit Button */}
           <Button type="submit" className="w-full">
-            {type === 'expense'
-              ? t('finances.addExpense')
-              : t('finances.addIncome')}
+            {isEditMode
+              ? t('finances.saveChanges')
+              : type === 'expense'
+                ? t('finances.addExpense')
+                : t('finances.addIncome')}
           </Button>
         </form>
       </DialogContent>

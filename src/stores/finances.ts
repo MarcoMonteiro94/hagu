@@ -10,6 +10,7 @@ import type {
   MonthlyBalance,
   CategorySummary,
   CurrencyCode,
+  RecurrenceFrequency,
 } from '@/types/finances'
 import {
   calculateMonthlyBalance,
@@ -19,8 +20,9 @@ import {
   getCurrentMonth,
   getTodayString,
 } from '@/lib/finances'
-import { ALL_CATEGORIES } from '@/config/finance-categories'
+import { ALL_CATEGORIES, getCategoryById } from '@/config/finance-categories'
 import { useGamificationStore } from './gamification'
+import { useTasksStore } from './tasks'
 
 interface FinancesState {
   // Data
@@ -73,6 +75,24 @@ function generateId(): string {
   return crypto.randomUUID()
 }
 
+/**
+ * Convert finance recurrence frequency to task recurrence pattern
+ */
+function toTaskRecurrence(frequency: RecurrenceFrequency): { type: 'daily' | 'weekly' | 'monthly' | 'yearly'; interval: number } {
+  switch (frequency) {
+    case 'daily':
+      return { type: 'daily', interval: 1 }
+    case 'weekly':
+      return { type: 'weekly', interval: 1 }
+    case 'biweekly':
+      return { type: 'weekly', interval: 2 }
+    case 'monthly':
+      return { type: 'monthly', interval: 1 }
+    case 'yearly':
+      return { type: 'yearly', interval: 1 }
+  }
+}
+
 export const useFinancesStore = create<FinancesState>()(
   persist(
     (set, get) => ({
@@ -109,6 +129,23 @@ export const useFinancesStore = create<FinancesState>()(
                 : t
             ),
           }))
+
+          // Create automatic task for recurring expense
+          if (transaction.type === 'expense') {
+            const category = getCategoryById(transaction.categoryId)
+            const categoryName = category?.nameKey || 'finances.expense'
+
+            useTasksStore.getState().addTask({
+              title: transaction.description || categoryName,
+              description: `Despesa recorrente: ${transaction.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+              areaId: 'finances',
+              dueDate: nextDate,
+              priority: 'medium',
+              status: 'pending',
+              tags: ['recorrente', 'despesa'],
+              recurrence: toTaskRecurrence(transaction.recurrence.frequency),
+            })
+          }
         }
 
         return transaction

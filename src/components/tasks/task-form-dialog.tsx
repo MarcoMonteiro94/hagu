@@ -27,6 +27,8 @@ import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat } from 'lucide-react'
 
 type RecurrenceType = RecurrencePattern['type'] | 'none'
 
+const NONE_VALUE = '__none__' // Special value to represent "no selection"
+
 interface TaskFormDialogProps {
   children?: React.ReactNode
   defaultAreaId?: string
@@ -61,8 +63,8 @@ export function TaskFormDialog({
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState(defaultDueDate || '')
   const [priority, setPriority] = useState<TaskPriority | ''>('')
-  const [areaId, setAreaId] = useState(defaultAreaId || '')
-  const [projectId, setProjectId] = useState('')
+  const [areaId, setAreaId] = useState(defaultAreaId || NONE_VALUE)
+  const [projectId, setProjectId] = useState(NONE_VALUE)
   const [estimatedMinutes, setEstimatedMinutes] = useState('')
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
   const [recurrenceInterval, setRecurrenceInterval] = useState('1')
@@ -73,8 +75,8 @@ export function TaskFormDialog({
     setDescription('')
     setDueDate(defaultDueDate || '')
     setPriority('')
-    setAreaId(defaultAreaId || '')
-    setProjectId('')
+    setAreaId(defaultAreaId || NONE_VALUE)
+    setProjectId(NONE_VALUE)
     setEstimatedMinutes('')
     setRecurrenceType('none')
     setRecurrenceInterval('1')
@@ -100,8 +102,8 @@ export function TaskFormDialog({
       description: description.trim() || undefined,
       dueDate: dueDate || undefined,
       priority: priority || undefined,
-      areaId: areaId || undefined,
-      projectId: projectId || undefined,
+      areaId: areaId !== NONE_VALUE ? areaId : undefined,
+      projectId: projectId !== NONE_VALUE ? projectId : undefined,
       estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
       recurrence,
       status: 'pending',
@@ -200,7 +202,7 @@ export function TaskFormDialog({
                 <SelectValue placeholder="Selecione uma área (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma</SelectItem>
+                <SelectItem value={NONE_VALUE}>Nenhuma</SelectItem>
                 {areas.map((area) => (
                   <SelectItem key={area.id} value={area.id}>
                     <div className="flex items-center gap-2">
@@ -225,7 +227,7 @@ export function TaskFormDialog({
                   <SelectValue placeholder="Selecione um projeto (opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value={NONE_VALUE}>Nenhum</SelectItem>
                   {projects
                     .filter((p) => !p.archivedAt)
                     .map((project) => (
