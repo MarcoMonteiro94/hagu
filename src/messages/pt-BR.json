@@ -185,7 +185,6 @@
     "addIncome": "Adicionar receita",
     "transaction": "Transação",
     "transactions": "Transações",
-    "goals": "Metas financeiras",
     "thisMonth": "Este mês",
     "amount": "Valor",
     "description": "Descrição",
@@ -202,6 +201,11 @@
     "monthlyOverview": "Visão mensal",
     "expensesByCategory": "Despesas por categoria",
     "incomeByCategory": "Receitas por categoria",
+    "tabs": {
+      "transactions": "Transações",
+      "goals": "Metas",
+      "calculator": "Calculadora"
+    },
     "recurrence": {
       "daily": "Diária",
       "weekly": "Semanal",
@@ -238,6 +242,45 @@
       "debit": "Cartão de débito",
       "pix": "PIX",
       "transfer": "Transferência"
+    },
+    "goals": {
+      "title": "Metas Financeiras",
+      "add": "Nova meta",
+      "create": "Criar meta",
+      "name": "Nome da meta",
+      "namePlaceholder": "Ex: Reserva de emergência",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Ex: Guardar 6 meses de despesas",
+      "targetAmount": "Valor alvo",
+      "deadline": "Prazo",
+      "color": "Cor",
+      "empty": "Você ainda não tem metas financeiras",
+      "emptyHint": "Crie sua primeira meta para começar a poupar",
+      "completed": "Concluída",
+      "completedCount": "{count, plural, =1 {# meta concluída} other {# metas concluídas}}",
+      "addContribution": "Adicionar valor",
+      "contribute": "Adicionar",
+      "remaining": "Faltam {amount}",
+      "daysLeft": "{count, plural, =1 {# dia restante} other {# dias restantes}}",
+      "monthsLeft": "{count, plural, =1 {# mês restante} other {# meses restantes}}",
+      "overdue": "Prazo vencido"
+    },
+    "calculator": {
+      "title": "Calculadora de Investimentos",
+      "initialAmount": "Valor inicial",
+      "monthlyContribution": "Aporte mensal",
+      "annualRate": "Taxa anual",
+      "period": "Período",
+      "years": "anos",
+      "year": "Ano",
+      "totalContributed": "Total investido",
+      "totalInterest": "Total em juros",
+      "finalAmount": "Valor final",
+      "chart": "Gráfico",
+      "table": "Tabela",
+      "contributed": "Investido",
+      "interest": "Juros",
+      "total": "Total"
     }
   },
   "stats": {

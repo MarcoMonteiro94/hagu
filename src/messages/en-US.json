@@ -185,7 +185,6 @@
     "addIncome": "Add income",
     "transaction": "Transaction",
     "transactions": "Transactions",
-    "goals": "Financial goals",
     "thisMonth": "This month",
     "amount": "Amount",
     "description": "Description",
@@ -202,6 +201,11 @@
     "monthlyOverview": "Monthly overview",
     "expensesByCategory": "Expenses by category",
     "incomeByCategory": "Income by category",
+    "tabs": {
+      "transactions": "Transactions",
+      "goals": "Goals",
+      "calculator": "Calculator"
+    },
     "recurrence": {
       "daily": "Daily",
       "weekly": "Weekly",
@@ -238,6 +242,45 @@
       "debit": "Debit card",
       "pix": "PIX",
       "transfer": "Bank transfer"
+    },
+    "goals": {
+      "title": "Financial Goals",
+      "add": "New goal",
+      "create": "Create goal",
+      "name": "Goal name",
+      "namePlaceholder": "E.g.: Emergency fund",
+      "description": "Description",
+      "descriptionPlaceholder": "E.g.: Save 6 months of expenses",
+      "targetAmount": "Target amount",
+      "deadline": "Deadline",
+      "color": "Color",
+      "empty": "You don't have any financial goals yet",
+      "emptyHint": "Create your first goal to start saving",
+      "completed": "Completed",
+      "completedCount": "{count, plural, =1 {# goal completed} other {# goals completed}}",
+      "addContribution": "Add contribution",
+      "contribute": "Add",
+      "remaining": "{amount} remaining",
+      "daysLeft": "{count, plural, =1 {# day left} other {# days left}}",
+      "monthsLeft": "{count, plural, =1 {# month left} other {# months left}}",
+      "overdue": "Overdue"
+    },
+    "calculator": {
+      "title": "Investment Calculator",
+      "initialAmount": "Initial amount",
+      "monthlyContribution": "Monthly contribution",
+      "annualRate": "Annual rate",
+      "period": "Period",
+      "years": "years",
+      "year": "Year",
+      "totalContributed": "Total contributed",
+      "totalInterest": "Total interest",
+      "finalAmount": "Final amount",
+      "chart": "Chart",
+      "table": "Table",
+      "contributed": "Contributed",
+      "interest": "Interest",
+      "total": "Total"
     }
   },
   "stats": {

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -19,23 +18,32 @@ import {
   BalanceSummary,
   CategoryBreakdown,
   MonthlyChart,
+  GoalsSection,
+  InvestmentCalculator,
 } from '@/components/finances'
 import { useFinancesStore } from '@/stores/finances'
 import { getCurrentMonth, getLastNMonths, getMonthName } from '@/lib/finances'
 import type { CurrencyCode } from '@/types/finances'
 import { CURRENCIES } from '@/types/finances'
-import { Plus, Settings2, Wallet } from 'lucide-react'
+import {
+  Plus,
+  Wallet,
+  Receipt,
+  Target,
+  Calculator,
+  ArrowUpCircle,
+  ArrowDownCircle,
+} from 'lucide-react'
 
 export default function FinancesPage() {
   const t = useTranslations()
   const [mounted, setMounted] = useState(false)
   const { currency, setCurrency, processRecurringTransactions } = useFinancesStore()
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
-  const [showSettings, setShowSettings] = useState(false)
+  const [activeTab, setActiveTab] = useState('transactions')
 
   useEffect(() => {
     setMounted(true)
-    // Process any pending recurring transactions
     processRecurringTransactions()
   }, [processRecurringTransactions])
 
@@ -88,91 +96,130 @@ export default function FinancesPage() {
           </Select>
 
           {/* Add Transaction Button */}
-          <TransactionForm
-            trigger={
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                {t('finances.addTransaction')}
-              </Button>
-            }
-          />
+          {activeTab === 'transactions' && (
+            <TransactionForm
+              trigger={
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t('finances.addTransaction')}
+                </Button>
+              }
+            />
+          )}
         </div>
       </header>
 
       {/* Balance Summary Cards */}
       <BalanceSummary />
 
-      {/* Main Content */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left Column - Transactions */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Month Selector */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{t('finances.transactions')}</h2>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((month) => (
-                  <SelectItem key={month} value={month}>
-                    {getMonthName(month)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Main Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="transactions" className="gap-2">
+            <Receipt className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('finances.tabs.transactions')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="gap-2">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('finances.tabs.goals')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="calculator" className="gap-2">
+            <Calculator className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('finances.tabs.calculator')}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Transactions Tab */}
+        <TabsContent value="transactions" className="mt-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Left Column - Transactions */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Month Selector */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">{t('finances.transactions')}</h2>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {getMonthName(month)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Transaction List */}
+              <TransactionList month={selectedMonth} showFilters />
+            </div>
+
+            {/* Right Column - Charts & Categories */}
+            <div className="space-y-6">
+              {/* Monthly Chart */}
+              <MonthlyChart months={6} />
+
+              {/* Category Breakdown */}
+              <Tabs defaultValue="expense">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="expense">{t('finances.expenses')}</TabsTrigger>
+                  <TabsTrigger value="income">{t('finances.income')}</TabsTrigger>
+                </TabsList>
+                <TabsContent value="expense" className="mt-4">
+                  <CategoryBreakdown type="expense" month={selectedMonth} />
+                </TabsContent>
+                <TabsContent value="income" className="mt-4">
+                  <CategoryBreakdown type="income" month={selectedMonth} />
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
+        </TabsContent>
 
-          {/* Transaction List */}
-          <TransactionList month={selectedMonth} showFilters />
+        {/* Goals Tab */}
+        <TabsContent value="goals" className="mt-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <GoalsSection />
+            <div className="space-y-6">
+              <MonthlyChart months={6} />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Calculator Tab */}
+        <TabsContent value="calculator" className="mt-6">
+          <InvestmentCalculator />
+        </TabsContent>
+      </Tabs>
+
+      {/* Quick Add Buttons (Mobile) - Only show on transactions tab */}
+      {activeTab === 'transactions' && (
+        <div className="fixed bottom-20 right-4 flex flex-col gap-2 lg:hidden">
+          <TransactionForm
+            defaultType="expense"
+            trigger={
+              <Button
+                size="icon"
+                className="h-14 w-14 rounded-full bg-red-500 hover:bg-red-600 shadow-lg"
+              >
+                <ArrowDownCircle className="h-6 w-6" />
+              </Button>
+            }
+          />
+          <TransactionForm
+            defaultType="income"
+            trigger={
+              <Button
+                size="icon"
+                className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
+              >
+                <ArrowUpCircle className="h-6 w-6" />
+              </Button>
+            }
+          />
         </div>
-
-        {/* Right Column - Charts & Categories */}
-        <div className="space-y-6">
-          {/* Monthly Chart */}
-          <MonthlyChart months={6} />
-
-          {/* Category Breakdown */}
-          <Tabs defaultValue="expense">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="expense">{t('finances.expenses')}</TabsTrigger>
-              <TabsTrigger value="income">{t('finances.income')}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="expense" className="mt-4">
-              <CategoryBreakdown type="expense" month={selectedMonth} />
-            </TabsContent>
-            <TabsContent value="income" className="mt-4">
-              <CategoryBreakdown type="income" month={selectedMonth} />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-
-      {/* Quick Add Buttons (Mobile) */}
-      <div className="fixed bottom-20 right-4 flex flex-col gap-2 lg:hidden">
-        <TransactionForm
-          defaultType="expense"
-          trigger={
-            <Button
-              size="icon"
-              className="h-14 w-14 rounded-full bg-red-500 hover:bg-red-600 shadow-lg"
-            >
-              <span className="text-2xl">−</span>
-            </Button>
-          }
-        />
-        <TransactionForm
-          defaultType="income"
-          trigger={
-            <Button
-              size="icon"
-              className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
-            >
-              <span className="text-2xl">+</span>
-            </Button>
-          }
-        />
-      </div>
+      )}
     </PageTransition>
   )
 }
