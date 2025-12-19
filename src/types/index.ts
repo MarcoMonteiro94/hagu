@@ -131,7 +131,27 @@ export interface UserSettings {
   notificationsEnabled: boolean
   onboardingCompleted: boolean
   userName?: string
+  currency?: import('./finances').CurrencyCode
 }
+
+// Re-export finance types
+export type {
+  Transaction,
+  TransactionType,
+  TransactionCategory,
+  Budget,
+  FinancialGoal,
+  GoalContribution,
+  InvestmentSimulation,
+  MonthlyBalance,
+  CategorySummary,
+  CurrencyCode,
+  CurrencyConfig,
+  CompoundingFrequency,
+  RecurrenceFrequency,
+} from './finances'
+
+export { CURRENCIES } from './finances'
 
 // App Data for Export/Import
 export interface AppData {
@@ -146,4 +166,7 @@ export interface AppData {
   streaks: StreakData[]
   stats: UserStats
   settings: UserSettings
+  transactions?: import('./finances').Transaction[]
+  financialGoals?: import('./finances').FinancialGoal[]
+  budgets?: import('./finances').Budget[]
 }
