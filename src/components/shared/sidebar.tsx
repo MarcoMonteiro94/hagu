@@ -17,11 +17,12 @@ import {
   Flame,
   Star,
   Trophy,
+  Timer,
 } from 'lucide-react'
 
 interface NavItem {
   href: string
-  labelKey: 'home' | 'habits' | 'tasks' | 'areas' | 'stats' | 'achievements' | 'settings'
+  labelKey: 'home' | 'habits' | 'tasks' | 'areas' | 'stats' | 'achievements' | 'pomodoro' | 'settings'
   icon: React.ReactNode
 }
 
@@ -30,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/habits', labelKey: 'habits', icon: <CheckCircle2 className="h-5 w-5" /> },
   { href: '/tasks', labelKey: 'tasks', icon: <ListTodo className="h-5 w-5" /> },
   { href: '/areas', labelKey: 'areas', icon: <LayoutGrid className="h-5 w-5" /> },
+  { href: '/pomodoro', labelKey: 'pomodoro', icon: <Timer className="h-5 w-5" /> },
   { href: '/stats', labelKey: 'stats', icon: <BarChart3 className="h-5 w-5" /> },
   { href: '/achievements', labelKey: 'achievements', icon: <Trophy className="h-5 w-5" /> },
 ]
