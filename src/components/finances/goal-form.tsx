@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useSettings } from '@/hooks/queries/use-settings'
 import { useCreateGoal } from '@/hooks/queries/use-finances'
 import { Plus, Target } from 'lucide-react'
+import { getTodayString } from '@/lib/utils'
 
 const GOAL_COLORS = [
   '#22c55e', // green
@@ -149,7 +150,7 @@ export function GoalForm({ trigger, onSuccess }: GoalFormProps) {
               type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={getTodayString()}
             />
           </div>
 

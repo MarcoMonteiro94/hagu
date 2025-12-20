@@ -31,7 +31,7 @@ import {
   CheckCircle2,
   TrendingUp,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, parseLocalDate, formatLocalDate } from '@/lib/utils'
 
 interface GoalCardProps {
   goal: FinancialGoal
@@ -68,8 +68,10 @@ export function GoalCard({ goal }: GoalCardProps) {
   }
 
   function formatDeadline(deadline: string): string {
-    const date = new Date(deadline)
+    const date = parseLocalDate(deadline)
     const today = new Date()
+    // Reset today to start of day for accurate comparison
+    today.setHours(0, 0, 0, 0)
     const diffTime = date.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
@@ -81,7 +83,7 @@ export function GoalCard({ goal }: GoalCardProps) {
       const months = Math.floor(diffDays / 30)
       return t('finances.goals.monthsLeft', { count: months })
     }
-    return date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+    return formatLocalDate(deadline, 'pt-BR', { month: 'short', year: 'numeric' })
   }
 
   return (

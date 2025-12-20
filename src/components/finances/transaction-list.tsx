@@ -13,6 +13,7 @@ import {
 import { TransactionCard } from './transaction-card'
 import { useTransactions, useTransactionsByMonth } from '@/hooks/queries/use-finances'
 import { sortTransactionsByDate } from '@/lib/finances'
+import { parseLocalDate, getTodayString, formatLocalDate } from '@/lib/utils'
 import type { Transaction, TransactionType } from '@/types/finances'
 import { getCategoriesByType, ALL_CATEGORIES } from '@/config/finance-categories'
 import { ListFilter, Calendar, Loader2 } from 'lucide-react'
@@ -85,24 +86,24 @@ export function TransactionList({
     })
 
     return Object.entries(groups).sort(
-      ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
+      ([a], [b]) => parseLocalDate(b).getTime() - parseLocalDate(a).getTime()
     )
   }, [filteredTransactions])
 
   function formatDateHeader(dateStr: string): string {
-    const date = new Date(dateStr)
-    const today = new Date()
-    const yesterday = new Date(today)
+    const today = getTodayString()
+    const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
 
-    if (dateStr === today.toISOString().split('T')[0]) {
+    if (dateStr === today) {
       return t('common.today')
     }
-    if (dateStr === yesterday.toISOString().split('T')[0]) {
+    if (dateStr === yesterdayStr) {
       return t('common.yesterday')
     }
 
-    return date.toLocaleDateString('pt-BR', {
+    return formatLocalDate(dateStr, 'pt-BR', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

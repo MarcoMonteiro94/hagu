@@ -8,6 +8,7 @@ import type {
   TransactionType,
   RecurrenceFrequency,
 } from '@/types/finances'
+import { getTodayString } from '@/lib/utils'
 
 // Database row types
 interface DbTransaction {
@@ -524,7 +525,7 @@ export const goalsService = {
     const isCompleted = newCurrentAmount >= Number(goalData.target_amount)
 
     // Create contribution
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayString()
     const { data: contributionData, error: contributionError } = await supabase
       .from('goal_contributions')
       .insert({

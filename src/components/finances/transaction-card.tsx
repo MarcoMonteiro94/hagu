@@ -26,7 +26,7 @@ import {
   ArrowUpCircle,
   Pencil,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, formatLocalDate } from '@/lib/utils'
 
 interface TransactionCardProps {
   transaction: Transaction
@@ -84,7 +84,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
               </Badge>
             )}
             <span>
-              {new Date(transaction.date).toLocaleDateString('pt-BR', {
+              {formatLocalDate(transaction.date, 'pt-BR', {
                 day: '2-digit',
                 month: 'short',
               })}

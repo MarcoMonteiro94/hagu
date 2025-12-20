@@ -7,6 +7,7 @@ import type {
   CURRENCIES,
   RecurrenceFrequency,
 } from '@/types/finances'
+import { parseLocalDate } from '@/lib/utils'
 
 // Re-export currencies for convenience
 export { CURRENCIES } from '@/types/finances'
@@ -296,7 +297,8 @@ export function formatPercentage(value: number, decimals: number = 1): string {
  * Get month name from YYYY-MM string
  */
 export function getMonthName(month: string, locale: string = 'pt-BR'): string {
-  const date = new Date(month + '-01')
+  // Parse as local date to avoid timezone issues
+  const date = parseLocalDate(month + '-01')
   return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 }
 
@@ -308,7 +310,7 @@ export function sortTransactionsByDate(
   ascending: boolean = false
 ): Transaction[] {
   return [...transactions].sort((a, b) => {
-    const comparison = new Date(b.date).getTime() - new Date(a.date).getTime()
+    const comparison = parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime()
     return ascending ? -comparison : comparison
   })
 }
