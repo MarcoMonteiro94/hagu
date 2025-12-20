@@ -88,9 +88,14 @@ export default function HomePage() {
     return false
   })
 
-  const completedHabits = todayHabits.filter((habit) =>
-    habit.completions.some((c) => c.date === today)
-  )
+  const completedHabits = todayHabits.filter((habit) => {
+    const completion = habit.completions.find((c) => c.date === today)
+    if (!completion) return false
+    if (habit.tracking.type === 'quantitative') {
+      return completion.value >= habit.tracking.target
+    }
+    return true // boolean habit with completion = completed
+  })
 
   const habitProgress =
     todayHabits.length > 0

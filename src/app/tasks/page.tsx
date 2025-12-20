@@ -31,7 +31,8 @@ import {
   DEFAULT_FILTERS,
 } from '@/components/tasks'
 import type { TaskFilters } from '@/components/tasks'
-import { useTasks, useSetTaskStatus, useReorderTasks } from '@/hooks/queries/use-tasks'
+import { useTasks, useSetTaskStatus, useReorderTasks, useDeleteTask } from '@/hooks/queries/use-tasks'
+import { toast } from 'sonner'
 import { TaskListSkeleton } from '@/components/skeletons'
 import { arrayMove } from '@dnd-kit/sortable'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
@@ -41,6 +42,7 @@ export default function TasksPage() {
   const { data: tasks = [], isLoading } = useTasks()
   const setTaskStatusMutation = useSetTaskStatus()
   const reorderTasksMutation = useReorderTasks()
+  const deleteTaskMutation = useDeleteTask()
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
 
   // Apply filters to tasks
@@ -62,6 +64,17 @@ export default function TasksPage() {
   const handleToggle = (taskId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
     setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
+  }
+
+  const handleDelete = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId, {
+      onSuccess: () => {
+        toast.success(t('taskDeleted'))
+      },
+      onError: () => {
+        toast.error(t('taskDeleteError'))
+      },
+    })
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -142,6 +155,7 @@ export default function TasksPage() {
                           key={task.id}
                           task={task}
                           onToggle={handleToggle}
+                          onDelete={handleDelete}
                         />
                       ))}
                     </div>
@@ -164,6 +178,7 @@ export default function TasksPage() {
                           key={task.id}
                           task={task}
                           onToggle={handleToggle}
+                          onDelete={handleDelete}
                         />
                       ))}
                     </div>

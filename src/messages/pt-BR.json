@@ -105,6 +105,10 @@
     "recurrenceIntervalWeeks": "{count, plural, =1 {# semana} other {# semanas}}",
     "recurrenceIntervalMonths": "{count, plural, =1 {# mês} other {# meses}}",
     "recurrenceEndDate": "Data final",
+    "taskCreated": "Tarefa criada com sucesso",
+    "taskCreateError": "Erro ao criar tarefa",
+    "taskDeleted": "Tarefa excluída com sucesso",
+    "taskDeleteError": "Erro ao excluir tarefa",
     "noTasks": "Você ainda não tem tarefas",
     "createFirst": "Crie sua primeira tarefa",
     "views": {

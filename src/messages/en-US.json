@@ -105,6 +105,10 @@
     "recurrenceIntervalWeeks": "{count, plural, =1 {# week} other {# weeks}}",
     "recurrenceIntervalMonths": "{count, plural, =1 {# month} other {# months}}",
     "recurrenceEndDate": "End date",
+    "taskCreated": "Task created successfully",
+    "taskCreateError": "Failed to create task",
+    "taskDeleted": "Task deleted successfully",
+    "taskDeleteError": "Failed to delete task",
     "noTasks": "You don't have any tasks yet",
     "createFirst": "Create your first task",
     "views": {

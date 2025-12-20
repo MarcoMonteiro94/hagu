@@ -6,12 +6,20 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { GripVertical, Calendar, Clock, Repeat } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { GripVertical, Calendar, Clock, Repeat, MoreVertical, Trash2 } from 'lucide-react'
 import type { Task } from '@/types'
 
 interface SortableTaskCardProps {
   task: Task
   onToggle: (taskId: string, currentStatus: string) => void
+  onDelete?: (taskId: string) => void
 }
 
 const priorityColors = {
@@ -28,8 +36,8 @@ const priorityLabels = {
   urgent: 'Urgente',
 }
 
-export function SortableTaskCard({ task, onToggle }: SortableTaskCardProps) {
-  const t = useTranslations('tasks')
+export function SortableTaskCard({ task, onToggle, onDelete }: SortableTaskCardProps) {
+  const tCommon = useTranslations('common')
 
   const {
     attributes,
@@ -115,6 +123,30 @@ export function SortableTaskCard({ task, onToggle }: SortableTaskCardProps) {
                 <div className={`mr-1 h-2 w-2 rounded-full ${priorityColors[task.priority]}`} />
                 {priorityLabels[task.priority]}
               </Badge>
+            )}
+
+            {onDelete && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    aria-label="Mais opções"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => onDelete(task.id)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {tCommon('delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </CardContent>
