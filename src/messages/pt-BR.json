@@ -1,6 +1,7 @@
 {
   "common": {
     "save": "Salvar",
+    "saving": "Salvando...",
     "cancel": "Cancelar",
     "delete": "Excluir",
     "edit": "Editar",
@@ -34,6 +35,7 @@
   },
   "home": {
     "greeting": "Olá!",
+    "greetingWithName": "Olá, {name}!",
     "todayAgenda": "Agenda de hoje",
     "habitsProgress": "{completed} de {total} hábitos",
     "tasksRemaining": "{count, plural, =0 {Nenhuma tarefa} =1 {# tarefa pendente} other {# tarefas pendentes}}",
@@ -126,6 +128,7 @@
     "deleteConfirmation": "Tem certeza que deseja excluir esta área? Os hábitos e tarefas associados não serão excluídos.",
     "areaName": "Nome da área",
     "areaNotFound": "Área não encontrada",
+    "color": "Cor",
     "health": "Saúde",
     "studies": "Estudos",
     "finances": "Finanças",

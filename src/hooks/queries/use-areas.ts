@@ -173,7 +173,9 @@ export function useCreateMetric() {
     mutationFn: (metric: Omit<MetricEntry, 'id' | 'createdAt'>) =>
       metricsService.create(supabase, metric),
     onSuccess: (data) => {
+      // Invalidate both the specific area and all metrics to ensure UI updates
       queryClient.invalidateQueries({ queryKey: metricsKeys.byArea(data.areaId) })
+      queryClient.invalidateQueries({ queryKey: metricsKeys.all })
     },
   })
 }
@@ -193,6 +195,7 @@ export function useUpdateMetric() {
     }) => metricsService.update(supabase, id, updates),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: metricsKeys.byArea(variables.areaId) })
+      queryClient.invalidateQueries({ queryKey: metricsKeys.all })
     },
   })
 }
@@ -206,6 +209,7 @@ export function useDeleteMetric() {
       metricsService.delete(supabase, id),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: metricsKeys.byArea(variables.areaId) })
+      queryClient.invalidateQueries({ queryKey: metricsKeys.all })
     },
   })
 }

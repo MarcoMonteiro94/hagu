@@ -39,6 +39,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { TaskFormDialog } from './task-form-dialog'
 import type { Task, TaskStatus } from '@/types'
+import { STATUS_COLORS, PRIORITY_COLORS } from '@/config/colors'
 
 interface KanbanColumn {
   id: TaskStatus
@@ -52,28 +53,21 @@ const COLUMNS: KanbanColumn[] = [
     id: 'pending',
     titleKey: 'statusPending',
     icon: <Circle className="h-4 w-4" />,
-    color: '#6b7280',
+    color: STATUS_COLORS.pending.hex,
   },
   {
     id: 'in_progress',
     titleKey: 'statusInProgress',
     icon: <Clock className="h-4 w-4" />,
-    color: '#3b82f6',
+    color: STATUS_COLORS.in_progress.hex,
   },
   {
     id: 'done',
     titleKey: 'statusDone',
     icon: <CheckCircle2 className="h-4 w-4" />,
-    color: '#22c55e',
+    color: STATUS_COLORS.done.hex,
   },
 ]
-
-const PRIORITY_COLORS: Record<string, string> = {
-  urgent: '#ef4444',
-  high: '#f97316',
-  medium: '#eab308',
-  low: '#6b7280',
-}
 
 interface KanbanTaskCardProps {
   task: Task
@@ -110,11 +104,12 @@ function KanbanTaskCard({ task, isDragging }: KanbanTaskCardProps) {
             <div
               className="flex items-center gap-1 rounded px-1.5 py-0.5"
               style={{
-                backgroundColor: `${PRIORITY_COLORS[task.priority]}15`,
-                color: PRIORITY_COLORS[task.priority],
+                backgroundColor: `${PRIORITY_COLORS[task.priority].hex}15`,
+                color: PRIORITY_COLORS[task.priority].hex,
               }}
             >
               <Flag className="h-3 w-3" />
+              <span className="sr-only">Prioridade:</span>
               <span className="capitalize">{task.priority}</span>
             </div>
           )}

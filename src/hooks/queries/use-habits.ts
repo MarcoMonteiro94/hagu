@@ -253,6 +253,111 @@ export function useToggleCompletion() {
   })
 }
 
+export function useSetCompletionValue() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      habitId,
+      date,
+      value,
+    }: {
+      habitId: string
+      date: string
+      value: number
+    }) => completionsService.setCompletionValue(supabase, habitId, date, value),
+    onMutate: async ({ habitId, date, value }) => {
+      await queryClient.cancelQueries({ queryKey: habitsKeys.lists() })
+
+      const previousHabits = queryClient.getQueryData<Habit[]>(habitsKeys.list())
+
+      if (previousHabits) {
+        const updatedHabits = previousHabits.map((habit) => {
+          if (habit.id !== habitId) return habit
+
+          const existingIndex = habit.completions.findIndex((c) => c.date === date)
+
+          if (existingIndex >= 0) {
+            // Update existing completion
+            const updatedCompletions = [...habit.completions]
+            updatedCompletions[existingIndex] = {
+              ...updatedCompletions[existingIndex],
+              value,
+            }
+            return { ...habit, completions: updatedCompletions }
+          }
+
+          // Add new completion
+          return {
+            ...habit,
+            completions: [
+              ...habit.completions,
+              {
+                date,
+                value,
+                completedAt: new Date().toISOString(),
+              },
+            ],
+          }
+        })
+
+        queryClient.setQueryData(habitsKeys.list(), updatedHabits)
+      }
+
+      return { previousHabits }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousHabits) {
+        queryClient.setQueryData(habitsKeys.list(), context.previousHabits)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: habitsKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: habitsKeys.streaks() })
+    },
+  })
+}
+
+export function useRemoveCompletion() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ habitId, date }: { habitId: string; date: string }) =>
+      completionsService.removeCompletion(supabase, habitId, date),
+    onMutate: async ({ habitId, date }) => {
+      await queryClient.cancelQueries({ queryKey: habitsKeys.lists() })
+
+      const previousHabits = queryClient.getQueryData<Habit[]>(habitsKeys.list())
+
+      if (previousHabits) {
+        const updatedHabits = previousHabits.map((habit) => {
+          if (habit.id !== habitId) return habit
+
+          return {
+            ...habit,
+            completions: habit.completions.filter((c) => c.date !== date),
+          }
+        })
+
+        queryClient.setQueryData(habitsKeys.list(), updatedHabits)
+      }
+
+      return { previousHabits }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousHabits) {
+        queryClient.setQueryData(habitsKeys.list(), context.previousHabits)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: habitsKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: habitsKeys.streaks() })
+    },
+  })
+}
+
 // Helper hooks for common patterns
 
 export function useTodayCompletions() {

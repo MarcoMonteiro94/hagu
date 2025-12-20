@@ -25,6 +25,8 @@ import { useActiveProjects } from '@/hooks/queries/use-projects'
 import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import type { TaskPriority, RecurrencePattern } from '@/types'
 import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat } from 'lucide-react'
+import { toast } from 'sonner'
+import { PRIORITY_COLORS } from '@/config/colors'
 
 type RecurrenceType = RecurrencePattern['type'] | 'none'
 
@@ -38,13 +40,6 @@ interface TaskFormDialogProps {
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0]
-}
-
-const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  low: 'text-green-500',
-  medium: 'text-yellow-500',
-  high: 'text-orange-500',
-  urgent: 'text-red-500',
 }
 
 export function TaskFormDialog({
@@ -84,7 +79,7 @@ export function TaskFormDialog({
     setRecurrenceEndDate('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!title.trim()) return
@@ -98,21 +93,27 @@ export function TaskFormDialog({
           }
         : undefined
 
-    createTaskMutation.mutate({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      dueDate: dueDate || undefined,
-      priority: priority || undefined,
-      areaId: areaId !== NONE_VALUE ? areaId : undefined,
-      projectId: projectId !== NONE_VALUE ? projectId : undefined,
-      estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
-      recurrence,
-      status: 'pending',
-      tags: [],
-    })
+    try {
+      await createTaskMutation.mutateAsync({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        dueDate: dueDate || undefined,
+        priority: priority || undefined,
+        areaId: areaId !== NONE_VALUE ? areaId : undefined,
+        projectId: projectId !== NONE_VALUE ? projectId : undefined,
+        estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+        recurrence,
+        status: 'pending',
+        tags: [],
+      })
 
-    resetForm()
-    setOpen(false)
+      toast.success(t('taskCreated'))
+      resetForm()
+      setOpen(false)
+    } catch (error) {
+      console.error('Failed to create task:', error)
+      toast.error(t('taskCreateError'))
+    }
   }
 
   return (
@@ -185,7 +186,7 @@ export function TaskFormDialog({
                   className="flex-col gap-1 h-auto py-2"
                   onClick={() => setPriority(priority === p ? '' : p)}
                 >
-                  <Flag className={`h-4 w-4 ${PRIORITY_COLORS[p]}`} />
+                  <Flag className={`h-4 w-4 ${PRIORITY_COLORS[p].text}`} />
                   <span className="text-xs">{t(`priority${p.charAt(0).toUpperCase() + p.slice(1)}`)}</span>
                 </Button>
               ))}

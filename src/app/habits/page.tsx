@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button'
 import { PageTransition } from '@/components/ui/motion'
 import { HabitFormDialog, SortableHabitCard } from '@/components/habits'
 import { useActiveHabits, useReorderHabits } from '@/hooks/queries/use-habits'
+import { HabitPageCardSkeleton } from '@/components/skeletons'
 import { Plus } from 'lucide-react'
 import { arrayMove } from '@dnd-kit/sortable'
 
@@ -33,7 +34,7 @@ function getLast7Days(): string[] {
 
 export default function HabitsPage() {
   const t = useTranslations('habits')
-  const { data: habits = [] } = useActiveHabits()
+  const { data: habits = [], isLoading } = useActiveHabits()
   const reorderHabitsMutation = useReorderHabits()
 
   const last7Days = getLast7Days()
@@ -72,7 +73,11 @@ export default function HabitsPage() {
       </header>
 
       {/* Habits List */}
-      {habits.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <HabitPageCardSkeleton count={6} />
+        </div>
+      ) : habits.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center">
             <p className="mb-4 text-muted-foreground">{t('noHabits')}</p>

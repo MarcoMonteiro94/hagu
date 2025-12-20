@@ -17,17 +17,8 @@ import { useCreateHabit, useUpdateHabit } from '@/hooks/queries/use-habits'
 import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import type { Habit, HabitFrequency, HabitTracking } from '@/types'
 import { Plus, Check, Edit } from 'lucide-react'
-
-const COLORS = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#3b82f6', // blue
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-]
+import { toast } from 'sonner'
+import { PICKER_COLORS, getColorName } from '@/config/colors'
 
 const DAYS_OF_WEEK = [0, 1, 2, 3, 4, 5, 6] // Sun-Sat
 
@@ -78,7 +69,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const [title, setTitle] = useState(habit?.title || '')
   const [description, setDescription] = useState(habit?.description || '')
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
-  const [color, setColor] = useState(habit?.color || COLORS[3])
+  const [color, setColor] = useState(habit?.color || PICKER_COLORS[3])
 
   // Update areaId when areas first load if we started with empty value
   useEffect(() => {
@@ -118,7 +109,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setTitle('')
       setDescription('')
       setAreaId(defaultAreaId)
-      setColor(COLORS[3])
+      setColor(PICKER_COLORS[3])
       setFrequencyType('daily')
       setDaysPerWeek(3)
       setSpecificDays([1, 3, 5])
@@ -182,12 +173,14 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
         })
       }
 
+      toast.success(isEditing ? t('habitUpdated') : t('habitCreated'))
       resetForm()
       setOpen(false)
       onClose?.()
     } catch (error) {
       const err = error as Error
       console.error('Failed to save habit:', err.message || err)
+      toast.error(isEditing ? t('habitUpdateError') : t('habitCreateError'))
     }
   }
 
@@ -281,12 +274,15 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
           {/* Color Selection */}
           <div className="space-y-2">
             <Label>{t('color')}</Label>
-            <div className="flex flex-wrap gap-2">
-              {COLORS.map((c) => (
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('color')}>
+              {PICKER_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full transition-transform hover:scale-110"
+                  role="radio"
+                  aria-checked={color === c}
+                  aria-label={getColorName(c)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   style={{ backgroundColor: c }}
                   onClick={() => setColor(c)}
                 >

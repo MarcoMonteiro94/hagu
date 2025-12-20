@@ -20,7 +20,7 @@ export function NotificationProvider({
 }) {
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled)
   const { data: habits = [] } = useActiveHabits()
-  const tasks = useTodayTasks()
+  const { tasks } = useTodayTasks()
   const lastNotificationDate = useRef<string | null>(null)
 
   useEffect(() => {

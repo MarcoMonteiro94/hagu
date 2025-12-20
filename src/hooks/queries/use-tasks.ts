@@ -261,12 +261,12 @@ export function useDeleteSubtask() {
 // Helper hooks
 
 export function useTodayTasks() {
-  const { data: tasks } = useTasks()
+  const { data: tasks, isLoading } = useTasks()
   const today = new Date().toISOString().split('T')[0]
 
-  if (!tasks) return []
+  const filteredTasks = tasks?.filter((task) => task.dueDate === today && task.status !== 'done') ?? []
 
-  return tasks.filter((task) => task.dueDate === today && task.status !== 'done')
+  return { tasks: filteredTasks, isLoading }
 }
 
 export function usePendingTasks() {

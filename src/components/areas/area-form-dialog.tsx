@@ -33,26 +33,13 @@ import {
   Plus,
 } from 'lucide-react'
 import type { LifeArea } from '@/types'
+import { toast } from 'sonner'
+import { AREA_PICKER_COLORS, getColorName } from '@/config/colors'
 
 interface AreaFormDialogProps {
   area?: LifeArea
   children?: ReactNode
 }
-
-const AREA_COLORS = [
-  '#22c55e', // green
-  '#3b82f6', // blue
-  '#eab308', // yellow
-  '#a855f7', // purple
-  '#ef4444', // red
-  '#f97316', // orange
-  '#ec4899', // pink
-  '#14b8a6', // teal
-  '#6366f1', // indigo
-  '#84cc16', // lime
-  '#8b5cf6', // violet
-  '#06b6d4', // cyan
-]
 
 const AREA_ICONS = [
   { name: 'heart', icon: Heart },
@@ -90,7 +77,7 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
 
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
-  const [color, setColor] = useState(AREA_COLORS[0])
+  const [color, setColor] = useState<string>(AREA_PICKER_COLORS[0])
   const [icon, setIcon] = useState('heart')
 
   const isEditing = !!area
@@ -102,7 +89,7 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
       setIcon(area.icon)
     } else if (open && !area) {
       setName('')
-      setColor(AREA_COLORS[Math.floor(Math.random() * AREA_COLORS.length)])
+      setColor(AREA_PICKER_COLORS[Math.floor(Math.random() * AREA_PICKER_COLORS.length)])
       setIcon('heart')
     }
   }, [open, area])
@@ -131,9 +118,11 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
           icon,
         })
       }
+      toast.success(isEditing ? t('areaUpdated') : t('areaCreated'))
       setOpen(false)
     } catch (error) {
       console.error('Failed to save area:', error)
+      toast.error(isEditing ? t('areaUpdateError') : t('areaCreateError'))
     }
   }
 
@@ -183,14 +172,17 @@ export function AreaFormDialog({ area, children }: AreaFormDialogProps) {
 
           {/* Color Picker */}
           <div className="space-y-2">
-            <Label>Cor</Label>
-            <div className="grid grid-cols-6 gap-2">
-              {AREA_COLORS.map((c) => (
+            <Label>{t('color')}</Label>
+            <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label={t('color')}>
+              {AREA_PICKER_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
+                  role="radio"
+                  aria-checked={color === c}
+                  aria-label={getColorName(c)}
                   onClick={() => setColor(c)}
-                  className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
+                  className={`h-8 w-8 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                     color === c ? 'ring-2 ring-offset-2 ring-offset-background' : ''
                   }`}
                   style={{

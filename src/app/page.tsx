@@ -9,7 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { PageTransition, StaggerContainer, StaggerItem, motion } from '@/components/ui/motion'
-import { useActiveHabits, useToggleCompletion } from '@/hooks/queries/use-habits'
+import {
+  useActiveHabits,
+  useToggleCompletion,
+  useSetCompletionValue,
+  useRemoveCompletion,
+} from '@/hooks/queries/use-habits'
 import { useTodayTasks, useSetTaskStatus } from '@/hooks/queries/use-tasks'
 import {
   useUserStats,
@@ -18,10 +23,12 @@ import {
   useIncrementTasksCompleted,
 } from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
-import { HabitFormDialog } from '@/components/habits'
+import { HabitFormDialog, QuantitativeHabitInput } from '@/components/habits'
 import { TaskFormDialog } from '@/components/tasks'
 import { StreakSparkline } from '@/components/charts'
+import { HabitCardSkeleton, TaskCardSkeleton } from '@/components/skeletons'
 import { Flame, Star, CheckCircle2, Plus, ChevronRight } from 'lucide-react'
+import { toast } from 'sonner'
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0]
@@ -40,15 +47,18 @@ export default function HomePage() {
   const tNav = useTranslations('nav')
   const [mounted, setMounted] = useState(false)
 
-  const { data: habits = [] } = useActiveHabits()
-  const tasks = useTodayTasks()
+  const { data: habits = [], isLoading: isLoadingHabits } = useActiveHabits()
+  const { tasks, isLoading: isLoadingTasks } = useTodayTasks()
   const toggleCompletionMutation = useToggleCompletion()
+  const setCompletionValueMutation = useSetCompletionValue()
+  const removeCompletionMutation = useRemoveCompletion()
   const setTaskStatusMutation = useSetTaskStatus()
   const { data: stats } = useUserStats()
   const updateStreakMutation = useUpdateGamificationStreak()
   const incrementHabitsMutation = useIncrementHabitsCompleted()
   const incrementTasksMutation = useIncrementTasksCompleted()
   const locale = useSettingsStore((state) => state.locale)
+  const userName = useSettingsStore((state) => state.userName)
 
   const currentStreak = stats?.currentStreak ?? 0
   const level = stats?.level ?? 1
@@ -61,6 +71,7 @@ export default function HomePage() {
   const displayStreak = mounted ? currentStreak : 0
   const displayLevel = mounted ? level : 1
   const displayLocale = mounted ? locale : 'pt-BR'
+  const displayUserName = mounted ? userName : undefined
 
   const today = getTodayString()
   const dayOfWeek = new Date().getDay()
@@ -96,7 +107,29 @@ export default function HomePage() {
     if (!wasCompleted) {
       updateStreakMutation.mutate({ habitId, date: today })
       incrementHabitsMutation.mutate()
+      toast.success('Hábito concluído! 🎉')
     }
+  }
+
+  const handleQuantitativeValueChange = (habitId: string, value: number) => {
+    const habit = habits.find((h) => h.id === habitId)
+    if (!habit || habit.tracking.type !== 'quantitative') return
+
+    const wasCompleted = habit.completions.some((c) => c.date === today)
+    const isNowCompleted = value >= habit.tracking.target
+
+    setCompletionValueMutation.mutate({ habitId, date: today, value })
+
+    // Update gamification when first completing (reaching target)
+    if (!wasCompleted && isNowCompleted) {
+      updateStreakMutation.mutate({ habitId, date: today })
+      incrementHabitsMutation.mutate()
+      toast.success('Meta atingida! 🎯')
+    }
+  }
+
+  const handleQuantitativeRemove = (habitId: string) => {
+    removeCompletionMutation.mutate({ habitId, date: today })
   }
 
   const handleTaskToggle = (taskId: string, currentStatus: string) => {
@@ -106,6 +139,7 @@ export default function HomePage() {
     // Award XP when completing task
     if (newStatus === 'done') {
       incrementTasksMutation.mutate()
+      toast.success('Tarefa concluída! ✅')
     }
   }
 
@@ -127,7 +161,7 @@ export default function HomePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
         >
-          {t('greeting')}
+          {displayUserName ? t('greetingWithName', { name: displayUserName }) : t('greeting')}
         </motion.p>
       </header>
 
@@ -183,15 +217,20 @@ export default function HomePage() {
           )}
         </CardHeader>
         <CardContent className="space-y-3">
-          {todayHabits.length === 0 ? (
+          {isLoadingHabits ? (
+            <HabitCardSkeleton count={3} />
+          ) : todayHabits.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
               {t('noHabitsToday')}
             </p>
           ) : (
             <>
               {todayHabits.map((habit) => {
-                const isCompleted = habit.completions.some((c) => c.date === today)
                 const completion = habit.completions.find((c) => c.date === today)
+                const isQuantitative = habit.tracking.type === 'quantitative'
+                const isCompleted = isQuantitative && habit.tracking.type === 'quantitative'
+                  ? (completion?.value ?? 0) >= habit.tracking.target
+                  : !!completion
 
                 return (
                   <div
@@ -199,28 +238,45 @@ export default function HomePage() {
                     className="flex items-center gap-3 rounded-lg border p-3"
                     style={{ borderLeftColor: habit.color, borderLeftWidth: 4 }}
                   >
-                    <Checkbox
-                      checked={isCompleted}
-                      onCheckedChange={() => handleHabitToggle(habit.id)}
-                      className="h-5 w-5"
-                    />
-                    <div className="flex-1">
-                      <p
-                        className={
-                          isCompleted ? 'text-muted-foreground line-through' : ''
-                        }
-                      >
-                        {habit.title}
-                      </p>
-                      {habit.tracking.type === 'quantitative' && (
-                        <p className="text-xs text-muted-foreground">
-                          {completion?.value || 0} / {habit.tracking.target}{' '}
-                          {habit.tracking.unit}
+                    {isQuantitative && habit.tracking.type === 'quantitative' ? (
+                      <QuantitativeHabitInput
+                        target={habit.tracking.target}
+                        unit={habit.tracking.unit}
+                        completion={completion}
+                        onValueChange={(value) => handleQuantitativeValueChange(habit.id, value)}
+                        onRemove={() => handleQuantitativeRemove(habit.id)}
+                      />
+                    ) : (
+                      <>
+                        <Checkbox
+                          checked={isCompleted}
+                          onCheckedChange={() => handleHabitToggle(habit.id)}
+                          className="h-5 w-5"
+                        />
+                        <div className="flex-1">
+                          <p
+                            className={
+                              isCompleted ? 'text-muted-foreground line-through' : ''
+                            }
+                          >
+                            {habit.title}
+                          </p>
+                        </div>
+                        {isCompleted && (
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        )}
+                      </>
+                    )}
+                    {isQuantitative && (
+                      <div className="flex-1">
+                        <p
+                          className={
+                            isCompleted ? 'text-muted-foreground line-through' : ''
+                          }
+                        >
+                          {habit.title}
                         </p>
-                      )}
-                    </div>
-                    {isCompleted && (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      </div>
                     )}
                   </div>
                 )
@@ -254,7 +310,9 @@ export default function HomePage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {tasks.length === 0 ? (
+          {isLoadingTasks ? (
+            <TaskCardSkeleton count={3} />
+          ) : tasks.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
               {t('noTasksToday')}
             </p>

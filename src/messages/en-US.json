@@ -1,6 +1,7 @@
 {
   "common": {
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -34,6 +35,7 @@
   },
   "home": {
     "greeting": "Hello!",
+    "greetingWithName": "Hello, {name}!",
     "todayAgenda": "Today's agenda",
     "habitsProgress": "{completed} of {total} habits",
     "tasksRemaining": "{count, plural, =0 {No tasks} =1 {# task remaining} other {# tasks remaining}}",
@@ -126,6 +128,7 @@
     "deleteConfirmation": "Are you sure you want to delete this area? Associated habits and tasks will not be deleted.",
     "areaName": "Area name",
     "areaNotFound": "Area not found",
+    "color": "Color",
     "health": "Health",
     "studies": "Studies",
     "finances": "Finances",

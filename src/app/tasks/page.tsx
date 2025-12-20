@@ -32,12 +32,13 @@ import {
 } from '@/components/tasks'
 import type { TaskFilters } from '@/components/tasks'
 import { useTasks, useSetTaskStatus, useReorderTasks } from '@/hooks/queries/use-tasks'
+import { TaskListSkeleton } from '@/components/skeletons'
 import { arrayMove } from '@dnd-kit/sortable'
 import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
-  const { data: tasks = [] } = useTasks()
+  const { data: tasks = [], isLoading } = useTasks()
   const setTaskStatusMutation = useSetTaskStatus()
   const reorderTasksMutation = useReorderTasks()
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
@@ -106,7 +107,9 @@ export default function TasksPage() {
 
         <TabsContent value="list" className="mt-4 space-y-4">
           {/* Pending Tasks */}
-          {pendingTasks.length === 0 && completedTasks.length === 0 ? (
+          {isLoading ? (
+            <TaskListSkeleton count={5} />
+          ) : pendingTasks.length === 0 && completedTasks.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
                 <p className="mb-4 text-muted-foreground">{t('noTasks')}</p>

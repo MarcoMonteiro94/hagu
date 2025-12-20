@@ -27,8 +27,8 @@ function formatDate(date: Date, locale: string): string {
 export function HabitYearHeatmap({
   habit,
   weeks = 52,
-  cellSize = 12,
-  gap = 3,
+  cellSize = 10,
+  gap = 2,
 }: HabitYearHeatmapProps) {
   const locale = useSettingsStore((state) => state.locale)
 
@@ -124,7 +124,7 @@ export function HabitYearHeatmap({
   }
 
   return (
-    <div className="space-y-2 overflow-x-auto">
+    <div className="space-y-2">
       {/* Month labels */}
       <div
         className="flex text-xs text-muted-foreground"

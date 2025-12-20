@@ -444,7 +444,7 @@ export const completionsService = {
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
     let currentStreak = 0
-    let checkDate = dates[0] === today ? today : dates[0] === yesterday ? yesterday : null
+    const checkDate = dates[0] === today ? today : dates[0] === yesterday ? yesterday : null
 
     if (checkDate) {
       currentStreak = 1
@@ -497,5 +497,76 @@ export const completionsService = {
     }
 
     return streaks
+  },
+
+  async setCompletionValue(
+    supabase: SupabaseClient,
+    habitId: string,
+    date: string,
+    value: number
+  ): Promise<{ completion: HabitCompletion }> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Check if completion exists
+    const { data: existing } = await supabase
+      .from('habit_completions')
+      .select('*')
+      .eq('habit_id', habitId)
+      .eq('date', date)
+      .single()
+
+    if (existing) {
+      // Update existing completion
+      const { data, error } = await supabase
+        .from('habit_completions')
+        .update({ value })
+        .eq('id', existing.id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Update streak
+      await this.updateStreak(supabase, habitId)
+
+      return { completion: toCompletion(data as DbHabitCompletion) }
+    }
+
+    // Create new completion
+    const { data, error } = await supabase
+      .from('habit_completions')
+      .insert({
+        habit_id: habitId,
+        user_id: user.id,
+        date,
+        value,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // Update streak
+    await this.updateStreak(supabase, habitId)
+
+    return { completion: toCompletion(data as DbHabitCompletion) }
+  },
+
+  async removeCompletion(
+    supabase: SupabaseClient,
+    habitId: string,
+    date: string
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('habit_completions')
+      .delete()
+      .eq('habit_id', habitId)
+      .eq('date', date)
+
+    if (error) throw error
+
+    // Update streak
+    await this.updateStreak(supabase, habitId)
   },
 }

@@ -93,7 +93,7 @@ export function Sidebar() {
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-1 p-3" aria-label="Navegação principal">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== '/' && pathname.startsWith(item.href))
@@ -102,6 +102,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                   isActive
@@ -117,7 +118,7 @@ export function Sidebar() {
         </nav>
 
         {/* Bottom Navigation */}
-        <div className="border-t p-3 space-y-1">
+        <nav className="border-t p-3 space-y-1" aria-label="Configurações">
           {BOTTOM_ITEMS.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== '/' && pathname.startsWith(item.href))
@@ -126,6 +127,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                   isActive
@@ -140,7 +142,7 @@ export function Sidebar() {
           })}
           {/* User Menu */}
           <UserMenu />
-        </div>
+        </nav>
       </div>
     </aside>
   )
