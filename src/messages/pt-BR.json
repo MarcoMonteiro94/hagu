@@ -274,6 +274,12 @@
       "monthsLeft": "{count, plural, =1 {# mês restante} other {# meses restantes}}",
       "overdue": "Prazo vencido"
     },
+    "paymentReminders": {
+      "sync": "Sincronizar lembretes de pagamento",
+      "synced": "{count, plural, =1 {# lembrete criado} other {# lembretes criados}}",
+      "upToDate": "Todos os lembretes já estão sincronizados",
+      "error": "Erro ao sincronizar lembretes"
+    },
     "calculator": {
       "title": "Calculadora de Investimentos",
       "initialAmount": "Valor inicial",

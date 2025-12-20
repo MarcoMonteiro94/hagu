@@ -274,6 +274,12 @@
       "monthsLeft": "{count, plural, =1 {# month left} other {# months left}}",
       "overdue": "Overdue"
     },
+    "paymentReminders": {
+      "sync": "Sync payment reminders",
+      "synced": "{count, plural, =1 {# reminder created} other {# reminders created}}",
+      "upToDate": "All reminders are already synced",
+      "error": "Error syncing reminders"
+    },
     "calculator": {
       "title": "Investment Calculator",
       "initialAmount": "Initial amount",

@@ -22,9 +22,11 @@ import {
   InvestmentCalculator,
 } from '@/components/finances'
 import { useSettings, useUpdateSettings } from '@/hooks/queries/use-settings'
+import { useSyncPaymentReminders } from '@/hooks/queries/use-finances'
 import { getCurrentMonth, getLastNMonths, getMonthName } from '@/lib/finances'
 import type { CurrencyCode } from '@/types/finances'
 import { CURRENCIES } from '@/types/finances'
+import { toast } from 'sonner'
 import {
   Plus,
   Wallet,
@@ -33,6 +35,7 @@ import {
   Calculator,
   ArrowUpCircle,
   ArrowDownCircle,
+  Bell,
 } from 'lucide-react'
 
 export default function FinancesPage() {
@@ -40,9 +43,25 @@ export default function FinancesPage() {
   const [mounted, setMounted] = useState(false)
   const { data: settings } = useSettings()
   const updateSettingsMutation = useUpdateSettings()
+  const syncPaymentRemindersMutation = useSyncPaymentReminders()
   const currency = settings?.currency ?? 'BRL'
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
   const [activeTab, setActiveTab] = useState('transactions')
+
+  const handleSyncPaymentReminders = () => {
+    syncPaymentRemindersMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.created > 0) {
+          toast.success(t('finances.paymentReminders.synced', { count: result.created }))
+        } else {
+          toast.info(t('finances.paymentReminders.upToDate'))
+        }
+      },
+      onError: () => {
+        toast.error(t('finances.paymentReminders.error'))
+      },
+    })
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -97,6 +116,17 @@ export default function FinancesPage() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Sync Payment Reminders Button */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleSyncPaymentReminders}
+            disabled={syncPaymentRemindersMutation.isPending}
+            title={t('finances.paymentReminders.sync')}
+          >
+            <Bell className={`h-4 w-4 ${syncPaymentRemindersMutation.isPending ? 'animate-pulse' : ''}`} />
+          </Button>
 
           {/* Add Transaction Button */}
           {activeTab === 'transactions' && (
