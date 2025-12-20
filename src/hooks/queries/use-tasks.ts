@@ -145,6 +145,8 @@ export function useSetTaskStatus() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
+      // Also invalidate transactions in case a payment reminder task was completed
+      queryClient.invalidateQueries({ queryKey: ['finances', 'transactions'] })
     },
   })
 }

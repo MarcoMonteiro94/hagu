@@ -58,6 +58,7 @@ export interface Task {
   estimatedMinutes?: number
   recurrence?: RecurrencePattern
   subtasks: Subtask[]
+  linkedTransactionId?: string // Links task to a recurring expense for payment reminders
   createdAt: string
   completedAt?: string
 }

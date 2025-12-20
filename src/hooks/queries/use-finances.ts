@@ -8,6 +8,11 @@ import {
   budgetsService,
   goalsService,
 } from '@/services/finances.service'
+import {
+  createPaymentReminderTask,
+  createMissingPaymentReminders,
+} from '@/lib/payment-reminders'
+import { tasksKeys } from './use-tasks'
 import type {
   Transaction,
   TransactionCategory,
@@ -70,10 +75,19 @@ export function useCreateTransaction() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (transaction: Omit<Transaction, 'id' | 'createdAt'>) =>
-      transactionsService.create(supabase, transaction),
+    mutationFn: async (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
+      const createdTransaction = await transactionsService.create(supabase, transaction)
+
+      // Create payment reminder task for recurring expenses
+      if (createdTransaction.type === 'expense' && createdTransaction.isRecurring) {
+        await createPaymentReminderTask(supabase, createdTransaction)
+      }
+
+      return createdTransaction
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financesKeys.transactions() })
+      queryClient.invalidateQueries({ queryKey: tasksKeys.all })
     },
   })
 }
@@ -342,4 +356,35 @@ export function useTotalBalance() {
     ...rest,
     data: balance ?? 0,
   }
+}
+
+// ============================================
+// PAYMENT REMINDER MIGRATION
+// ============================================
+
+/**
+ * Hook to sync all recurring expenses with payment reminder tasks.
+ * Creates tasks for recurring expenses that don't already have an active task.
+ */
+export function useSyncPaymentReminders() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      // Get all transactions
+      const transactions = await transactionsService.getAll(supabase)
+
+      // Filter to recurring expenses only
+      const recurringExpenses = transactions.filter(
+        (t) => t.type === 'expense' && t.isRecurring && t.recurrence
+      )
+
+      // Create missing payment reminders
+      return createMissingPaymentReminders(supabase, recurringExpenses)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tasksKeys.all })
+    },
+  })
 }

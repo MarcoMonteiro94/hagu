@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Task, Subtask, TaskStatus, TaskPriority, RecurrencePattern } from '@/types'
+import { calculateNextRecurrenceDate } from '@/lib/finances'
+import { areasService } from '@/services/areas.service'
+
+const FINANCES_AREA_SLUG = 'finances'
 
 // Database row types
 interface DbTask {
@@ -17,6 +21,7 @@ interface DbTask {
   recurrence_type: 'daily' | 'weekly' | 'monthly' | 'yearly' | null
   recurrence_interval: number | null
   recurrence_end_date: string | null
+  linked_transaction_id: string | null
   order: number
   created_at: string
   completed_at: string | null
@@ -79,6 +84,7 @@ function toTask(row: DbTask, subtasks: Subtask[] = []): Task {
     estimatedMinutes: row.estimated_minutes ?? undefined,
     recurrence,
     subtasks,
+    linkedTransactionId: row.linked_transaction_id ?? undefined,
     createdAt: row.created_at,
     completedAt: row.completed_at ?? undefined,
   }
@@ -273,6 +279,7 @@ export const tasksService = {
         recurrence_type: task.recurrence?.type,
         recurrence_interval: task.recurrence?.interval,
         recurrence_end_date: task.recurrence?.endDate,
+        linked_transaction_id: task.linkedTransactionId || null,
         order: maxOrder + 1,
       })
       .select()
@@ -336,6 +343,33 @@ export const tasksService = {
   async delete(supabase: SupabaseClient, id: string): Promise<void> {
     const { error } = await supabase.from('tasks').delete().eq('id', id)
     if (error) throw error
+  },
+
+  async getByLinkedTransactionId(
+    supabase: SupabaseClient,
+    transactionId: string
+  ): Promise<Task | null> {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('linked_transaction_id', transactionId)
+      .neq('status', 'done')
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') return null
+      throw error
+    }
+
+    const { data: subtasksData } = await supabase
+      .from('subtasks')
+      .select('*')
+      .eq('task_id', data.id)
+      .order('order', { ascending: true })
+
+    const subtasks = ((subtasksData ?? []) as DbSubtask[]).map(toSubtask)
+
+    return toTask(data as DbTask, subtasks)
   },
 
   async setStatus(
@@ -423,6 +457,72 @@ export const tasksService = {
 
           const subtasks = ((newSubtasksData ?? []) as DbSubtask[]).map(toSubtask)
           newRecurringTask = toTask(newTaskData as DbTask, subtasks)
+        }
+      }
+    }
+
+    // Handle payment reminder tasks (linked to recurring transactions)
+    if (status === 'done' && currentTask.linkedTransactionId) {
+      // Fetch the linked transaction
+      const { data: transactionData } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', currentTask.linkedTransactionId)
+        .single()
+
+      if (transactionData && transactionData.is_recurring && transactionData.recurrence_frequency) {
+        const currentNextDate = transactionData.recurrence_next_date || transactionData.date
+        const nextDueDate = calculateNextRecurrenceDate(currentNextDate, transactionData.recurrence_frequency)
+
+        // Check if we should create the next reminder
+        const shouldCreate =
+          !transactionData.recurrence_end_date || nextDueDate <= transactionData.recurrence_end_date
+
+        if (shouldCreate) {
+          // Update transaction's next recurrence date
+          await supabase
+            .from('transactions')
+            .update({ recurrence_next_date: nextDueDate })
+            .eq('id', currentTask.linkedTransactionId)
+
+          // Get finances area
+          const financesArea = await areasService.getBySlug(supabase, FINANCES_AREA_SLUG)
+
+          // Get max order
+          const { data: allTasks } = await supabase
+            .from('tasks')
+            .select('*')
+            .order('order', { ascending: false })
+            .limit(1)
+
+          const maxOrder = allTasks && allTasks.length > 0 ? (allTasks[0] as DbTask).order : -1
+
+          // Create next payment reminder task
+          const { data: newTaskData } = await supabase
+            .from('tasks')
+            .insert({
+              user_id: user.id,
+              project_id: null,
+              area_id: financesArea?.id || null,
+              title: currentTask.title,
+              description: currentTask.description,
+              due_date: nextDueDate,
+              priority: 'medium',
+              status: 'pending',
+              tags: ['payment', 'recurring'],
+              estimated_minutes: null,
+              recurrence_type: null,
+              recurrence_interval: null,
+              recurrence_end_date: null,
+              linked_transaction_id: currentTask.linkedTransactionId,
+              order: maxOrder + 1,
+            })
+            .select()
+            .single()
+
+          if (newTaskData) {
+            newRecurringTask = toTask(newTaskData as DbTask, [])
+          }
         }
       }
     }
