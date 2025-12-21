@@ -122,7 +122,9 @@
       "upcoming": "Próximas",
       "overdue": "Atrasadas",
       "completed": "Concluídas"
-    }
+    },
+    "showAll": "Ver todas",
+    "showLess": "Ver menos"
   },
   "areas": {
     "title": "Áreas de vida",

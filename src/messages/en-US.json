@@ -122,7 +122,9 @@
       "upcoming": "Upcoming",
       "overdue": "Overdue",
       "completed": "Completed"
-    }
+    },
+    "showAll": "Show all",
+    "showLess": "Show less"
   },
   "areas": {
     "title": "Life areas",

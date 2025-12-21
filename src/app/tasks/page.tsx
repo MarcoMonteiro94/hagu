@@ -35,7 +35,7 @@ import { useTasks, useSetTaskStatus, useReorderTasks, useDeleteTask } from '@/ho
 import { toast } from 'sonner'
 import { TaskListSkeleton } from '@/components/skeletons'
 import { arrayMove } from '@dnd-kit/sortable'
-import { Plus, Calendar, ListTodo, LayoutGrid } from 'lucide-react'
+import { Plus, Calendar, ListTodo, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
@@ -44,6 +44,7 @@ export default function TasksPage() {
   const reorderTasksMutation = useReorderTasks()
   const deleteTaskMutation = useDeleteTask()
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
+  const [showAllCompleted, setShowAllCompleted] = useState(false)
 
   // Apply filters to tasks
   const filteredTasks = filterTasks(tasks, filters)
@@ -165,15 +166,37 @@ export default function TasksPage() {
 
               {completedTasks.length > 0 && (
                 <div className="space-y-2">
-                  <h2 className="text-sm font-medium text-muted-foreground">
-                    {t('filters.completed')} ({completedTasks.length})
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-medium text-muted-foreground">
+                      {t('filters.completed')} ({completedTasks.length})
+                    </h2>
+                    {completedTasks.length > 5 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAllCompleted(!showAllCompleted)}
+                        className="h-auto py-1 px-2 text-xs text-muted-foreground"
+                      >
+                        {showAllCompleted ? (
+                          <>
+                            <ChevronUp className="mr-1 h-3 w-3" />
+                            {t('showLess')}
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="mr-1 h-3 w-3" />
+                            {t('showAll')}
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
                   <SortableContext
                     items={completedTasks.map((t) => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     <div className="space-y-2">
-                      {completedTasks.slice(0, 5).map((task) => (
+                      {(showAllCompleted ? completedTasks : completedTasks.slice(0, 5)).map((task) => (
                         <SortableTaskCard
                           key={task.id}
                           task={task}
