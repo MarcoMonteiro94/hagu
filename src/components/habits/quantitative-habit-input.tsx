@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Minus, Plus, Check, X } from 'lucide-react'
+import { Minus, Plus, Check } from 'lucide-react'
 import type { HabitCompletion } from '@/types'
 
 interface QuantitativeHabitInputProps {
@@ -11,7 +11,8 @@ interface QuantitativeHabitInputProps {
   unit: string
   completion: HabitCompletion | undefined
   onValueChange: (value: number) => void
-  onRemove: () => void
+  /** @deprecated No longer used - removal via separate action if needed */
+  onRemove?: () => void
 }
 
 export function QuantitativeHabitInput({
@@ -19,7 +20,6 @@ export function QuantitativeHabitInput({
   unit,
   completion,
   onValueChange,
-  onRemove,
 }: QuantitativeHabitInputProps) {
   const currentValue = completion?.value ?? 0
   const isCompleted = currentValue >= target
@@ -36,19 +36,10 @@ export function QuantitativeHabitInput({
   }, [currentValue, onValueChange])
 
   const handleDecrement = useCallback(() => {
-    if (currentValue <= 0) {
-      if (completion) {
-        onRemove()
-      }
-      return
-    }
+    if (currentValue <= 0) return
     const newValue = currentValue - 1
-    if (newValue === 0 && completion) {
-      onRemove()
-    } else {
-      onValueChange(newValue)
-    }
-  }, [currentValue, completion, onValueChange, onRemove])
+    onValueChange(newValue)
+  }, [currentValue, onValueChange])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
@@ -57,15 +48,11 @@ export function QuantitativeHabitInput({
   const handleInputBlur = useCallback(() => {
     const parsed = parseInt(inputValue, 10)
     if (!isNaN(parsed) && parsed >= 0) {
-      if (parsed === 0 && completion) {
-        onRemove()
-      } else if (parsed > 0) {
-        onValueChange(parsed)
-      }
+      onValueChange(parsed)
     } else {
       setInputValue(currentValue.toString())
     }
-  }, [inputValue, currentValue, completion, onValueChange, onRemove])
+  }, [inputValue, currentValue, onValueChange])
 
   const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -83,13 +70,9 @@ export function QuantitativeHabitInput({
         className="h-7 w-7"
         onClick={handleDecrement}
         disabled={currentValue <= 0}
-        aria-label={currentValue === 1 ? 'Remover progresso' : 'Diminuir valor'}
+        aria-label="Diminuir valor"
       >
-        {currentValue === 1 ? (
-          <X className="h-3.5 w-3.5" />
-        ) : (
-          <Minus className="h-3.5 w-3.5" />
-        )}
+        <Minus className="h-3.5 w-3.5" />
       </Button>
 
       <div className="flex items-center gap-1">

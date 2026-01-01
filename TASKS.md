@@ -632,15 +632,16 @@ Quando um hábito quantitativo tem valor 1, o botão de decrementar (-) muda par
 - Valor = 1 → botão mostra "X" ao invés de "-"
 - Clicar em X provavelmente remove o registro
 
-### Solução Proposta
-1. Manter botão "-" sempre visível
-2. Desabilitar botão quando valor = 0 (ou mínimo permitido)
-3. Se necessário remover, usar ação separada (long press, menu, etc.)
+### Solução Implementada
+1. Botão "-" agora é sempre exibido (removido ícone X)
+2. Botão desabilitado quando valor = 0
+3. Decrementar de 1 para 0 apenas atualiza o valor (não remove registro)
+4. Prop `onRemove` marcada como deprecated e opcional
 
 ### Critérios de Aceite
-- [ ] Botão "-" nunca vira "X"
-- [ ] Botão desabilitado quando valor = 0
-- [ ] Remoção de registro via ação separada (se necessário)
+- [x] Botão "-" nunca vira "X"
+- [x] Botão desabilitado quando valor = 0
+- [x] Remoção de registro via ação separada (se necessário)
 
 ---
 
@@ -662,7 +663,7 @@ Quando um hábito quantitativo tem valor 1, o botão de decrementar (-) muda par
 | 12 | Menu Sumindo no Mobile | Alta | Baixa | ✅ Concluído |
 | 13 | Responsivo Filtros de Tasks | Alta | Média | ✅ Concluído |
 | 14 | Home Customizável | Média | Alta | Pendente |
-| 15 | Botão Decrementar Hábito | Média | Baixa | Pendente |
+| 15 | Botão Decrementar Hábito | Média | Baixa | ✅ Concluído |
 
 ---
 
