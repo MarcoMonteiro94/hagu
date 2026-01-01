@@ -264,6 +264,95 @@ const checkAndUnlock = useCallback(() => {
 
 ---
 
+## 6. Remover Quadro Kanban da Área de Tarefas
+
+**Prioridade:** Baixa
+**Complexidade:** Baixa
+**Arquivos relacionados:**
+- `/src/app/tasks/page.tsx`
+
+### Problema
+O quadro Kanban na página de tarefas não está sendo utilizado e adiciona complexidade desnecessária à interface.
+
+### Estado Atual
+- Página de tasks tem 3 views: List, Kanban, Calendar
+- Kanban provavelmente implementado com tabs ou toggle
+
+### Solução Proposta
+1. Remover opção "Kanban" do seletor de views
+2. Remover componente/código relacionado ao Kanban
+3. Manter apenas List e Calendar como opções
+
+### Critérios de Aceite
+- [ ] Opção Kanban removida da UI
+- [ ] Código do Kanban removido
+- [ ] Views List e Calendar funcionando normalmente
+
+---
+
+## 7. Tarefas Não Aparecem no Calendário
+
+**Prioridade:** Alta
+**Complexidade:** Média
+**Arquivos relacionados:**
+- `/src/app/tasks/page.tsx`
+- `/src/components/tasks/task-calendar.tsx` (ou similar)
+- `/src/hooks/queries/use-tasks.ts`
+
+### Problema
+Ao selecionar uma data no calendário da página de tarefas, apenas os hábitos estão aparecendo. As tarefas com `dueDate` não são exibidas.
+
+### Investigação Necessária
+1. Verificar como o calendário filtra os dados
+2. Checar se tasks com `dueDate` estão sendo passadas para o componente
+3. Validar se o filtro por data está correto
+
+### Solução Proposta
+1. Garantir que tasks são filtradas por `dueDate` igual à data selecionada
+2. Exibir tasks junto com hábitos na lista do dia
+3. Diferenciar visualmente tasks de hábitos
+
+### Critérios de Aceite
+- [ ] Tasks com dueDate aparecem no calendário
+- [ ] Ao clicar em uma data, tasks daquele dia são listadas
+- [ ] Tasks e hábitos são diferenciados visualmente
+
+---
+
+## 8. Caderno Não Aparece Após Criação (Cache)
+
+**Prioridade:** Alta
+**Complexidade:** Baixa
+**Arquivos relacionados:**
+- `/src/hooks/queries/use-notebooks.ts`
+- `/src/components/studies/notebook-form-dialog.tsx`
+
+### Problema
+Ao criar um novo caderno, ele não aparece na lista até que a página seja recarregada. Isso indica problema de invalidação de cache do React Query.
+
+### Estado Atual
+- Criação de notebook usa mutation
+- Lista de notebooks usa query
+- Cache provavelmente não está sendo invalidado após mutation
+
+### Solução Proposta
+```typescript
+// use-notebooks.ts - Garantir invalidação
+const createMutation = useMutation({
+  mutationFn: (data) => notebooksService.create(supabase, data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['notebooks'] })
+  },
+})
+```
+
+### Critérios de Aceite
+- [ ] Novo caderno aparece imediatamente após criação
+- [ ] Não precisa recarregar página
+- [ ] Cache é invalidado corretamente
+
+---
+
 ## Resumo
 
 | # | Tarefa | Prioridade | Complexidade | Status |
@@ -273,6 +362,9 @@ const checkAndUnlock = useCallback(() => {
 | 3 | Associação Tasks/Páginas | Alta | Alta | Pendente |
 | 4 | Correção Streak | Alta | Média | Pendente |
 | 5 | Notificações Achievements | Alta | Média | Pendente |
+| 6 | Remover Kanban | Baixa | Baixa | Pendente |
+| 7 | Tasks no Calendário | Alta | Média | Pendente |
+| 8 | Cache de Notebooks | Alta | Baixa | Pendente |
 
 ---
 
@@ -281,3 +373,5 @@ const checkAndUnlock = useCallback(() => {
 - Tasks #2 e #3 são relacionadas e devem ser implementadas juntas
 - Task #5 é um bug que afeta UX, priorizar correção
 - Task #4 precisa de investigação adicional para identificar causa raiz exata
+- Task #8 é um fix rápido que melhora muito a UX
+- Task #7 pode estar relacionada a como o calendário foi implementado
