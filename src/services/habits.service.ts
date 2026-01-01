@@ -18,6 +18,9 @@ interface DbHabit {
   order: number
   created_at: string
   archived_at: string | null
+  reminder_time: string | null
+  reminder_enabled: boolean
+  notebook_id: string | null
 }
 
 interface DbHabitCompletion {
@@ -90,6 +93,9 @@ function toHabit(row: DbHabit, completions: HabitCompletion[] = []): Habit {
     completions,
     createdAt: row.created_at,
     archivedAt: row.archived_at ?? undefined,
+    reminderTime: row.reminder_time ?? undefined,
+    reminderEnabled: row.reminder_enabled ?? false,
+    notebookId: row.notebook_id ?? undefined,
   }
 }
 
@@ -199,6 +205,40 @@ export const habitsService = {
     return habits.map((h) => toHabit(h, completionsByHabit.get(h.id) ?? []))
   },
 
+  async getByNotebook(supabase: SupabaseClient, notebookId: string): Promise<Habit[]> {
+    const { data: habitsData, error: habitsError } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('notebook_id', notebookId)
+      .is('archived_at', null)
+      .order('order', { ascending: true })
+
+    if (habitsError) throw habitsError
+
+    const habits = (habitsData ?? []) as DbHabit[]
+
+    if (habits.length === 0) return []
+
+    // Get completions
+    const habitIds = habits.map((h) => h.id)
+    const { data: completionsData, error: completionsError } = await supabase
+      .from('habit_completions')
+      .select('*')
+      .in('habit_id', habitIds)
+
+    if (completionsError) throw completionsError
+
+    const completions = (completionsData ?? []) as DbHabitCompletion[]
+    const completionsByHabit = new Map<string, HabitCompletion[]>()
+    completions.forEach((c) => {
+      const existing = completionsByHabit.get(c.habit_id) ?? []
+      existing.push(toCompletion(c))
+      completionsByHabit.set(c.habit_id, existing)
+    })
+
+    return habits.map((h) => toHabit(h, completionsByHabit.get(h.id) ?? []))
+  },
+
   async create(
     supabase: SupabaseClient,
     habit: Omit<Habit, 'id' | 'createdAt' | 'completions'>
@@ -240,6 +280,9 @@ export const habitsService = {
         color: habit.color,
         icon: habit.icon,
         order: maxOrder + 1,
+        reminder_time: habit.reminderTime || null,
+        reminder_enabled: habit.reminderEnabled || false,
+        notebook_id: habit.notebookId || null,
       })
       .select()
       .single()
@@ -270,6 +313,9 @@ export const habitsService = {
     if (updates.color !== undefined) dbUpdates.color = updates.color
     if (updates.icon !== undefined) dbUpdates.icon = updates.icon
     if (updates.archivedAt !== undefined) dbUpdates.archived_at = updates.archivedAt
+    if (updates.reminderTime !== undefined) dbUpdates.reminder_time = updates.reminderTime || null
+    if (updates.reminderEnabled !== undefined) dbUpdates.reminder_enabled = updates.reminderEnabled
+    if (updates.notebookId !== undefined) dbUpdates.notebook_id = updates.notebookId || null
 
     if (updates.frequency) {
       dbUpdates.frequency_type = updates.frequency.type

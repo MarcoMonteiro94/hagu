@@ -15,8 +15,9 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCreateHabit, useUpdateHabit } from '@/hooks/queries/use-habits'
 import { useOrderedAreas } from '@/hooks/queries/use-areas'
+import { useNotebooks } from '@/hooks/queries/use-notebooks'
 import type { Habit, HabitFrequency, HabitTracking } from '@/types'
-import { Plus, Check, Edit } from 'lucide-react'
+import { Plus, Check, Edit, Book, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PICKER_COLORS, getColorName } from '@/config/colors'
 
@@ -61,6 +62,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const createHabitMutation = useCreateHabit()
   const updateHabitMutation = useUpdateHabit()
   const { data: areas = [] } = useOrderedAreas()
+  const { data: notebooks = [] } = useNotebooks()
 
   const isEditing = !!habit
   const defaultAreaId = propDefaultAreaId || areas[0]?.id || ''
@@ -70,6 +72,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const [description, setDescription] = useState(habit?.description || '')
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
   const [color, setColor] = useState(habit?.color || PICKER_COLORS[3])
+  const [notebookId, setNotebookId] = useState(habit?.notebookId || '')
 
   // Update areaId when areas first load if we started with empty value
   useEffect(() => {
@@ -97,6 +100,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setDescription(habit.description || '')
       setAreaId(habit.areaId)
       setColor(habit.color)
+      setNotebookId(habit.notebookId || '')
       setFrequencyType(getInitialFrequencyType(habit))
       setDaysPerWeek(getInitialDaysPerWeek(habit))
       setSpecificDays(getInitialSpecificDays(habit))
@@ -110,6 +114,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setDescription('')
       setAreaId(defaultAreaId)
       setColor(PICKER_COLORS[3])
+      setNotebookId('')
       setFrequencyType('daily')
       setDaysPerWeek(3)
       setSpecificDays([1, 3, 5])
@@ -160,6 +165,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
             frequency,
             tracking,
             color,
+            notebookId: notebookId || undefined,
           },
         })
       } else {
@@ -170,6 +176,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
           frequency,
           tracking,
           color,
+          notebookId: notebookId || undefined,
         })
       }
 
@@ -291,6 +298,37 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
               ))}
             </div>
           </div>
+
+          {/* Linked Notebook (Optional) */}
+          {notebooks.length > 0 && (
+            <div className="space-y-2">
+              <Label>{t('linkedNotebook')}</Label>
+              <p className="text-xs text-muted-foreground">{t('linkedNotebookHint')}</p>
+              <div className="flex flex-wrap gap-2">
+                {notebooks.map((notebook) => (
+                  <Button
+                    key={notebook.id}
+                    type="button"
+                    variant={notebookId === notebook.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setNotebookId(notebookId === notebook.id ? '' : notebook.id)}
+                    className="flex items-center gap-1"
+                    style={
+                      notebookId === notebook.id
+                        ? { backgroundColor: notebook.color, borderColor: notebook.color }
+                        : {}
+                    }
+                  >
+                    <Book className="h-3 w-3" />
+                    {notebook.title}
+                    {notebookId === notebook.id && (
+                      <X className="h-3 w-3 ml-1" />
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Frequency */}
           <div className="space-y-3">

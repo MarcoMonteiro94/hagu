@@ -63,6 +63,9 @@ export interface Database {
           order: number
           created_at: string
           archived_at: string | null
+          reminder_time: string | null
+          reminder_enabled: boolean
+          notebook_id: string | null
         }
         Insert: {
           id?: string
@@ -80,6 +83,9 @@ export interface Database {
           order?: number
           created_at?: string
           archived_at?: string | null
+          reminder_time?: string | null
+          reminder_enabled?: boolean
+          notebook_id?: string | null
         }
         Update: {
           id?: string
@@ -97,6 +103,9 @@ export interface Database {
           order?: number
           created_at?: string
           archived_at?: string | null
+          reminder_time?: string | null
+          reminder_enabled?: boolean
+          notebook_id?: string | null
         }
       }
       habit_completions: {
@@ -559,6 +568,96 @@ export interface Database {
           completed_at?: string
         }
       }
+      notebooks: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          color: string
+          icon: string | null
+          order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          color?: string
+          icon?: string | null
+          order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          color?: string
+          icon?: string | null
+          order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      notebook_pages: {
+        Row: {
+          id: string
+          notebook_id: string
+          user_id: string
+          title: string
+          content: Json
+          order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          notebook_id: string
+          user_id: string
+          title: string
+          content?: Json
+          order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          notebook_id?: string
+          user_id?: string
+          title?: string
+          content?: Json
+          order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          endpoint: string
+          keys: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          endpoint: string
+          keys: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          endpoint?: string
+          keys?: Json
+          created_at?: string
+        }
+      }
       user_settings: {
         Row: {
           user_id: string
@@ -629,3 +728,6 @@ export type DbFinancialGoal = Tables<'financial_goals'>
 export type DbGoalContribution = Tables<'goal_contributions'>
 export type DbPomodoroSession = Tables<'pomodoro_sessions'>
 export type DbUserSettings = Tables<'user_settings'>
+export type DbNotebook = Tables<'notebooks'>
+export type DbNotebookPage = Tables<'notebook_pages'>
+export type DbPushSubscription = Tables<'push_subscriptions'>

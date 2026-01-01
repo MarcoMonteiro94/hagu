@@ -13,6 +13,7 @@ export const habitsKeys = {
   active: () => [...habitsKeys.lists(), 'active'] as const,
   archived: () => [...habitsKeys.lists(), 'archived'] as const,
   byArea: (areaId: string) => [...habitsKeys.lists(), 'area', areaId] as const,
+  byNotebook: (notebookId: string) => [...habitsKeys.lists(), 'notebook', notebookId] as const,
   details: () => [...habitsKeys.all, 'detail'] as const,
   detail: (id: string) => [...habitsKeys.details(), id] as const,
   streaks: () => [...habitsKeys.all, 'streaks'] as const,
@@ -64,6 +65,16 @@ export function useHabitsByArea(areaId: string) {
     queryKey: habitsKeys.byArea(areaId),
     queryFn: () => habitsService.getByArea(supabase, areaId),
     enabled: !!areaId,
+  })
+}
+
+export function useHabitsByNotebook(notebookId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: habitsKeys.byNotebook(notebookId),
+    queryFn: () => habitsService.getByNotebook(supabase, notebookId),
+    enabled: !!notebookId,
   })
 }
 

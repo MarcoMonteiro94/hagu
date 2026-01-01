@@ -27,6 +27,9 @@ export interface Habit {
   completions: HabitCompletion[]
   createdAt: string
   archivedAt?: string
+  reminderTime?: string // HH:mm format
+  reminderEnabled?: boolean
+  notebookId?: string // Link to a study notebook
 }
 
 // Task Types
@@ -153,6 +156,22 @@ export type {
 } from './finances'
 
 export { CURRENCIES } from './finances'
+
+// Re-export studies types
+export type {
+  Notebook,
+  NotebookWithPageCount,
+  NotebookPage,
+  NotebookPageSummary,
+  CreateNotebookData,
+  UpdateNotebookData,
+  CreatePageData,
+  UpdatePageData,
+  NotebookColor,
+  NotebookIcon,
+} from './studies'
+
+export { NOTEBOOK_COLORS, NOTEBOOK_ICONS } from './studies'
 
 // App Data for Export/Import
 export interface AppData {
