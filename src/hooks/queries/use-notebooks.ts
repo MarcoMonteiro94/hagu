@@ -70,8 +70,7 @@ export function useCreateNotebook() {
   return useMutation({
     mutationFn: (data: CreateNotebookData) => notebooksService.create(supabase, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notebookKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: notebookKeys.listWithCount() })
+      queryClient.invalidateQueries({ queryKey: notebookKeys.all })
     },
     onError: (error: Error) => {
       toast.error(error.message)
@@ -86,10 +85,9 @@ export function useUpdateNotebook() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateNotebookData }) =>
       notebooksService.update(supabase, id, data),
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: notebookKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: notebookKeys.listWithCount() })
-      queryClient.invalidateQueries({ queryKey: notebookKeys.detail(id) })
+    onSuccess: () => {
+      // Invalidate all notebook queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: notebookKeys.all })
     },
     onError: (error: Error) => {
       toast.error(error.message)
@@ -104,8 +102,8 @@ export function useDeleteNotebook() {
   return useMutation({
     mutationFn: (id: string) => notebooksService.delete(supabase, id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notebookKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: notebookKeys.listWithCount() })
+      // Invalidate all notebook queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: notebookKeys.all })
     },
     onError: (error: Error) => {
       toast.error(error.message)
@@ -120,8 +118,8 @@ export function useReorderNotebooks() {
   return useMutation({
     mutationFn: (orderedIds: string[]) => notebooksService.reorder(supabase, orderedIds),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notebookKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: notebookKeys.listWithCount() })
+      // Invalidate all notebook queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: notebookKeys.all })
     },
     onError: (error: Error) => {
       toast.error(error.message)

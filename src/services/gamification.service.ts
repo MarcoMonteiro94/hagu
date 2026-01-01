@@ -213,13 +213,27 @@ export const userStatsService = {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
+    // Get current stats to preserve other fields
+    const { data: current } = await supabase
+      .from('user_stats')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
+    const currentStats = current as DbUserStats | null
+
+    // Use upsert to create row if it doesn't exist
     const { data, error } = await supabase
       .from('user_stats')
-      .update({
+      .upsert({
+        user_id: user.id,
+        total_xp: currentStats?.total_xp ?? 0,
+        level: currentStats?.level ?? 1,
+        habits_completed: currentStats?.habits_completed ?? 0,
+        tasks_completed: currentStats?.tasks_completed ?? 0,
         current_streak: currentStreak,
         longest_streak: longestStreak,
       })
-      .eq('user_id', user.id)
       .select()
       .single()
 

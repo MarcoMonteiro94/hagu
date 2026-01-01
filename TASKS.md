@@ -360,18 +360,15 @@ const createMutation = useMutation({
 | 1 | Bulk Delete de Tasks | Média | Baixa | Pendente |
 | 2 | Dialog de Criação de Task | Alta | Média | Pendente |
 | 3 | Associação Tasks/Páginas | Alta | Alta | Pendente |
-| 4 | Correção Streak | Alta | Média | Pendente |
-| 5 | Notificações Achievements | Alta | Média | Pendente |
-| 6 | Remover Kanban | Baixa | Baixa | Pendente |
-| 7 | Tasks no Calendário | Alta | Média | Pendente |
-| 8 | Cache de Notebooks | Alta | Baixa | Pendente |
+| 4 | Correção Streak | Alta | Média | ✅ Concluído |
+| 5 | Notificações Achievements | Alta | Média | ✅ Concluído |
+| 6 | Remover Kanban | Baixa | Baixa | ✅ Concluído |
+| 7 | Tasks no Calendário | Alta | Média | ✅ Concluído |
+| 8 | Cache de Notebooks | Alta | Baixa | ✅ Concluído (Framer Motion fix) |
 
 ---
 
 ## Notas
 
 - Tasks #2 e #3 são relacionadas e devem ser implementadas juntas
-- Task #5 é um bug que afeta UX, priorizar correção
-- Task #4 precisa de investigação adicional para identificar causa raiz exata
-- Task #8 é um fix rápido que melhora muito a UX
 - Task #7 pode estar relacionada a como o calendário foi implementado

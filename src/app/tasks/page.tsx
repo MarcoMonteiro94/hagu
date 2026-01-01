@@ -24,7 +24,6 @@ import { PageTransition } from '@/components/ui/motion'
 import {
   TaskFormDialog,
   SortableTaskCard,
-  KanbanBoard,
   CalendarView,
   TaskFiltersComponent,
   filterTasks,
@@ -35,7 +34,7 @@ import { useTasks, useSetTaskStatus, useReorderTasks, useDeleteTask } from '@/ho
 import { toast } from 'sonner'
 import { TaskListSkeleton } from '@/components/skeletons'
 import { arrayMove } from '@dnd-kit/sortable'
-import { Plus, Calendar, ListTodo, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Calendar, ListTodo, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
@@ -104,14 +103,10 @@ export default function TasksPage() {
 
       {/* View Tabs */}
       <Tabs defaultValue="list" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="list" className="flex items-center gap-1">
             <ListTodo className="h-4 w-4" />
             {t('views.list')}
-          </TabsTrigger>
-          <TabsTrigger value="kanban" className="flex items-center gap-1">
-            <LayoutGrid className="h-4 w-4" />
-            {t('views.kanban')}
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
@@ -210,10 +205,6 @@ export default function TasksPage() {
               )}
             </DndContext>
           )}
-        </TabsContent>
-
-        <TabsContent value="kanban" className="mt-4">
-          <KanbanBoard />
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-4">

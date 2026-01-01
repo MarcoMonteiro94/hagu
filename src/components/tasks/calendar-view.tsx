@@ -35,10 +35,18 @@ interface DayData {
   }[]
 }
 
+// Format date as YYYY-MM-DD using local timezone (not UTC)
+function formatDateLocal(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 function getMonthDays(year: number, month: number, weekStartsOn: 0 | 1): DayData[] {
   const days: DayData[] = []
   const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
+  const todayStr = formatDateLocal(today)
 
   // First day of the month
   const firstDay = new Date(year, month, 1)
@@ -58,7 +66,7 @@ function getMonthDays(year: number, month: number, weekStartsOn: 0 | 1): DayData
     const date = new Date(year, month - 1, prevMonth.getDate() - i)
     days.push({
       date,
-      dateStr: date.toISOString().split('T')[0],
+      dateStr: formatDateLocal(date),
       isCurrentMonth: false,
       isToday: false,
       tasks: [],
@@ -69,7 +77,7 @@ function getMonthDays(year: number, month: number, weekStartsOn: 0 | 1): DayData
   // Add days of current month
   for (let day = 1; day <= lastDay.getDate(); day++) {
     const date = new Date(year, month, day)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = formatDateLocal(date)
     days.push({
       date,
       dateStr,
@@ -86,7 +94,7 @@ function getMonthDays(year: number, month: number, weekStartsOn: 0 | 1): DayData
     const date = new Date(year, month + 1, i)
     days.push({
       date,
-      dateStr: date.toISOString().split('T')[0],
+      dateStr: formatDateLocal(date),
       isCurrentMonth: false,
       isToday: false,
       tasks: [],

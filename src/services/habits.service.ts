@@ -481,6 +481,8 @@ export const completionsService = {
           longest_streak: 0,
           last_completed_date: null,
         })
+      // Update global stats
+      await this.updateGlobalStreaks(supabase, user.id)
       return
     }
 
@@ -526,6 +528,40 @@ export const completionsService = {
       longest_streak: longestStreak,
       last_completed_date: dates[0],
     })
+
+    // Update global stats
+    await this.updateGlobalStreaks(supabase, user.id)
+  },
+
+  async updateGlobalStreaks(supabase: SupabaseClient, userId: string): Promise<void> {
+    // Get all streaks for user
+    const { data: allStreaks } = await supabase
+      .from('habit_streaks')
+      .select('current_streak, longest_streak')
+      .eq('user_id', userId)
+
+    const maxCurrentStreak = Math.max(...(allStreaks?.map((s) => s.current_streak) ?? [0]), 0)
+    const maxLongestStreak = Math.max(...(allStreaks?.map((s) => s.longest_streak) ?? [0]), 0)
+
+    // Get current stats to preserve other fields
+    const { data: current } = await supabase
+      .from('user_stats')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    // Use upsert to create row if it doesn't exist
+    await supabase
+      .from('user_stats')
+      .upsert({
+        user_id: userId,
+        total_xp: current?.total_xp ?? 0,
+        level: current?.level ?? 1,
+        habits_completed: current?.habits_completed ?? 0,
+        tasks_completed: current?.tasks_completed ?? 0,
+        current_streak: maxCurrentStreak,
+        longest_streak: maxLongestStreak,
+      })
   },
 
   async getStreaks(supabase: SupabaseClient): Promise<Map<string, { current: number; longest: number }>> {

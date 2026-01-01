@@ -19,9 +19,10 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
     tasksCompleted: number
     level: number
   } | null>(null)
+  const isCheckingRef = useRef(false)
 
-  const { data: stats } = useUserStats()
-  const { data: achievements = [] } = useAchievements()
+  const { data: stats, isLoading: isLoadingStats } = useUserStats()
+  const { data: achievements = [], isLoading: isLoadingAchievements } = useAchievements()
   const unlockAchievementMutation = useUnlockAchievement()
 
   const habitsCompleted = stats?.habitsCompleted ?? 0
@@ -35,94 +36,105 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
     [achievements]
   )
 
-  const { data: habits = [] } = useHabits()
+  const { data: habits = [], isLoading: isLoadingHabits } = useHabits()
   const { data: tasks = [] } = useTasks()
 
-  const checkAndUnlock = useCallback(() => {
-    const today = new Date().toISOString().split('T')[0]
-    const activeHabits = habits.filter((h) => !h.archivedAt)
-    const todayCompletedHabits = activeHabits.filter((h) =>
-      h.completions.some((c) => c.date === today)
-    ).length
+  // Don't check achievements until all data is loaded
+  const isDataReady = !isLoadingStats && !isLoadingAchievements && !isLoadingHabits
 
-    const newlyUnlocked: string[] = []
+  const checkAndUnlock = useCallback(async () => {
+    // Prevent concurrent checks
+    if (isCheckingRef.current) return []
+    isCheckingRef.current = true
 
-    for (const def of ACHIEVEMENT_DEFINITIONS) {
-      if (hasAchievement(def.type)) continue
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const activeHabits = habits.filter((h) => !h.archivedAt)
+      const todayCompletedHabits = activeHabits.filter((h) =>
+        h.completions.some((c) => c.date === today)
+      ).length
 
-      let shouldUnlock = false
+      const newlyUnlocked: string[] = []
 
-      switch (def.requirement.type) {
-        case 'first_habit':
-          shouldUnlock = habitsCompleted >= 1
-          break
+      for (const def of ACHIEVEMENT_DEFINITIONS) {
+        if (hasAchievement(def.type)) continue
 
-        case 'first_task':
-          shouldUnlock = tasksCompleted >= 1
-          break
+        let shouldUnlock = false
 
-        case 'habits_completed':
-          shouldUnlock = habitsCompleted >= (def.requirement.value || 0)
-          break
+        switch (def.requirement.type) {
+          case 'first_habit':
+            shouldUnlock = habitsCompleted >= 1
+            break
 
-        case 'tasks_completed':
-          shouldUnlock = tasksCompleted >= (def.requirement.value || 0)
-          break
+          case 'first_task':
+            shouldUnlock = tasksCompleted >= 1
+            break
 
-        case 'streak':
-          shouldUnlock =
-            currentStreak >= (def.requirement.value || 0) ||
-            longestStreak >= (def.requirement.value || 0)
-          break
+          case 'habits_completed':
+            shouldUnlock = habitsCompleted >= (def.requirement.value || 0)
+            break
 
-        case 'level':
-          shouldUnlock = level >= (def.requirement.value || 0)
-          break
+          case 'tasks_completed':
+            shouldUnlock = tasksCompleted >= (def.requirement.value || 0)
+            break
 
-        case 'perfect_day':
-          shouldUnlock =
-            activeHabits.length > 0 && todayCompletedHabits >= activeHabits.length
-          break
+          case 'streak':
+            shouldUnlock =
+              currentStreak >= (def.requirement.value || 0) ||
+              longestStreak >= (def.requirement.value || 0)
+            break
 
-        case 'perfect_week':
-          // Check if all habits were completed for the last 7 days
-          if (activeHabits.length > 0) {
-            const last7Days = Array.from({ length: 7 }, (_, i) => {
-              const date = new Date()
-              date.setDate(date.getDate() - i)
-              return date.toISOString().split('T')[0]
-            })
+          case 'level':
+            shouldUnlock = level >= (def.requirement.value || 0)
+            break
 
-            const allDaysComplete = last7Days.every((day) =>
-              activeHabits.every((habit) =>
-                habit.completions.some((c) => c.date === day)
+          case 'perfect_day':
+            shouldUnlock =
+              activeHabits.length > 0 && todayCompletedHabits >= activeHabits.length
+            break
+
+          case 'perfect_week':
+            // Check if all habits were completed for the last 7 days
+            if (activeHabits.length > 0) {
+              const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const date = new Date()
+                date.setDate(date.getDate() - i)
+                return date.toISOString().split('T')[0]
+              })
+
+              const allDaysComplete = last7Days.every((day) =>
+                activeHabits.every((habit) =>
+                  habit.completions.some((c) => c.date === day)
+                )
               )
-            )
-            shouldUnlock = allDaysComplete
+              shouldUnlock = allDaysComplete
+            }
+            break
+        }
+
+        if (shouldUnlock) {
+          try {
+            // Only show toast if achievement was actually newly unlocked
+            const result = await unlockAchievementMutation.mutateAsync({ type: def.type })
+            if (result) {
+              newlyUnlocked.push(def.type)
+              showAchievementToast({
+                type: def.type,
+                title: t(def.titleKey),
+                description: t(def.descriptionKey),
+                xp: def.xpReward,
+              })
+            }
+          } catch {
+            // Silently ignore unlock errors
           }
-          break
+        }
       }
 
-      if (shouldUnlock) {
-        unlockAchievementMutation.mutate({ type: def.type })
-        newlyUnlocked.push(def.type)
-      }
+      return newlyUnlocked
+    } finally {
+      isCheckingRef.current = false
     }
-
-    // Show toasts for newly unlocked achievements
-    for (const type of newlyUnlocked) {
-      const def = getAchievementDefinition(type)
-      if (def) {
-        showAchievementToast({
-          type,
-          title: t(def.titleKey),
-          description: t(def.descriptionKey),
-          xp: def.xpReward,
-        })
-      }
-    }
-
-    return newlyUnlocked
   }, [
     habits,
     habitsCompleted,
@@ -137,7 +149,10 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
 
   // Check achievements when relevant stats change
   useEffect(() => {
-    // Skip initial render
+    // Wait for all data to be loaded
+    if (!isDataReady) return
+
+    // Skip initial render - just store the current values
     if (previousRef.current === null) {
       previousRef.current = { habitsCompleted, tasksCompleted, level }
       return
@@ -153,7 +168,7 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
       checkAndUnlock()
       previousRef.current = { habitsCompleted, tasksCompleted, level }
     }
-  }, [habitsCompleted, tasksCompleted, level, checkAndUnlock])
+  }, [isDataReady, habitsCompleted, tasksCompleted, level, checkAndUnlock])
 
   return <>{children}</>
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { PageTransition, StaggerContainer, StaggerItem } from '@/components/ui/motion'
+import { PageTransition, AnimatePresence, motion } from '@/components/ui/motion'
 import { NotebookCard, NotebookFormDialog } from '@/components/studies'
 import {
   useNotebooksWithPageCount,
@@ -85,17 +85,26 @@ export default function StudiesPage() {
 
       {/* Notebooks Grid */}
       {notebooks && notebooks.length > 0 ? (
-        <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {notebooks.map((notebook) => (
-            <StaggerItem key={notebook.id}>
-              <NotebookCard
-                notebook={notebook}
-                onEdit={setEditingNotebook}
-                onDelete={handleDelete}
-              />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {notebooks.map((notebook) => (
+              <motion.div
+                key={notebook.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                layout
+              >
+                <NotebookCard
+                  notebook={notebook}
+                  onEdit={setEditingNotebook}
+                  onDelete={handleDelete}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
