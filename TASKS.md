@@ -609,12 +609,24 @@ interface HomeSettings {
 }
 ```
 
+### Solução Implementada
+1. Criados tipos `HomeWidgetType`, `HomeWidget` e `DEFAULT_HOME_WIDGETS` em `/src/types/index.ts`
+2. Store de settings atualizado com funções `setWidgetVisibility`, `reorderWidgets`, `getVisibleWidgets`
+3. Criada pasta `/src/components/home/` com:
+   - `notebooks-widget.tsx` - Exibe 4 cadernos recentes com links rápidos
+   - `finances-widget.tsx` - Saldo total, receitas e despesas do mês
+   - `health-widget.tsx` - Métricas de saúde recentes e progresso de hábitos de saúde
+4. Home page atualizada com:
+   - Sistema de widgets dinâmico renderizando apenas widgets visíveis
+   - Dialog de configuração acessível via botão de engrenagem
+   - Toggle para cada widget com persistência no localStorage
+
 ### Critérios de Aceite
-- [ ] Usuário pode mostrar/ocultar widgets
-- [ ] Shortcuts de cadernos disponíveis
-- [ ] Dados de finanças exibidos opcionalmente
-- [ ] Dados de saúde exibidos opcionalmente
-- [ ] Configurações persistidas
+- [x] Usuário pode mostrar/ocultar widgets
+- [x] Shortcuts de cadernos disponíveis
+- [x] Dados de finanças exibidos opcionalmente
+- [x] Dados de saúde exibidos opcionalmente
+- [x] Configurações persistidas
 
 ---
 
@@ -662,7 +674,7 @@ Quando um hábito quantitativo tem valor 1, o botão de decrementar (-) muda par
 | 11 | Pagamento Gera Despesa | Alta | Alta | ✅ Concluído |
 | 12 | Menu Sumindo no Mobile | Alta | Baixa | ✅ Concluído |
 | 13 | Responsivo Filtros de Tasks | Alta | Média | ✅ Concluído |
-| 14 | Home Customizável | Média | Alta | Pendente |
+| 14 | Home Customizável | Média | Alta | ✅ Concluído |
 | 15 | Botão Decrementar Hábito | Média | Baixa | ✅ Concluído |
 
 ---

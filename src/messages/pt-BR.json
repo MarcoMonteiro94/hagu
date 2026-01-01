@@ -43,7 +43,16 @@
     "level": "Nível {level}",
     "noHabitsToday": "Nenhum hábito para hoje",
     "noTasksToday": "Nenhuma tarefa para hoje",
-    "allDone": "Tudo concluído!"
+    "allDone": "Tudo concluído!",
+    "noNotebooks": "Nenhum caderno ainda",
+    "viewAll": "Ver todos",
+    "viewDetails": "Ver detalhes",
+    "totalBalance": "Saldo total",
+    "monthlyIncome": "Receitas do mês",
+    "monthlyExpenses": "Despesas do mês",
+    "healthHabitsProgress": "Hábitos de saúde",
+    "noHealthData": "Nenhum dado de saúde registrado",
+    "customizeWidgets": "Personalizar widgets"
   },
   "habits": {
     "title": "Hábitos",
@@ -181,6 +190,7 @@
   },
   "studies": {
     "title": "Estudos",
+    "notebooks": "Cadernos",
     "subtitle": "Organize seus cadernos e anotações",
     "pomodoro": "Pomodoro",
     "subjects": "Matérias",

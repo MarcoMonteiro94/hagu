@@ -8,7 +8,17 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { PageTransition, StaggerContainer, StaggerItem, motion } from '@/components/ui/motion'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { PageTransition, motion } from '@/components/ui/motion'
 import {
   useActiveHabits,
   useToggleCompletion,
@@ -25,10 +35,13 @@ import {
 import { useSettingsStore } from '@/stores/settings'
 import { HabitFormDialog, QuantitativeHabitInput } from '@/components/habits'
 import { TaskFormDialog } from '@/components/tasks'
+import { NotebooksWidget, FinancesWidget, HealthWidget } from '@/components/home'
 import { StreakSparkline } from '@/components/charts'
 import { HabitCardSkeleton, TaskCardSkeleton } from '@/components/skeletons'
-import { Flame, Star, CheckCircle2, Plus, ChevronRight } from 'lucide-react'
+import { Flame, Star, CheckCircle2, Plus, ChevronRight, ChevronUp, ChevronDown, Settings2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { DEFAULT_HOME_WIDGETS } from '@/types'
+import type { HomeWidgetType } from '@/types'
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0]
@@ -40,6 +53,14 @@ function formatDate(locale: string): string {
     day: 'numeric',
     month: 'long',
   })
+}
+
+const WIDGET_LABELS: Record<HomeWidgetType, { pt: string; en: string }> = {
+  habits: { pt: 'Hábitos', en: 'Habits' },
+  tasks: { pt: 'Tarefas', en: 'Tasks' },
+  notebooks: { pt: 'Cadernos', en: 'Notebooks' },
+  finances: { pt: 'Finanças', en: 'Finances' },
+  health: { pt: 'Saúde', en: 'Health' },
 }
 
 export default function HomePage() {
@@ -59,6 +80,9 @@ export default function HomePage() {
   const incrementTasksMutation = useIncrementTasksCompleted()
   const locale = useSettingsStore((state) => state.locale)
   const userName = useSettingsStore((state) => state.userName)
+  const homeWidgets = useSettingsStore((state) => state.homeWidgets) ?? DEFAULT_HOME_WIDGETS
+  const setWidgetVisibility = useSettingsStore((state) => state.setWidgetVisibility)
+  const reorderWidgets = useSettingsStore((state) => state.reorderWidgets)
 
   const currentStreak = stats?.currentStreak ?? 0
   const level = stats?.level ?? 1
@@ -83,7 +107,7 @@ export default function HomePage() {
       return habit.frequency.days.includes(dayOfWeek)
     }
     if (habit.frequency.type === 'weekly' || habit.frequency.type === 'monthly') {
-      return true // Show these habits always, user decides when to do
+      return true
     }
     return false
   })
@@ -94,7 +118,7 @@ export default function HomePage() {
     if (habit.tracking.type === 'quantitative') {
       return completion.value >= habit.tracking.target
     }
-    return true // boolean habit with completion = completed
+    return true
   })
 
   const habitProgress =
@@ -108,7 +132,6 @@ export default function HomePage() {
 
     toggleCompletionMutation.mutate({ habitId, date: today })
 
-    // Update gamification when completing (not uncompleting)
     if (!wasCompleted) {
       updateStreakMutation.mutate({ habitId, date: today })
       incrementHabitsMutation.mutate()
@@ -125,7 +148,6 @@ export default function HomePage() {
 
     setCompletionValueMutation.mutate({ habitId, date: today, value })
 
-    // Update gamification when first completing (reaching target)
     if (!wasCompleted && isNowCompleted) {
       updateStreakMutation.mutate({ habitId, date: today })
       incrementHabitsMutation.mutate()
@@ -141,10 +163,218 @@ export default function HomePage() {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
     setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
 
-    // Award XP when completing task
     if (newStatus === 'done') {
       incrementTasksMutation.mutate()
       toast.success('Tarefa concluída! ✅')
+    }
+  }
+
+  // Widget reordering
+  const sortedWidgets = [...homeWidgets].sort((a, b) => a.order - b.order)
+
+  const moveWidget = (widgetId: HomeWidgetType, direction: 'up' | 'down') => {
+    const currentIndex = sortedWidgets.findIndex((w) => w.id === widgetId)
+    if (currentIndex === -1) return
+
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    if (newIndex < 0 || newIndex >= sortedWidgets.length) return
+
+    const newWidgets = [...sortedWidgets]
+    const [moved] = newWidgets.splice(currentIndex, 1)
+    newWidgets.splice(newIndex, 0, moved)
+
+    // Update order values
+    const reordered = newWidgets.map((w, i) => ({ ...w, order: i }))
+    reorderWidgets(reordered)
+  }
+
+  // Get visible widgets sorted by order
+  const visibleWidgets = sortedWidgets.filter((w) => w.visible)
+
+  const isWidgetVisible = (id: HomeWidgetType) =>
+    homeWidgets.find((w) => w.id === id)?.visible ?? false
+
+  const renderWidget = (widgetId: HomeWidgetType) => {
+    switch (widgetId) {
+      case 'habits':
+        return (
+          <Card key="habits">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{tNav('habits')}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {t('habitsProgress', {
+                      completed: completedHabits.length,
+                      total: todayHabits.length,
+                    })}
+                  </Badge>
+                  <HabitFormDialog>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </HabitFormDialog>
+                </div>
+              </div>
+              {todayHabits.length > 0 && (
+                <Progress value={habitProgress} className="h-2" />
+              )}
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {isLoadingHabits ? (
+                <HabitCardSkeleton count={3} />
+              ) : todayHabits.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  {t('noHabitsToday')}
+                </p>
+              ) : (
+                <>
+                  {todayHabits.map((habit) => {
+                    const completion = habit.completions.find((c) => c.date === today)
+                    const isQuantitative = habit.tracking.type === 'quantitative'
+                    const isCompleted = isQuantitative && habit.tracking.type === 'quantitative'
+                      ? (completion?.value ?? 0) >= habit.tracking.target
+                      : !!completion
+
+                    return (
+                      <div
+                        key={habit.id}
+                        className="flex items-center gap-3 rounded-lg border p-3"
+                        style={{ borderLeftColor: habit.color, borderLeftWidth: 4 }}
+                      >
+                        {isQuantitative && habit.tracking.type === 'quantitative' ? (
+                          <QuantitativeHabitInput
+                            target={habit.tracking.target}
+                            unit={habit.tracking.unit}
+                            completion={completion}
+                            onValueChange={(value) => handleQuantitativeValueChange(habit.id, value)}
+                            onRemove={() => handleQuantitativeRemove(habit.id)}
+                          />
+                        ) : (
+                          <>
+                            <Checkbox
+                              checked={isCompleted}
+                              onCheckedChange={() => handleHabitToggle(habit.id)}
+                              className="h-5 w-5"
+                            />
+                            <div className="flex-1">
+                              <p className={isCompleted ? 'text-muted-foreground line-through' : ''}>
+                                {habit.title}
+                              </p>
+                            </div>
+                            {isCompleted && (
+                              <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            )}
+                          </>
+                        )}
+                        {isQuantitative && (
+                          <div className="flex-1">
+                            <p className={isCompleted ? 'text-muted-foreground line-through' : ''}>
+                              {habit.title}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                  <Link href="/habits">
+                    <Button variant="ghost" className="w-full" size="sm">
+                      {t('viewAll')}
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )
+
+      case 'tasks':
+        return (
+          <Card key="tasks">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{tNav('tasks')}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {t('tasksRemaining', { count: tasks.length })}
+                  </Badge>
+                  <TaskFormDialog>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TaskFormDialog>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {isLoadingTasks ? (
+                <TaskCardSkeleton count={3} />
+              ) : tasks.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  {t('noTasksToday')}
+                </p>
+              ) : (
+                <>
+                  {tasks.slice(0, 5).map((task) => {
+                    const priorityColors = {
+                      low: 'bg-green-500',
+                      medium: 'bg-yellow-500',
+                      high: 'bg-orange-500',
+                      urgent: 'bg-red-500',
+                    }
+
+                    return (
+                      <div
+                        key={task.id}
+                        className="flex items-center gap-3 rounded-lg border p-3"
+                      >
+                        <Checkbox
+                          checked={task.status === 'done'}
+                          onCheckedChange={() => handleTaskToggle(task.id, task.status)}
+                          className="h-5 w-5"
+                        />
+                        <div className="flex-1">
+                          <p className={task.status === 'done' ? 'text-muted-foreground line-through' : ''}>
+                            {task.title}
+                          </p>
+                          {task.subtasks.length > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length} subtarefas
+                            </p>
+                          )}
+                        </div>
+                        {task.priority && (
+                          <div className={`h-2 w-2 rounded-full ${priorityColors[task.priority]}`} />
+                        )}
+                      </div>
+                    )
+                  })}
+                  {tasks.length > 5 && (
+                    <Link href="/tasks">
+                      <Button variant="ghost" className="w-full" size="sm">
+                        {t('viewAll')} ({tasks.length - 5} mais)
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )
+
+      case 'notebooks':
+        return <NotebooksWidget key="notebooks" />
+
+      case 'finances':
+        return <FinancesWidget key="finances" />
+
+      case 'health':
+        return <HealthWidget key="health" />
+
+      default:
+        return null
     }
   }
 
@@ -152,14 +382,67 @@ export default function HomePage() {
     <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
       <header className="space-y-1">
-        <motion.h1
-          className="text-2xl font-bold capitalize"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {formatDate(displayLocale)}
-        </motion.h1>
+        <div className="flex items-center justify-between">
+          <motion.h1
+            className="text-2xl font-bold capitalize"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {formatDate(displayLocale)}
+          </motion.h1>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t('customizeWidgets')}</DialogTitle>
+                <DialogDescription>
+                  {locale === 'pt-BR'
+                    ? 'Escolha quais widgets exibir na página inicial'
+                    : 'Choose which widgets to display on the home page'}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                {sortedWidgets.map((widget, index) => (
+                  <div key={widget.id} className="flex items-center gap-2 rounded-lg border p-2">
+                    <div className="flex flex-col">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        disabled={index === 0}
+                        onClick={() => moveWidget(widget.id, 'up')}
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        disabled={index === sortedWidgets.length - 1}
+                        onClick={() => moveWidget(widget.id, 'down')}
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <Label htmlFor={widget.id} className="flex-1">
+                      {WIDGET_LABELS[widget.id][locale === 'pt-BR' ? 'pt' : 'en']}
+                    </Label>
+                    <Switch
+                      id={widget.id}
+                      checked={widget.visible}
+                      onCheckedChange={(checked) => setWidgetVisibility(widget.id, checked)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
         <motion.p
           className="text-muted-foreground"
           initial={{ opacity: 0 }}
@@ -196,192 +479,15 @@ export default function HomePage() {
         )}
       </motion.div>
 
-      {/* Content Grid - 2 columns on desktop */}
+      {/* Widgets Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-      {/* Habits Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{tNav('habits')}</CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">
-                {t('habitsProgress', {
-                  completed: completedHabits.length,
-                  total: todayHabits.length,
-                })}
-              </Badge>
-              <HabitFormDialog>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </HabitFormDialog>
-            </div>
-          </div>
-          {todayHabits.length > 0 && (
-            <Progress value={habitProgress} className="h-2" />
-          )}
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isLoadingHabits ? (
-            <HabitCardSkeleton count={3} />
-          ) : todayHabits.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              {t('noHabitsToday')}
-            </p>
-          ) : (
-            <>
-              {todayHabits.map((habit) => {
-                const completion = habit.completions.find((c) => c.date === today)
-                const isQuantitative = habit.tracking.type === 'quantitative'
-                const isCompleted = isQuantitative && habit.tracking.type === 'quantitative'
-                  ? (completion?.value ?? 0) >= habit.tracking.target
-                  : !!completion
-
-                return (
-                  <div
-                    key={habit.id}
-                    className="flex items-center gap-3 rounded-lg border p-3"
-                    style={{ borderLeftColor: habit.color, borderLeftWidth: 4 }}
-                  >
-                    {isQuantitative && habit.tracking.type === 'quantitative' ? (
-                      <QuantitativeHabitInput
-                        target={habit.tracking.target}
-                        unit={habit.tracking.unit}
-                        completion={completion}
-                        onValueChange={(value) => handleQuantitativeValueChange(habit.id, value)}
-                        onRemove={() => handleQuantitativeRemove(habit.id)}
-                      />
-                    ) : (
-                      <>
-                        <Checkbox
-                          checked={isCompleted}
-                          onCheckedChange={() => handleHabitToggle(habit.id)}
-                          className="h-5 w-5"
-                        />
-                        <div className="flex-1">
-                          <p
-                            className={
-                              isCompleted ? 'text-muted-foreground line-through' : ''
-                            }
-                          >
-                            {habit.title}
-                          </p>
-                        </div>
-                        {isCompleted && (
-                          <CheckCircle2 className="h-5 w-5 text-green-500" />
-                        )}
-                      </>
-                    )}
-                    {isQuantitative && (
-                      <div className="flex-1">
-                        <p
-                          className={
-                            isCompleted ? 'text-muted-foreground line-through' : ''
-                          }
-                        >
-                          {habit.title}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-              <Link href="/habits">
-                <Button variant="ghost" className="w-full" size="sm">
-                  Ver todos
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Tasks Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{tNav('tasks')}</CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">
-                {t('tasksRemaining', { count: tasks.length })}
-              </Badge>
-              <TaskFormDialog>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </TaskFormDialog>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isLoadingTasks ? (
-            <TaskCardSkeleton count={3} />
-          ) : tasks.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              {t('noTasksToday')}
-            </p>
-          ) : (
-            <>
-              {tasks.slice(0, 5).map((task) => {
-                const priorityColors = {
-                  low: 'bg-green-500',
-                  medium: 'bg-yellow-500',
-                  high: 'bg-orange-500',
-                  urgent: 'bg-red-500',
-                }
-
-                return (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-3 rounded-lg border p-3"
-                  >
-                    <Checkbox
-                      checked={task.status === 'done'}
-                      onCheckedChange={() => handleTaskToggle(task.id, task.status)}
-                      className="h-5 w-5"
-                    />
-                    <div className="flex-1">
-                      <p
-                        className={
-                          task.status === 'done'
-                            ? 'text-muted-foreground line-through'
-                            : ''
-                        }
-                      >
-                        {task.title}
-                      </p>
-                      {task.subtasks.length > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          {task.subtasks.filter((s) => s.done).length}/
-                          {task.subtasks.length} subtarefas
-                        </p>
-                      )}
-                    </div>
-                    {task.priority && (
-                      <div
-                        className={`h-2 w-2 rounded-full ${priorityColors[task.priority]}`}
-                      />
-                    )}
-                  </div>
-                )
-              })}
-              {tasks.length > 5 && (
-                <Link href="/tasks">
-                  <Button variant="ghost" className="w-full" size="sm">
-                    Ver todas ({tasks.length - 5} mais)
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+        {visibleWidgets.map((widget) => renderWidget(widget.id))}
       </div>
 
       {/* All done message */}
-      {todayHabits.length > 0 &&
+      {isWidgetVisible('habits') &&
+        isWidgetVisible('tasks') &&
+        todayHabits.length > 0 &&
         completedHabits.length === todayHabits.length &&
         tasks.length === 0 && (
           <motion.div

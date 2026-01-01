@@ -43,7 +43,16 @@
     "level": "Level {level}",
     "noHabitsToday": "No habits for today",
     "noTasksToday": "No tasks for today",
-    "allDone": "All done!"
+    "allDone": "All done!",
+    "noNotebooks": "No notebooks yet",
+    "viewAll": "View all",
+    "viewDetails": "View details",
+    "totalBalance": "Total balance",
+    "monthlyIncome": "Monthly income",
+    "monthlyExpenses": "Monthly expenses",
+    "healthHabitsProgress": "Health habits",
+    "noHealthData": "No health data recorded",
+    "customizeWidgets": "Customize widgets"
   },
   "habits": {
     "title": "Habits",
@@ -181,6 +190,7 @@
   },
   "studies": {
     "title": "Studies",
+    "notebooks": "Notebooks",
     "subtitle": "Organize your notebooks and notes",
     "pomodoro": "Pomodoro",
     "subjects": "Subjects",

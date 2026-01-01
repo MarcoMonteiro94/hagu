@@ -130,6 +130,23 @@ export interface UserStats {
 export type Theme = 'dark' | 'light' | 'system'
 export type Locale = 'pt-BR' | 'en-US'
 
+// Home Widget Types
+export type HomeWidgetType = 'habits' | 'tasks' | 'notebooks' | 'finances' | 'health'
+
+export interface HomeWidget {
+  id: HomeWidgetType
+  visible: boolean
+  order: number
+}
+
+export const DEFAULT_HOME_WIDGETS: HomeWidget[] = [
+  { id: 'habits', visible: true, order: 0 },
+  { id: 'tasks', visible: true, order: 1 },
+  { id: 'notebooks', visible: true, order: 2 },
+  { id: 'finances', visible: false, order: 3 },
+  { id: 'health', visible: false, order: 4 },
+]
+
 export interface UserSettings {
   theme: Theme
   locale: Locale
@@ -138,6 +155,8 @@ export interface UserSettings {
   onboardingCompleted: boolean
   userName?: string
   currency?: import('./finances').CurrencyCode
+  homeWidgets?: HomeWidget[]
+  hideBalances?: boolean
 }
 
 // Re-export finance types
