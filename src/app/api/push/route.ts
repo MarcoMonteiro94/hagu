@@ -2,15 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { createClient } from '@/lib/supabase/server'
 
-// Configure web-push with VAPID keys
-const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!
+// Configure web-push with VAPID keys (only if available)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+const isPushConfigured = !!(vapidPublicKey && vapidPrivateKey)
 
-webpush.setVapidDetails(
-  'mailto:noreply@hagu.app',
-  vapidPublicKey,
-  vapidPrivateKey
-)
+if (isPushConfigured) {
+  webpush.setVapidDetails(
+    'mailto:noreply@hagu.app',
+    vapidPublicKey,
+    vapidPrivateKey
+  )
+}
 
 export interface PushNotificationPayload {
   title: string
@@ -35,6 +38,14 @@ interface SendNotificationRequest {
 // POST /api/push - Send push notification
 export async function POST(request: NextRequest) {
   try {
+    // Check if push notifications are configured
+    if (!isPushConfigured) {
+      return NextResponse.json(
+        { error: 'Push notifications not configured' },
+        { status: 503 }
+      )
+    }
+
     const supabase = await createClient()
 
     // Verify user is authenticated

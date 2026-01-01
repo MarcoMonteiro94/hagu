@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import webpush from 'web-push'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// Configure web-push with VAPID keys
-const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!
+// Configure web-push with VAPID keys (only if available)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-webpush.setVapidDetails(
-  'mailto:noreply@hagu.app',
-  vapidPublicKey,
-  vapidPrivateKey
-)
+const isPushConfigured = !!(vapidPublicKey && vapidPrivateKey && supabaseUrl && supabaseServiceKey)
 
-// Create admin client for cron job (not user-scoped)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let supabaseAdmin: SupabaseClient | null = null
+
+if (isPushConfigured) {
+  webpush.setVapidDetails(
+    'mailto:noreply@hagu.app',
+    vapidPublicKey,
+    vapidPrivateKey
+  )
+
+  // Create admin client for cron job (not user-scoped)
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+}
 
 // i18n messages for push notifications
 const messages = {
@@ -71,6 +76,14 @@ interface DbUserSettings {
 
 // GET /api/push/reminders - Process scheduled reminders (called by cron)
 export async function GET(request: NextRequest) {
+  // Check if push notifications are configured
+  if (!isPushConfigured || !supabaseAdmin) {
+    return NextResponse.json(
+      { error: 'Push notifications not configured' },
+      { status: 503 }
+    )
+  }
+
   // Verify cron secret to prevent unauthorized calls
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -114,7 +127,7 @@ export async function GET(request: NextRequest) {
       const habitsByUser = groupByUserId(habits as DbHabit[])
 
       for (const [userId, userHabits] of Object.entries(habitsByUser)) {
-        const subscriptions = await getUserSubscriptions(userId)
+        const subscriptions = await getUserSubscriptions(supabaseAdmin, userId)
         const locale = userLocales.get(userId) ?? 'en-US'
         const t = getMessages(locale)
 
@@ -132,7 +145,7 @@ export async function GET(request: NextRequest) {
             },
           }
 
-          const result = await sendToSubscriptions(subscriptions, payload)
+          const result = await sendToSubscriptions(supabaseAdmin, subscriptions, payload)
           results.habitReminders.sent += result.sent
           results.habitReminders.failed += result.failed
         }
@@ -156,7 +169,7 @@ export async function GET(request: NextRequest) {
         const tasksByUser = groupByUserId(tasks as DbTask[])
 
         for (const [userId, userTasks] of Object.entries(tasksByUser)) {
-          const subscriptions = await getUserSubscriptions(userId)
+          const subscriptions = await getUserSubscriptions(supabaseAdmin, userId)
           const locale = userLocales.get(userId) ?? 'en-US'
           const t = getMessages(locale)
 
@@ -180,7 +193,7 @@ export async function GET(request: NextRequest) {
               },
             }
 
-            const result = await sendToSubscriptions(subscriptions, payload)
+            const result = await sendToSubscriptions(supabaseAdmin, subscriptions, payload)
             results.taskAlerts.sent += result.sent
             results.taskAlerts.failed += result.failed
           }
@@ -201,7 +214,7 @@ export async function GET(request: NextRequest) {
               },
             }
 
-            const result = await sendToSubscriptions(subscriptions, payload)
+            const result = await sendToSubscriptions(supabaseAdmin, subscriptions, payload)
             results.taskAlerts.sent += result.sent
             results.taskAlerts.failed += result.failed
           }
@@ -236,8 +249,8 @@ function groupByUserId<T extends { user_id: string }>(items: T[]): Record<string
 }
 
 // Helper: Get user's push subscriptions
-async function getUserSubscriptions(userId: string): Promise<DbPushSubscription[]> {
-  const { data, error } = await supabaseAdmin
+async function getUserSubscriptions(client: SupabaseClient, userId: string): Promise<DbPushSubscription[]> {
+  const { data, error } = await client
     .from('push_subscriptions')
     .select('user_id, endpoint, keys')
     .eq('user_id', userId)
@@ -252,6 +265,7 @@ async function getUserSubscriptions(userId: string): Promise<DbPushSubscription[
 
 // Helper: Send notification to all subscriptions
 async function sendToSubscriptions(
+  client: SupabaseClient,
   subscriptions: DbPushSubscription[],
   payload: Record<string, unknown>
 ): Promise<{ sent: number; failed: number }> {
@@ -280,7 +294,7 @@ async function sendToSubscriptions(
       // If subscription is invalid (expired), remove it
       const webPushError = err as { statusCode?: number }
       if (webPushError.statusCode === 410) {
-        await supabaseAdmin
+        await client
           .from('push_subscriptions')
           .delete()
           .eq('endpoint', sub.endpoint)
