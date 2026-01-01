@@ -14,12 +14,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { GripVertical, Calendar, Clock, Repeat, MoreVertical, Trash2 } from 'lucide-react'
+import { formatLocalDate } from '@/lib/utils'
 import type { Task } from '@/types'
 
 interface SortableTaskCardProps {
   task: Task
   onToggle: (taskId: string, currentStatus: string) => void
   onDelete?: (taskId: string) => void
+  selectionMode?: boolean
+  selected?: boolean
+  onSelect?: (taskId: string, selected: boolean) => void
+  isToggling?: boolean
 }
 
 const priorityColors = {
@@ -36,7 +41,15 @@ const priorityLabels = {
   urgent: 'Urgente',
 }
 
-export function SortableTaskCard({ task, onToggle, onDelete }: SortableTaskCardProps) {
+export function SortableTaskCard({
+  task,
+  onToggle,
+  onDelete,
+  selectionMode = false,
+  selected = false,
+  onSelect,
+  isToggling = false,
+}: SortableTaskCardProps) {
   const tCommon = useTranslations('common')
 
   const {
@@ -69,17 +82,28 @@ export function SortableTaskCard({ task, onToggle, onDelete }: SortableTaskCardP
         } ${isCompleted ? 'opacity-60' : ''}`}
       >
         <CardContent className="flex items-center gap-3 p-3">
-          <button
-            className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="h-5 w-5" />
-          </button>
+          {selectionMode && (
+            <Checkbox
+              checked={selected}
+              onCheckedChange={(checked) => onSelect?.(task.id, checked === true)}
+              className="h-5 w-5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            />
+          )}
+
+          {!selectionMode && (
+            <button
+              className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="h-5 w-5" />
+            </button>
+          )}
 
           <Checkbox
             checked={isCompleted}
             onCheckedChange={() => onToggle(task.id, task.status)}
+            disabled={isToggling}
             className="h-5 w-5"
           />
 
@@ -92,7 +116,7 @@ export function SortableTaskCard({ task, onToggle, onDelete }: SortableTaskCardP
               {task.dueDate && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {new Date(task.dueDate).toLocaleDateString('pt-BR')}
+                  {formatLocalDate(task.dueDate, 'pt-BR')}
                 </span>
               )}
 

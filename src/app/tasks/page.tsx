@@ -2,24 +2,19 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Checkbox } from '@/components/ui/checkbox'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { PageTransition } from '@/components/ui/motion'
 import {
   TaskFormDialog,
@@ -30,40 +25,138 @@ import {
   DEFAULT_FILTERS,
 } from '@/components/tasks'
 import type { TaskFilters } from '@/components/tasks'
-import { useTasks, useSetTaskStatus, useReorderTasks, useDeleteTask } from '@/hooks/queries/use-tasks'
+import { useTasks, useSetTaskStatus, useDeleteTask, useDeleteManyTasks } from '@/hooks/queries/use-tasks'
 import { toast } from 'sonner'
 import { TaskListSkeleton } from '@/components/skeletons'
-import { arrayMove } from '@dnd-kit/sortable'
-import { Plus, Calendar, ListTodo, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Calendar, ListTodo, CheckSquare, Trash2, X, CheckCircle2, AlertCircle, Clock, CalendarDays, CalendarX } from 'lucide-react'
+import { getTodayString } from '@/lib/utils'
+import type { Task } from '@/types'
+
+// Helper function to categorize tasks by date
+function categorizeTasks(tasks: Task[]) {
+  const today = getTodayString()
+
+  const overdue: Task[] = []
+  const todayTasks: Task[] = []
+  const upcoming: Task[] = []
+  const noDate: Task[] = []
+
+  for (const task of tasks) {
+    if (!task.dueDate) {
+      noDate.push(task)
+    } else if (task.dueDate < today) {
+      overdue.push(task)
+    } else if (task.dueDate === today) {
+      todayTasks.push(task)
+    } else {
+      upcoming.push(task)
+    }
+  }
+
+  // Sort by due date (earliest first), then by priority
+  const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 }
+  const sortByDateAndPriority = (a: Task, b: Task) => {
+    if (a.dueDate && b.dueDate) {
+      if (a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate)
+    }
+    const aPriority = priorityOrder[a.priority ?? 'low'] ?? 3
+    const bPriority = priorityOrder[b.priority ?? 'low'] ?? 3
+    return aPriority - bPriority
+  }
+
+  overdue.sort(sortByDateAndPriority)
+  todayTasks.sort(sortByDateAndPriority)
+  upcoming.sort(sortByDateAndPriority)
+  noDate.sort((a, b) => {
+    const aPriority = priorityOrder[a.priority ?? 'low'] ?? 3
+    const bPriority = priorityOrder[b.priority ?? 'low'] ?? 3
+    return aPriority - bPriority
+  })
+
+  return { overdue, todayTasks, upcoming, noDate }
+}
 
 export default function TasksPage() {
   const t = useTranslations('tasks')
+  const tCommon = useTranslations('common')
   const { data: tasks = [], isLoading } = useTasks()
   const setTaskStatusMutation = useSetTaskStatus()
-  const reorderTasksMutation = useReorderTasks()
   const deleteTaskMutation = useDeleteTask()
+  const deleteManyTasksMutation = useDeleteManyTasks()
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
-  const [showAllCompleted, setShowAllCompleted] = useState(false)
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null)
 
   // Apply filters to tasks
   const filteredTasks = filterTasks(tasks, filters)
   const pendingTasks = filteredTasks.filter((task) => task.status !== 'done')
   const completedTasks = filteredTasks.filter((task) => task.status === 'done')
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+  // Categorize pending tasks by date
+  const { overdue, todayTasks, upcoming, noDate } = categorizeTasks(pendingTasks)
+
+  const handleSelectTask = (taskId: string, selected: boolean) => {
+    setSelectedTasks((prev) => {
+      const next = new Set(prev)
+      if (selected) {
+        next.add(taskId)
+      } else {
+        next.delete(taskId)
+      }
+      return next
     })
-  )
+  }
+
+  const handleSelectAll = () => {
+    const allTaskIds = filteredTasks.map((t) => t.id)
+    setSelectedTasks(new Set(allTaskIds))
+  }
+
+  const handleDeselectAll = () => {
+    setSelectedTasks(new Set())
+  }
+
+  const handleDeleteSelected = () => {
+    if (selectedTasks.size === 0) return
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteSelected = () => {
+    const ids = Array.from(selectedTasks)
+    deleteManyTasksMutation.mutate(ids, {
+      onSuccess: () => {
+        toast.success(t('bulkDelete.success', { count: ids.length }))
+        setSelectedTasks(new Set())
+        setSelectionMode(false)
+      },
+      onError: () => {
+        toast.error(t('bulkDelete.error'))
+      },
+    })
+    setShowDeleteConfirm(false)
+  }
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false)
+    setSelectedTasks(new Set())
+  }
 
   const handleToggle = (taskId: string, currentStatus: string) => {
+    if (togglingTaskId === taskId) return
+
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
-    setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
+    setTogglingTaskId(taskId)
+
+    setTaskStatusMutation.mutate(
+      { id: taskId, status: newStatus as 'pending' | 'done' },
+      {
+        onSettled: () => {
+          setTogglingTaskId(null)
+        },
+      }
+    )
   }
 
   const handleDelete = (taskId: string) => {
@@ -77,36 +170,69 @@ export default function TasksPage() {
     })
   }
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-
-    if (over && active.id !== over.id) {
-      const oldIndex = tasks.findIndex((t) => t.id === active.id)
-      const newIndex = tasks.findIndex((t) => t.id === over.id)
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newOrder = arrayMove(tasks, oldIndex, newIndex)
-        reorderTasksMutation.mutate(newOrder.map((t) => t.id))
-      }
-    }
-  }
-
   return (
     <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
         <div className="flex items-center gap-2">
-          <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} />
-          <TaskFormDialog />
+          {!selectionMode ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectionMode(true)}
+                disabled={filteredTasks.length === 0}
+              >
+                <CheckSquare className="mr-2 h-4 w-4" />
+                {t('bulkDelete.select')}
+              </Button>
+              <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} />
+              <TaskFormDialog />
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {t('bulkDelete.selected', { count: selectedTasks.size })}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                {t('bulkDelete.selectAll')}
+              </Button>
+              {selectedTasks.size > 0 && (
+                <Button variant="outline" size="sm" onClick={handleDeselectAll}>
+                  {t('bulkDelete.deselectAll')}
+                </Button>
+              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteSelected}
+                disabled={selectedTasks.size === 0}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t('bulkDelete.deleteSelected')}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exitSelectionMode}>
+                <X className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </header>
 
       {/* View Tabs */}
       <Tabs defaultValue="list" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="list" className="flex items-center gap-1">
             <ListTodo className="h-4 w-4" />
             {t('views.list')}
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-1">
+            <CheckCircle2 className="h-4 w-4" />
+            {t('views.completed')}
+            {completedTasks.length > 0 && (
+              <span className="ml-1 text-xs text-muted-foreground">({completedTasks.length})</span>
+            )}
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
@@ -114,7 +240,7 @@ export default function TasksPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="list" className="mt-4 space-y-4">
+        <TabsContent value="list" className="mt-4 space-y-6">
           {/* Pending Tasks */}
           {isLoading ? (
             <TaskListSkeleton count={5} />
@@ -131,79 +257,129 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              {pendingTasks.length > 0 && (
+            <>
+              {/* Overdue Section */}
+              {overdue.length > 0 && (
                 <div className="space-y-2">
-                  <h2 className="text-sm font-medium text-muted-foreground">
-                    {t('filters.all')} ({pendingTasks.length})
+                  <h2 className="flex items-center gap-2 text-sm font-medium text-red-500">
+                    <AlertCircle className="h-4 w-4" />
+                    {t('filters.overdue')} ({overdue.length})
                   </h2>
-                  <SortableContext
-                    items={pendingTasks.map((t) => t.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-2">
-                      {pendingTasks.map((task) => (
-                        <SortableTaskCard
-                          key={task.id}
-                          task={task}
-                          onToggle={handleToggle}
-                          onDelete={handleDelete}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
+                  <div className="space-y-2">
+                    {overdue.map((task) => (
+                      <SortableTaskCard
+                        key={task.id}
+                        task={task}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        selectionMode={selectionMode}
+                        selected={selectedTasks.has(task.id)}
+                        onSelect={handleSelectTask}
+                        isToggling={togglingTaskId === task.id}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {completedTasks.length > 0 && (
+              {/* Today Section */}
+              {todayTasks.length > 0 && (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-medium text-muted-foreground">
-                      {t('filters.completed')} ({completedTasks.length})
-                    </h2>
-                    {completedTasks.length > 5 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowAllCompleted(!showAllCompleted)}
-                        className="h-auto py-1 px-2 text-xs text-muted-foreground"
-                      >
-                        {showAllCompleted ? (
-                          <>
-                            <ChevronUp className="mr-1 h-3 w-3" />
-                            {t('showLess')}
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="mr-1 h-3 w-3" />
-                            {t('showAll')}
-                          </>
-                        )}
-                      </Button>
-                    )}
+                  <h2 className="flex items-center gap-2 text-sm font-medium text-primary">
+                    <Clock className="h-4 w-4" />
+                    {t('filters.today')} ({todayTasks.length})
+                  </h2>
+                  <div className="space-y-2">
+                    {todayTasks.map((task) => (
+                      <SortableTaskCard
+                        key={task.id}
+                        task={task}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        selectionMode={selectionMode}
+                        selected={selectedTasks.has(task.id)}
+                        onSelect={handleSelectTask}
+                        isToggling={togglingTaskId === task.id}
+                      />
+                    ))}
                   </div>
-                  <SortableContext
-                    items={completedTasks.map((t) => t.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-2">
-                      {(showAllCompleted ? completedTasks : completedTasks.slice(0, 5)).map((task) => (
-                        <SortableTaskCard
-                          key={task.id}
-                          task={task}
-                          onToggle={handleToggle}
-                          onDelete={handleDelete}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
                 </div>
               )}
-            </DndContext>
+
+              {/* Upcoming Section */}
+              {upcoming.length > 0 && (
+                <div className="space-y-2">
+                  <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <CalendarDays className="h-4 w-4" />
+                    {t('filters.upcoming')} ({upcoming.length})
+                  </h2>
+                  <div className="space-y-2">
+                    {upcoming.map((task) => (
+                      <SortableTaskCard
+                        key={task.id}
+                        task={task}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        selectionMode={selectionMode}
+                        selected={selectedTasks.has(task.id)}
+                        onSelect={handleSelectTask}
+                        isToggling={togglingTaskId === task.id}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No Date Section */}
+              {noDate.length > 0 && (
+                <div className="space-y-2">
+                  <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <CalendarX className="h-4 w-4" />
+                    {t('filters.noDate')} ({noDate.length})
+                  </h2>
+                  <div className="space-y-2">
+                    {noDate.map((task) => (
+                      <SortableTaskCard
+                        key={task.id}
+                        task={task}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        selectionMode={selectionMode}
+                        selected={selectedTasks.has(task.id)}
+                        onSelect={handleSelectTask}
+                        isToggling={togglingTaskId === task.id}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="completed" className="mt-4 space-y-4">
+          {completedTasks.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
+                <p className="text-muted-foreground">{t('noCompletedTasks')}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {completedTasks.map((task) => (
+                <SortableTaskCard
+                  key={task.id}
+                  task={task}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+                  selectionMode={selectionMode}
+                  selected={selectedTasks.has(task.id)}
+                  onSelect={handleSelectTask}
+                  isToggling={togglingTaskId === task.id}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -211,6 +387,27 @@ export default function TasksPage() {
           <CalendarView />
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('bulkDelete.confirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('bulkDelete.confirmDescription', { count: selectedTasks.size })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteSelected}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {tCommon('delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageTransition>
   )
 }

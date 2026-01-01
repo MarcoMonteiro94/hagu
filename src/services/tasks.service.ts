@@ -345,31 +345,40 @@ export const tasksService = {
     if (error) throw error
   },
 
+  async deleteMany(supabase: SupabaseClient, ids: string[]): Promise<void> {
+    if (ids.length === 0) return
+    const { error } = await supabase.from('tasks').delete().in('id', ids)
+    if (error) throw error
+  },
+
   async getByLinkedTransactionId(
     supabase: SupabaseClient,
     transactionId: string
   ): Promise<Task | null> {
+    // Use limit(1) instead of single() to avoid 406 errors when no rows exist
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
       .eq('linked_transaction_id', transactionId)
       .neq('status', 'done')
-      .single()
+      .limit(1)
 
-    if (error) {
-      if (error.code === 'PGRST116') return null
-      throw error
-    }
+    if (error) throw error
+
+    // No matching task found
+    if (!data || data.length === 0) return null
+
+    const task = data[0] as DbTask
 
     const { data: subtasksData } = await supabase
       .from('subtasks')
       .select('*')
-      .eq('task_id', data.id)
+      .eq('task_id', task.id)
       .order('order', { ascending: true })
 
     const subtasks = ((subtasksData ?? []) as DbSubtask[]).map(toSubtask)
 
-    return toTask(data as DbTask, subtasks)
+    return toTask(task, subtasks)
   },
 
   async setStatus(
@@ -385,7 +394,47 @@ export const tasksService = {
     if (!currentTask) throw new Error('Task not found')
 
     const completedAt = status === 'done' ? new Date().toISOString() : null
+    let newRecurringTask: Task | undefined
 
+    // IMPORTANT: Handle unmarking BEFORE updating status to avoid unique constraint violation
+    // The constraint "idx_tasks_linked_transaction_unique" prevents multiple pending tasks with same linked_transaction_id
+    if (status !== 'done' && currentTask.status === 'done' && currentTask.linkedTransactionId && currentTask.dueDate) {
+      // Delete any next recurring task FIRST (must be done BEFORE updating status)
+      const { data: nextTasks } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('linked_transaction_id', currentTask.linkedTransactionId)
+        .neq('id', currentTask.id)
+        .eq('status', 'pending')
+
+      if (nextTasks && nextTasks.length > 0) {
+        const nextTaskIds = nextTasks.map(t => t.id)
+        await supabase
+          .from('tasks')
+          .delete()
+          .in('id', nextTaskIds)
+      }
+
+      // Delete the expense that was created for this payment
+      const { data: templateTransaction } = await supabase
+        .from('transactions')
+        .select('category_id, amount, description')
+        .eq('id', currentTask.linkedTransactionId)
+        .single()
+
+      if (templateTransaction) {
+        await supabase
+          .from('transactions')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('date', currentTask.dueDate)
+          .eq('is_recurring', false)
+          .eq('category_id', templateTransaction.category_id)
+          .eq('amount', templateTransaction.amount)
+      }
+    }
+
+    // Now safe to update the task status
     const { data, error } = await supabase
       .from('tasks')
       .update({ status, completed_at: completedAt })
@@ -396,7 +445,6 @@ export const tasksService = {
     if (error) throw error
 
     const updatedTask = toTask(data as DbTask, currentTask.subtasks)
-    let newRecurringTask: Task | undefined
 
     // Generate next recurring task when completing a recurring task
     if (status === 'done' && currentTask.recurrence && currentTask.dueDate) {
@@ -463,7 +511,7 @@ export const tasksService = {
 
     // Handle payment reminder tasks (linked to recurring transactions)
     if (status === 'done' && currentTask.linkedTransactionId) {
-      // Fetch the linked transaction
+      // Fetch the linked transaction (the recurring template)
       const { data: transactionData } = await supabase
         .from('transactions')
         .select('*')
@@ -471,8 +519,28 @@ export const tasksService = {
         .single()
 
       if (transactionData && transactionData.is_recurring && transactionData.recurrence_frequency) {
-        const currentNextDate = transactionData.recurrence_next_date || transactionData.date
-        const nextDueDate = calculateNextRecurrenceDate(currentNextDate, transactionData.recurrence_frequency)
+        // Create the actual expense transaction for this payment
+        // Use the task's due date as the transaction date
+        const paymentDate = currentTask.dueDate || new Date().toISOString().split('T')[0]
+
+        await supabase.from('transactions').insert({
+          user_id: user.id,
+          type: transactionData.type,
+          category_id: transactionData.category_id,
+          amount: transactionData.amount,
+          description: transactionData.description,
+          date: paymentDate,
+          payment_method: transactionData.payment_method,
+          is_recurring: false, // This is an instance, not a template
+          recurrence_frequency: null,
+          recurrence_next_date: null,
+          recurrence_end_date: null,
+        })
+
+        // Use the completed task's due date as the base, not the transaction's stored date
+        // This ensures we calculate the next date correctly even if recurrence_next_date is stale
+        const currentDueDate = currentTask.dueDate || transactionData.recurrence_next_date || transactionData.date
+        const nextDueDate = calculateNextRecurrenceDate(currentDueDate, transactionData.recurrence_frequency)
 
         // Check if we should create the next reminder
         const shouldCreate =

@@ -111,6 +111,18 @@ export function useDeleteTask() {
   })
 }
 
+export function useDeleteManyTasks() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (ids: string[]) => tasksService.deleteMany(supabase, ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
+    },
+  })
+}
+
 export function useSetTaskStatus() {
   const supabase = createClient()
   const queryClient = useQueryClient()
@@ -145,7 +157,6 @@ export function useSetTaskStatus() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() })
-      // Also invalidate transactions in case a payment reminder task was completed
       queryClient.invalidateQueries({ queryKey: ['finances', 'transactions'] })
     },
   })
