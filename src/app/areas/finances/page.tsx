@@ -143,7 +143,7 @@ export default function FinancesPage() {
       </header>
 
       {/* Balance Summary Cards */}
-      <BalanceSummary />
+      <BalanceSummary month={selectedMonth} />
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>

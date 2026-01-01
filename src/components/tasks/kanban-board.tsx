@@ -37,6 +37,7 @@ import {
   Repeat,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { formatLocalDate } from '@/lib/utils'
 import { TaskFormDialog } from './task-form-dialog'
 import type { Task, TaskStatus } from '@/types'
 import { STATUS_COLORS, PRIORITY_COLORS } from '@/config/colors'
@@ -119,7 +120,7 @@ function KanbanTaskCard({ task, isDragging }: KanbanTaskCardProps) {
             <div className="flex items-center gap-1 text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>
-                {new Date(task.dueDate).toLocaleDateString(undefined, {
+                {formatLocalDate(task.dueDate, 'pt-BR', {
                   month: 'short',
                   day: 'numeric',
                 })}

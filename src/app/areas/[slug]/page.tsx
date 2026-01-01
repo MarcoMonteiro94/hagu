@@ -51,6 +51,7 @@ import {
   Brain,
   ChevronRight,
 } from 'lucide-react'
+import { formatLocalDate } from '@/lib/utils'
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   heart: Heart,
@@ -415,7 +416,7 @@ export default function AreaDetailPage({
                     <p className="font-medium truncate">{task.title}</p>
                     {task.dueDate && (
                       <p className="text-xs text-muted-foreground">
-                        {new Date(task.dueDate).toLocaleDateString()}
+                        {formatLocalDate(task.dueDate, 'pt-BR')}
                       </p>
                     )}
                   </div>

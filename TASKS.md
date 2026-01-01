@@ -31,10 +31,10 @@ Atualmente só é possível deletar tasks individualmente. Não existe funcional
    - Opcionalmente: "Excluir todas as concluídas"
 
 ### Critérios de Aceite
-- [ ] Usuário pode selecionar múltiplas tasks
-- [ ] Botão de delete em massa aparece quando há seleção
-- [ ] Confirmação antes de deletar
-- [ ] Feedback de sucesso/erro
+- [x] Usuário pode selecionar múltiplas tasks
+- [x] Botão de delete em massa aparece quando há seleção
+- [x] Confirmação antes de deletar
+- [x] Feedback de sucesso/erro
 
 ---
 
@@ -353,11 +353,168 @@ const createMutation = useMutation({
 
 ---
 
+## 9. Ordenação de Tasks por Data com Seções "Hoje" e "Próximas"
+
+**Prioridade:** Alta
+**Complexidade:** Média
+**Arquivos relacionados:**
+- `/src/app/tasks/page.tsx`
+- `/src/hooks/queries/use-tasks.ts` (opcional)
+
+### Problema
+Tasks estão ordenadas por `order` (para drag-and-drop), mas deveriam priorizar ordenação por data. Além disso, falta separação visual entre tasks de hoje e próximas.
+
+### Estado Atual
+- Tasks ordenadas por coluna `order` do banco
+- Todas as tasks pendentes em uma única lista
+- Tasks com datas distantes (10/01) aparecem antes de tasks para hoje (01/01)
+
+### Solução Proposta
+1. Separar tasks pendentes em duas seções:
+   - **Hoje**: tasks com `dueDate === hoje`
+   - **Próximas**: tasks com `dueDate > hoje` ou sem data
+2. Ordenar cada seção por data ascendente (mais próxima primeiro)
+3. Manter drag-and-drop dentro de cada seção
+
+```typescript
+// Separação por seções
+const today = getTodayString()
+const todayTasks = pendingTasks.filter(t => t.dueDate === today)
+const upcomingTasks = pendingTasks
+  .filter(t => t.dueDate !== today)
+  .sort((a, b) => {
+    if (!a.dueDate) return 1
+    if (!b.dueDate) return -1
+    return a.dueDate.localeCompare(b.dueDate)
+  })
+```
+
+### Critérios de Aceite
+- [x] Seção "Hoje" exibe tasks com dueDate de hoje
+- [x] Seção "Próximas" exibe demais tasks ordenadas por data
+- [x] Tasks sem data aparecem ao final
+- [x] Seção "Atrasadas" exibe tasks com dueDate no passado
+
+---
+
+## 10. BalanceSummary Não Reflete Mês Selecionado
+
+**Prioridade:** Alta
+**Complexidade:** Baixa
+**Arquivos relacionados:**
+- `/src/app/areas/finances/page.tsx`
+- `/src/components/finances/balance-summary.tsx`
+
+### Problema
+Ao selecionar um mês diferente (ex: Dezembro) na página de finanças, os cards de saldo, receitas e despesas continuam mostrando dados do mês atual ao invés do mês selecionado.
+
+### Estado Atual
+```typescript
+// balance-summary.tsx - linha 22
+const currentMonth = getCurrentMonth() // Sempre usa mês atual!
+const { data: monthlyBalance } = useMonthlyBalance(currentMonth)
+
+// finances/page.tsx - linha 146
+<BalanceSummary /> // Não passa selectedMonth como prop
+```
+
+### Solução Proposta
+1. Adicionar prop `month` ao componente `BalanceSummary`
+2. Atualizar página de finanças para passar `selectedMonth`
+
+```typescript
+// balance-summary.tsx
+interface BalanceSummaryProps {
+  month?: string
+}
+
+export function BalanceSummary({ month }: BalanceSummaryProps) {
+  const selectedMonth = month ?? getCurrentMonth()
+  const { data: monthlyBalance } = useMonthlyBalance(selectedMonth)
+  // ...
+}
+
+// finances/page.tsx
+<BalanceSummary month={selectedMonth} />
+```
+
+### Critérios de Aceite
+- [x] BalanceSummary aceita prop `month`
+- [x] Cards refletem dados do mês selecionado
+- [x] Ao mudar mês, cards atualizam automaticamente
+
+---
+
+## 11. Completar Tarefa de Pagamento Deve Gerar Despesa
+
+**Prioridade:** Alta
+**Complexidade:** Alta
+**Arquivos relacionados:**
+- `/src/services/tasks.service.ts` (setStatus)
+- `/src/services/finances.service.ts`
+- `/src/hooks/queries/use-tasks.ts`
+
+### Problema
+Quando uma tarefa de pagamento recorrente é marcada como concluída, ela:
+- ✅ Cria próxima tarefa para o mês seguinte
+- ❌ NÃO gera uma despesa real no mês atual
+
+Isso significa que pagamentos marcados como "feitos" não aparecem no histórico de despesas.
+
+### Estado Atual
+```typescript
+// tasks.service.ts - setStatus()
+if (status === 'done' && currentTask.linkedTransactionId) {
+  // Apenas cria próxima task e atualiza recurrence_next_date
+  // NÃO cria transação de despesa para o mês atual
+}
+```
+
+### Solução Proposta
+1. Quando task de pagamento for completada:
+   - Buscar transação recorrente vinculada
+   - Criar nova transação de despesa com:
+     - Mesmos dados (valor, categoria, descrição)
+     - Data = `dueDate` da task completada
+     - `isRecurring: false` (é uma instância, não template)
+2. Atualizar UI para mostrar toast de confirmação
+
+```typescript
+// Ao completar task de pagamento
+if (status === 'done' && currentTask.linkedTransactionId) {
+  // Criar despesa para o mês
+  await supabase.from('transactions').insert({
+    ...transactionData, // copiar dados do template
+    id: undefined, // novo ID
+    date: currentTask.dueDate, // data do pagamento
+    is_recurring: false, // instância única
+    recurrence_frequency: null,
+    recurrence_next_date: null,
+    recurrence_end_date: null,
+  })
+
+  // Continuar com lógica existente (criar próxima task)
+}
+```
+
+### Considerações
+- Usuário pode querer confirmar valor (ex: conta de luz variável)
+- Opcionalmente: abrir dialog para confirmar/editar valor
+- MVP: usar valor do template diretamente
+
+### Critérios de Aceite
+- [x] Completar task de pagamento cria despesa no mês
+- [x] Despesa aparece na lista de transações
+- [x] Valor debita do saldo mensal
+- [x] Next task ainda é criada para próximo mês
+
+---
+
 ## Resumo
 
 | # | Tarefa | Prioridade | Complexidade | Status |
 |---|--------|------------|--------------|--------|
-| 1 | Bulk Delete de Tasks | Média | Baixa | Pendente |
+| 1 | Bulk Delete de Tasks | Média | Baixa | ✅ Concluído |
 | 2 | Dialog de Criação de Task | Alta | Média | Pendente |
 | 3 | Associação Tasks/Páginas | Alta | Alta | Pendente |
 | 4 | Correção Streak | Alta | Média | ✅ Concluído |
@@ -365,10 +522,14 @@ const createMutation = useMutation({
 | 6 | Remover Kanban | Baixa | Baixa | ✅ Concluído |
 | 7 | Tasks no Calendário | Alta | Média | ✅ Concluído |
 | 8 | Cache de Notebooks | Alta | Baixa | ✅ Concluído (Framer Motion fix) |
+| 9 | Ordenação Tasks com Seções | Alta | Média | ✅ Concluído |
+| 10 | BalanceSummary Mês Selecionado | Alta | Baixa | ✅ Concluído |
+| 11 | Pagamento Gera Despesa | Alta | Alta | ✅ Concluído |
 
 ---
 
 ## Notas
 
 - Tasks #2 e #3 são relacionadas e devem ser implementadas juntas
-- Task #7 pode estar relacionada a como o calendário foi implementado
+- Task #9, #10, #11 são bugs/melhorias identificados na sessão de 01/01/2026
+- Task #11 é crítica para o fluxo de finanças funcionar corretamente

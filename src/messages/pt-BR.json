@@ -115,18 +115,31 @@
     "createFirst": "Crie sua primeira tarefa",
     "views": {
       "list": "Lista",
-      "kanban": "Kanban",
+      "completed": "Concluídas",
       "calendar": "Calendário"
     },
+    "noCompletedTasks": "Nenhuma tarefa concluída ainda",
     "filters": {
       "all": "Todas",
       "today": "Hoje",
       "upcoming": "Próximas",
       "overdue": "Atrasadas",
-      "completed": "Concluídas"
+      "completed": "Concluídas",
+      "noDate": "Sem data"
     },
     "showAll": "Ver todas",
-    "showLess": "Ver menos"
+    "showLess": "Ver menos",
+    "bulkDelete": {
+      "select": "Selecionar",
+      "selected": "{count, plural, =0 {Nenhuma selecionada} =1 {# selecionada} other {# selecionadas}}",
+      "selectAll": "Selecionar todas",
+      "deselectAll": "Desmarcar",
+      "deleteSelected": "Excluir",
+      "confirmTitle": "Excluir tarefas",
+      "confirmDescription": "{count, plural, =1 {Tem certeza que deseja excluir # tarefa? Esta ação não pode ser desfeita.} other {Tem certeza que deseja excluir # tarefas? Esta ação não pode ser desfeita.}}",
+      "success": "{count, plural, =1 {# tarefa excluída} other {# tarefas excluídas}}",
+      "error": "Erro ao excluir tarefas"
+    }
   },
   "areas": {
     "title": "Áreas de vida",

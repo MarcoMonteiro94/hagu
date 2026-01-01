@@ -115,18 +115,31 @@
     "createFirst": "Create your first task",
     "views": {
       "list": "List",
-      "kanban": "Kanban",
+      "completed": "Completed",
       "calendar": "Calendar"
     },
+    "noCompletedTasks": "No completed tasks yet",
     "filters": {
       "all": "All",
       "today": "Today",
       "upcoming": "Upcoming",
       "overdue": "Overdue",
-      "completed": "Completed"
+      "completed": "Completed",
+      "noDate": "No date"
     },
     "showAll": "Show all",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "bulkDelete": {
+      "select": "Select",
+      "selected": "{count, plural, =0 {None selected} =1 {# selected} other {# selected}}",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect",
+      "deleteSelected": "Delete",
+      "confirmTitle": "Delete tasks",
+      "confirmDescription": "{count, plural, =1 {Are you sure you want to delete # task? This action cannot be undone.} other {Are you sure you want to delete # tasks? This action cannot be undone.}}",
+      "success": "{count, plural, =1 {# task deleted} other {# tasks deleted}}",
+      "error": "Error deleting tasks"
+    }
   },
   "areas": {
     "title": "Life areas",

@@ -14,13 +14,17 @@ import {
   TrendingDown,
 } from 'lucide-react'
 
-export function BalanceSummary() {
+interface BalanceSummaryProps {
+  month?: string
+}
+
+export function BalanceSummary({ month }: BalanceSummaryProps) {
   const t = useTranslations()
   const { data: settings } = useSettings()
   const currency = settings?.currency ?? 'BRL'
 
-  const currentMonth = getCurrentMonth()
-  const { data: monthlyBalance } = useMonthlyBalance(currentMonth)
+  const selectedMonth = month ?? getCurrentMonth()
+  const { data: monthlyBalance } = useMonthlyBalance(selectedMonth)
   const { data: totalBalance = 0 } = useTotalBalance()
 
   const isPositive = (monthlyBalance?.balance ?? 0) >= 0
