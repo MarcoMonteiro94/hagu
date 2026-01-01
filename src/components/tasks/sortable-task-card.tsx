@@ -141,11 +141,11 @@ export function SortableTaskCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {task.priority && (
-              <Badge variant="outline" className="text-xs">
-                <div className={`mr-1 h-2 w-2 rounded-full ${priorityColors[task.priority]}`} />
-                {priorityLabels[task.priority]}
+              <Badge variant="outline" className="h-6 px-1.5 text-xs sm:px-2">
+                <div className={`h-2 w-2 rounded-full ${priorityColors[task.priority]} sm:mr-1`} />
+                <span className="hidden sm:inline">{priorityLabels[task.priority]}</span>
               </Badge>
             )}
 

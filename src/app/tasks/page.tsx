@@ -173,33 +173,47 @@ export default function TasksPage() {
   return (
     <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
       {/* Header */}
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <div className="flex items-center gap-2">
-          {!selectionMode ? (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectionMode(true)}
-                disabled={filteredTasks.length === 0}
-              >
-                <CheckSquare className="mr-2 h-4 w-4" />
-                {t('bulkDelete.select')}
-              </Button>
-              <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} />
-              <TaskFormDialog />
-            </>
-          ) : (
-            <>
-              <span className="text-sm text-muted-foreground">
-                {t('bulkDelete.selected', { count: selectedTasks.size })}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+      <header className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <div className="flex items-center gap-1 sm:gap-2">
+            {!selectionMode ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectionMode(true)}
+                  disabled={filteredTasks.length === 0}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                >
+                  <CheckSquare className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t('bulkDelete.select')}</span>
+                </Button>
+                <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} />
+                <TaskFormDialog />
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={exitSelectionMode} className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Selection Mode Actions Bar */}
+        {selectionMode && (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/50 p-2">
+            <span className="text-sm text-muted-foreground">
+              {t('bulkDelete.selected', { count: selectedTasks.size })}
+            </span>
+            <div className="ml-auto flex items-center gap-1 sm:gap-2">
+              <Button variant="outline" size="sm" onClick={handleSelectAll} className="h-8 text-xs sm:text-sm">
                 {t('bulkDelete.selectAll')}
               </Button>
               {selectedTasks.size > 0 && (
-                <Button variant="outline" size="sm" onClick={handleDeselectAll}>
+                <Button variant="outline" size="sm" onClick={handleDeselectAll} className="h-8 text-xs sm:text-sm">
                   {t('bulkDelete.deselectAll')}
                 </Button>
               )}
@@ -208,35 +222,33 @@ export default function TasksPage() {
                 size="sm"
                 onClick={handleDeleteSelected}
                 disabled={selectedTasks.size === 0}
+                className="h-8 w-8 p-0 sm:w-auto sm:px-3"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('bulkDelete.deleteSelected')}
+                <Trash2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{t('bulkDelete.deleteSelected')}</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={exitSelectionMode}>
-                <X className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* View Tabs */}
       <Tabs defaultValue="list" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="list" className="flex items-center gap-1">
-            <ListTodo className="h-4 w-4" />
-            {t('views.list')}
+          <TabsTrigger value="list" className="flex items-center gap-1 px-2 text-xs sm:px-3 sm:text-sm">
+            <ListTodo className="h-4 w-4 shrink-0" />
+            <span className="truncate">{t('views.list')}</span>
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-1">
-            <CheckCircle2 className="h-4 w-4" />
-            {t('views.completed')}
+          <TabsTrigger value="completed" className="flex items-center gap-1 px-2 text-xs sm:px-3 sm:text-sm">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span className="truncate">{t('views.completed')}</span>
             {completedTasks.length > 0 && (
-              <span className="ml-1 text-xs text-muted-foreground">({completedTasks.length})</span>
+              <span className="shrink-0 text-[10px] text-muted-foreground sm:text-xs">({completedTasks.length})</span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="calendar" className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            {t('views.calendar')}
+          <TabsTrigger value="calendar" className="flex items-center gap-1 px-2 text-xs sm:px-3 sm:text-sm">
+            <Calendar className="h-4 w-4 shrink-0" />
+            <span className="truncate">{t('views.calendar')}</span>
           </TabsTrigger>
         </TabsList>
 

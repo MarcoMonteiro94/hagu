@@ -77,17 +77,17 @@ export function TaskFiltersComponent({ filters, onFiltersChange }: TaskFiltersPr
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button variant="outline" size="sm" className="relative h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-2 sm:px-3">
           <Filter className="h-4 w-4" />
-          {t('filters.all')}
+          <span className="hidden sm:inline">{t('filters.all')}</span>
           {activeFilterCount > 0 && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+            <Badge variant="secondary" className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0 text-[10px] sm:static sm:ml-1 sm:h-5 sm:w-5 sm:text-xs">
               {activeFilterCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72" align="start">
+      <PopoverContent className="w-72" align="end" sideOffset={8}>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-medium">{t('filters.all')}</h4>

@@ -144,9 +144,9 @@ export function TaskFormDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
-          <Button size="sm">
-            <Plus className="mr-1 h-4 w-4" />
-            {t('addNew')}
+          <Button size="sm" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3">
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">{t('addNew')}</span>
           </Button>
         )}
       </DialogTrigger>

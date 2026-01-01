@@ -526,10 +526,16 @@ Na tela de tarefas, o menu de navegação está desaparecendo quando visualizado
 2. Checar se algum elemento está sobrepondo o menu
 3. Validar comportamento do layout responsivo
 
+### Solução Implementada
+1. Reestruturado header em duas partes: título + botões compactos, e barra de ações do modo seleção
+2. Botões usam apenas ícones em mobile (`h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3`)
+3. Modo de seleção usa barra separada com flex-wrap
+4. Tabs usam truncate e texto menor em mobile
+
 ### Critérios de Aceite
-- [ ] Menu visível em todas as telas no mobile
-- [ ] Navegação funcional em dispositivos móveis
-- [ ] Sem sobreposição de elementos
+- [x] Menu visível em todas as telas no mobile
+- [x] Navegação funcional em dispositivos móveis
+- [x] Sem sobreposição de elementos
 
 ---
 
@@ -540,24 +546,23 @@ Na tela de tarefas, o menu de navegação está desaparecendo quando visualizado
 **Arquivos relacionados:**
 - `/src/app/tasks/page.tsx`
 - `/src/components/tasks/task-filters.tsx`
+- `/src/components/tasks/task-form-dialog.tsx`
+- `/src/components/tasks/sortable-task-card.tsx`
 
 ### Problema
 Os filtros de seleção de tarefas não estão funcionando bem em telas menores. O layout responsivo precisa de ajustes.
 
-### Investigação Necessária
-1. Verificar layout dos botões de seleção em telas pequenas
-2. Checar se dropdown/popover está posicionado corretamente
-3. Validar touch targets para mobile
-
-### Solução Proposta
-1. Ajustar grid/flex para mobile
-2. Considerar usar sheet/drawer para filtros em mobile
-3. Garantir touch targets mínimos de 44x44px
+### Solução Implementada
+1. Botão de filtros usa apenas ícone em mobile com badge posicionado absolutamente
+2. Botão de criar task usa apenas ícone + em mobile
+3. Priority badges nos cards mostram apenas cor em mobile
+4. PopoverContent alinhado à direita para não sair da tela
+5. Modo de seleção em barra separada com flex-wrap
 
 ### Critérios de Aceite
-- [ ] Filtros funcionam corretamente em mobile
-- [ ] Botões de seleção visíveis e clicáveis
-- [ ] Layout não quebra em telas pequenas
+- [x] Filtros funcionam corretamente em mobile
+- [x] Botões de seleção visíveis e clicáveis
+- [x] Layout não quebra em telas pequenas
 
 ---
 
@@ -654,8 +659,8 @@ Quando um hábito quantitativo tem valor 1, o botão de decrementar (-) muda par
 | 9 | Ordenação Tasks com Seções | Alta | Média | ✅ Concluído |
 | 10 | BalanceSummary Mês Selecionado | Alta | Baixa | ✅ Concluído |
 | 11 | Pagamento Gera Despesa | Alta | Alta | ✅ Concluído |
-| 12 | Menu Sumindo no Mobile | Alta | Baixa | Pendente |
-| 13 | Responsivo Filtros de Tasks | Alta | Média | Pendente |
+| 12 | Menu Sumindo no Mobile | Alta | Baixa | ✅ Concluído |
+| 13 | Responsivo Filtros de Tasks | Alta | Média | ✅ Concluído |
 | 14 | Home Customizável | Média | Alta | Pendente |
 | 15 | Botão Decrementar Hábito | Média | Baixa | Pendente |
 
