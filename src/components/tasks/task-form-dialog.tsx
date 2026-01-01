@@ -36,6 +36,14 @@ interface TaskFormDialogProps {
   children?: React.ReactNode
   defaultAreaId?: string
   defaultDueDate?: string
+  defaultTitle?: string
+  defaultDescription?: string
+  defaultTags?: string[]
+  notebookId?: string
+  pageId?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 function getTodayString(): string {
@@ -46,6 +54,14 @@ export function TaskFormDialog({
   children,
   defaultAreaId,
   defaultDueDate,
+  defaultTitle,
+  defaultDescription,
+  defaultTags,
+  notebookId,
+  pageId,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  onSuccess,
 }: TaskFormDialogProps) {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
@@ -54,9 +70,13 @@ export function TaskFormDialog({
   const { data: projects = [] } = useActiveProjects()
   const { data: areas = [] } = useOrderedAreas()
 
-  const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
+  const setOpen = isControlled ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen
+
+  const [title, setTitle] = useState(defaultTitle || '')
+  const [description, setDescription] = useState(defaultDescription || '')
   const [dueDate, setDueDate] = useState(defaultDueDate || '')
   const [priority, setPriority] = useState<TaskPriority | ''>('')
   const [areaId, setAreaId] = useState(defaultAreaId || NONE_VALUE)
@@ -65,10 +85,11 @@ export function TaskFormDialog({
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
   const [recurrenceInterval, setRecurrenceInterval] = useState('1')
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
+  const [tags] = useState<string[]>(defaultTags || [])
 
   const resetForm = () => {
-    setTitle('')
-    setDescription('')
+    setTitle(defaultTitle || '')
+    setDescription(defaultDescription || '')
     setDueDate(defaultDueDate || '')
     setPriority('')
     setAreaId(defaultAreaId || NONE_VALUE)
@@ -104,12 +125,15 @@ export function TaskFormDialog({
         estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
         recurrence,
         status: 'pending',
-        tags: [],
+        tags,
+        notebookId,
+        pageId,
       })
 
       toast.success(t('taskCreated'))
       resetForm()
       setOpen(false)
+      onSuccess?.()
     } catch (error) {
       console.error('Failed to create task:', error)
       toast.error(t('taskCreateError'))

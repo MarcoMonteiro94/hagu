@@ -14,8 +14,9 @@ import {
   useDeletePage,
 } from '@/hooks/queries/use-notebooks'
 import { useHabitsByNotebook } from '@/hooks/queries/use-habits'
+import { useTasksByNotebook } from '@/hooks/queries/use-tasks'
 import type { NotebookPageSummary } from '@/types'
-import { Plus, ChevronLeft, FileText, Book, Activity } from 'lucide-react'
+import { Plus, ChevronLeft, FileText, Book, Activity, ListTodo } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function NotebookPage() {
@@ -32,7 +33,10 @@ export default function NotebookPage() {
   const { data: notebook, isLoading: isLoadingNotebook } = useNotebook(notebookId)
   const { data: pages, isLoading: isLoadingPages } = usePages(notebookId)
   const { data: linkedHabits = [] } = useHabitsByNotebook(notebookId)
+  const { data: notebookTasks = [] } = useTasksByNotebook(notebookId)
   const deleteMutation = useDeletePage()
+
+  const pendingTasks = notebookTasks.filter(task => task.status !== 'done')
 
   useEffect(() => {
     setMounted(true)
@@ -144,6 +148,31 @@ export default function NotebookPage() {
                   style={{ backgroundColor: habit.color }}
                 />
                 {habit.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Pending Tasks Section */}
+      {pendingTasks.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <ListTodo className="h-4 w-4" />
+            {t('pendingTasks')}
+            <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
+              {pendingTasks.length}
+            </span>
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {pendingTasks.map((task) => (
+              <Link
+                key={task.id}
+                href="/tasks"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border border-border transition-colors hover:bg-muted"
+              >
+                <span className="h-2 w-2 rounded-full bg-amber-500" />
+                {task.title}
               </Link>
             ))}
           </div>

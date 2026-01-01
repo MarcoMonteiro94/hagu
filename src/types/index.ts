@@ -54,6 +54,8 @@ export interface Task {
   description?: string
   projectId?: string
   areaId?: string
+  notebookId?: string
+  pageId?: string
   dueDate?: string
   priority?: TaskPriority
   status: TaskStatus
@@ -61,7 +63,7 @@ export interface Task {
   estimatedMinutes?: number
   recurrence?: RecurrencePattern
   subtasks: Subtask[]
-  linkedTransactionId?: string // Links task to a recurring expense for payment reminders
+  linkedTransactionId?: string
   createdAt: string
   completedAt?: string
 }

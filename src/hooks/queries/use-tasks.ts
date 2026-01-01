@@ -13,6 +13,8 @@ export const tasksKeys = {
   byStatus: (status: TaskStatus) => [...tasksKeys.lists(), 'status', status] as const,
   byProject: (projectId: string) => [...tasksKeys.lists(), 'project', projectId] as const,
   byArea: (areaId: string) => [...tasksKeys.lists(), 'area', areaId] as const,
+  byNotebook: (notebookId: string) => [...tasksKeys.lists(), 'notebook', notebookId] as const,
+  byPage: (pageId: string) => [...tasksKeys.lists(), 'page', pageId] as const,
   details: () => [...tasksKeys.all, 'detail'] as const,
   detail: (id: string) => [...tasksKeys.details(), id] as const,
 }
@@ -64,6 +66,26 @@ export function useTasksByArea(areaId: string) {
     queryKey: tasksKeys.byArea(areaId),
     queryFn: () => tasksService.getByArea(supabase, areaId),
     enabled: !!areaId,
+  })
+}
+
+export function useTasksByNotebook(notebookId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: tasksKeys.byNotebook(notebookId),
+    queryFn: () => tasksService.getByNotebook(supabase, notebookId),
+    enabled: !!notebookId,
+  })
+}
+
+export function useTasksByPage(pageId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: tasksKeys.byPage(pageId),
+    queryFn: () => tasksService.getByPage(supabase, pageId),
+    enabled: !!pageId,
   })
 }
 

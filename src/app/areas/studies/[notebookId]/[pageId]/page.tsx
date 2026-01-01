@@ -9,20 +9,16 @@ import { Input } from '@/components/ui/input'
 import { PageTransition } from '@/components/ui/motion'
 import { PageEditor } from '@/components/studies/page-editor'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
   useNotebook,
   usePage,
   useUpdatePage,
 } from '@/hooks/queries/use-notebooks'
-import { useCreateTask } from '@/hooks/queries/use-tasks'
+import { useTasksByPage, useSetTaskStatus, useDeleteTask } from '@/hooks/queries/use-tasks'
+import { TaskFormDialog } from '@/components/tasks/task-form-dialog'
 import type { Block } from '@blocknote/core'
-import { ChevronLeft, MoreVertical, ListTodo, Save, Loader2 } from 'lucide-react'
+import { ChevronLeft, ListTodo, Save, Loader2, CheckCircle2, Circle, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 export default function PageEditorPage() {
   const params = useParams()
@@ -40,8 +36,11 @@ export default function PageEditorPage() {
 
   const { data: notebook } = useNotebook(notebookId)
   const { data: page, isLoading } = usePage(pageId)
+  const { data: pageTasks = [] } = useTasksByPage(pageId)
   const updateMutation = useUpdatePage()
-  const createTaskMutation = useCreateTask()
+  const setTaskStatusMutation = useSetTaskStatus()
+  const deleteTaskMutation = useDeleteTask()
+  const [showTaskDialog, setShowTaskDialog] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -100,43 +99,52 @@ export default function PageEditorPage() {
     setHasUnsavedChanges(true)
   }
 
-  const handleCreateTask = async () => {
-    try {
-      // Extract text content from blocks for task description
-      const descriptionText = content
-        .map((block) => {
-          if (!block.content) return ''
-          if ('text' in block.content && typeof block.content.text === 'string') {
-            return block.content.text
-          }
-          if (Array.isArray(block.content)) {
-            return block.content
-              .map((item) => (typeof item === 'object' && 'text' in item ? item.text : ''))
-              .join('')
-          }
-          return ''
-        })
-        .filter(Boolean)
-        .slice(0, 3) // Take first 3 blocks for description
-        .join('\n')
+  const handleCreateTask = () => {
+    setShowTaskDialog(true)
+  }
 
-      await createTaskMutation.mutateAsync({
-        title: title.trim() || t('untitled'),
-        description: descriptionText.slice(0, 500), // Limit description length
-        status: 'pending',
-        tags: ['from-notes'],
+  // Extract text content from blocks for task description
+  const getDescriptionText = () => {
+    return content
+      .map((block) => {
+        if (!block.content) return ''
+        if ('text' in block.content && typeof block.content.text === 'string') {
+          return block.content.text
+        }
+        if (Array.isArray(block.content)) {
+          return block.content
+            .map((item) => (typeof item === 'object' && 'text' in item ? item.text : ''))
+            .join('')
+        }
+        return ''
       })
+      .filter(Boolean)
+      .slice(0, 3) // Take first 3 blocks for description
+      .join('\n')
+      .slice(0, 500) // Limit description length
+  }
 
-      toast.success(t('taskCreated'), {
-        description: t('taskCreatedDescription'),
-        action: {
-          label: 'View',
-          onClick: () => router.push('/tasks'),
-        },
-      })
-    } catch {
-      toast.error('Error creating task')
-    }
+  const handleTaskCreated = () => {
+    toast.success(t('taskCreated'), {
+      description: t('taskCreatedDescription'),
+      action: {
+        label: 'View',
+        onClick: () => router.push('/tasks'),
+      },
+    })
+  }
+
+  const handleToggleTask = (taskId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'done' ? 'pending' : 'done'
+    setTaskStatusMutation.mutate({ id: taskId, status: newStatus as 'pending' | 'done' })
+  }
+
+  const handleDeleteTask = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId, {
+      onSuccess: () => {
+        toast.success(t('taskDeleted'))
+      },
+    })
   }
 
   // Keyboard shortcut for save (Ctrl+S / Cmd+S)
@@ -190,6 +198,16 @@ export default function PageEditorPage() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {/* Create Task button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCreateTask}
+          >
+            <ListTodo className="mr-2 h-4 w-4" />
+            {t('newTask')}
+          </Button>
+
           {/* Save button */}
           <Button
             variant="outline"
@@ -204,21 +222,6 @@ export default function PageEditorPage() {
             )}
             {t('save')}
           </Button>
-
-          {/* Actions dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleCreateTask}>
-                <ListTodo className="mr-2 h-4 w-4" />
-                {t('createTaskFromPage')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </header>
 
@@ -240,6 +243,64 @@ export default function PageEditorPage() {
           onChange={handleContentChange}
         />
       </div>
+
+      {/* Related Tasks - Compact inline list */}
+      {pageTasks.length > 0 && (
+        <div className="border-t pt-4 mt-4">
+          <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
+            <ListTodo className="h-4 w-4" />
+            <span>{t('relatedTasks')}</span>
+            <span className="bg-muted px-1.5 py-0.5 rounded text-xs">
+              {pageTasks.filter(task => task.status !== 'done').length}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {pageTasks.map((task) => (
+              <div
+                key={task.id}
+                className={cn(
+                  'inline-flex items-center gap-2 px-2 py-1 rounded-md border text-sm group hover:bg-muted/50',
+                  task.status === 'done' && 'opacity-50'
+                )}
+              >
+                <button
+                  onClick={() => handleToggleTask(task.id, task.status)}
+                  className="shrink-0"
+                >
+                  {task.status === 'done' ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                  )}
+                </button>
+                <span className={cn(task.status === 'done' && 'line-through text-muted-foreground')}>
+                  {task.title}
+                </span>
+                <button
+                  onClick={() => handleDeleteTask(task.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Task Creation Dialog */}
+      <TaskFormDialog
+        open={showTaskDialog}
+        onOpenChange={setShowTaskDialog}
+        defaultTitle={title.trim() || t('untitled')}
+        defaultDescription={getDescriptionText()}
+        defaultTags={['from-notes']}
+        notebookId={notebookId}
+        pageId={pageId}
+        onSuccess={handleTaskCreated}
+      >
+        <span className="hidden" />
+      </TaskFormDialog>
     </PageTransition>
   )
 }

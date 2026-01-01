@@ -74,10 +74,10 @@ await createTaskMutation.mutateAsync({
 4. Associar task à página (ver Task #3)
 
 ### Critérios de Aceite
-- [ ] Clicar em "Criar tarefa" abre dialog
-- [ ] Campos pré-preenchidos com dados da página
-- [ ] Usuário pode editar todos os campos
-- [ ] Task criada com associação à página/caderno
+- [x] Clicar em "Criar tarefa" abre dialog
+- [x] Campos pré-preenchidos com dados da página
+- [x] Usuário pode editar todos os campos
+- [x] Task criada com associação à página/caderno
 
 ---
 
@@ -131,10 +131,10 @@ CREATE INDEX idx_tasks_page_id ON tasks(page_id);
 - Exibir no card do caderno e no header
 
 ### Critérios de Aceite
-- [ ] Tasks podem ser vinculadas a notebooks/pages
-- [ ] Página exibe lista de tasks associadas
-- [ ] Caderno mostra contador de tasks pendentes
-- [ ] Ao deletar página/caderno, tasks mantêm-se (SET NULL)
+- [x] Tasks podem ser vinculadas a notebooks/pages
+- [x] Página exibe lista de tasks associadas
+- [x] Caderno mostra contador de tasks pendentes
+- [x] Ao deletar página/caderno, tasks mantêm-se (SET NULL)
 
 ---
 
@@ -510,13 +510,142 @@ if (status === 'done' && currentTask.linkedTransactionId) {
 
 ---
 
+## 12. Menu Sumindo no Mobile (Tela de Tarefas)
+
+**Prioridade:** Alta
+**Complexidade:** Baixa
+**Arquivos relacionados:**
+- `/src/app/tasks/page.tsx`
+- `/src/components/shared/sidebar.tsx` (ou bottom-nav)
+
+### Problema
+Na tela de tarefas, o menu de navegação está desaparecendo quando visualizado em dispositivos móveis.
+
+### Investigação Necessária
+1. Verificar se é problema de z-index
+2. Checar se algum elemento está sobrepondo o menu
+3. Validar comportamento do layout responsivo
+
+### Critérios de Aceite
+- [ ] Menu visível em todas as telas no mobile
+- [ ] Navegação funcional em dispositivos móveis
+- [ ] Sem sobreposição de elementos
+
+---
+
+## 13. Responsivo dos Filtros na Tela de Tarefas
+
+**Prioridade:** Alta
+**Complexidade:** Média
+**Arquivos relacionados:**
+- `/src/app/tasks/page.tsx`
+- `/src/components/tasks/task-filters.tsx`
+
+### Problema
+Os filtros de seleção de tarefas não estão funcionando bem em telas menores. O layout responsivo precisa de ajustes.
+
+### Investigação Necessária
+1. Verificar layout dos botões de seleção em telas pequenas
+2. Checar se dropdown/popover está posicionado corretamente
+3. Validar touch targets para mobile
+
+### Solução Proposta
+1. Ajustar grid/flex para mobile
+2. Considerar usar sheet/drawer para filtros em mobile
+3. Garantir touch targets mínimos de 44x44px
+
+### Critérios de Aceite
+- [ ] Filtros funcionam corretamente em mobile
+- [ ] Botões de seleção visíveis e clicáveis
+- [ ] Layout não quebra em telas pequenas
+
+---
+
+## 14. Home Customizável
+
+**Prioridade:** Média
+**Complexidade:** Alta
+**Arquivos relacionados:**
+- `/src/app/page.tsx`
+- `/src/stores/settings.ts` (ou criar novo)
+- Criar componentes de widgets
+
+### Problema
+A home é estática e não permite personalização. Usuários podem querer ver diferentes informações.
+
+### Funcionalidades Propostas
+
+#### 14.1 Shortcuts para Cadernos de Estudos
+- Exibir cadernos favoritos/recentes na home
+- Acesso rápido às páginas mais acessadas
+
+#### 14.2 Widget de Finanças
+- Saldo atual
+- Resumo de receitas/despesas do mês
+- Próximos pagamentos
+
+#### 14.3 Widget de Saúde
+- Métricas recentes (peso, humor, etc.)
+- Progresso de hábitos de saúde
+
+#### 14.4 Configuração de Visibilidade
+- Toggle para mostrar/ocultar cada seção
+- Ordenação customizada dos widgets
+
+### Arquitetura Sugerida
+```typescript
+interface HomeSettings {
+  widgets: {
+    id: string
+    type: 'habits' | 'tasks' | 'notebooks' | 'finances' | 'health'
+    visible: boolean
+    order: number
+  }[]
+}
+```
+
+### Critérios de Aceite
+- [ ] Usuário pode mostrar/ocultar widgets
+- [ ] Shortcuts de cadernos disponíveis
+- [ ] Dados de finanças exibidos opcionalmente
+- [ ] Dados de saúde exibidos opcionalmente
+- [ ] Configurações persistidas
+
+---
+
+## 15. Botão de Decrementar Vira X em Hábito Quantitativo
+
+**Prioridade:** Média
+**Complexidade:** Baixa
+**Arquivos relacionados:**
+- `/src/components/habits/habit-card.tsx` (ou similar)
+
+### Problema
+Quando um hábito quantitativo tem valor 1, o botão de decrementar (-) muda para X (remover). Isso pode causar confusão e remoções acidentais.
+
+### Estado Atual
+- Valor = 1 → botão mostra "X" ao invés de "-"
+- Clicar em X provavelmente remove o registro
+
+### Solução Proposta
+1. Manter botão "-" sempre visível
+2. Desabilitar botão quando valor = 0 (ou mínimo permitido)
+3. Se necessário remover, usar ação separada (long press, menu, etc.)
+
+### Critérios de Aceite
+- [ ] Botão "-" nunca vira "X"
+- [ ] Botão desabilitado quando valor = 0
+- [ ] Remoção de registro via ação separada (se necessário)
+
+---
+
 ## Resumo
 
 | # | Tarefa | Prioridade | Complexidade | Status |
 |---|--------|------------|--------------|--------|
 | 1 | Bulk Delete de Tasks | Média | Baixa | ✅ Concluído |
-| 2 | Dialog de Criação de Task | Alta | Média | Pendente |
-| 3 | Associação Tasks/Páginas | Alta | Alta | Pendente |
+| 2 | Dialog de Criação de Task | Alta | Média | ✅ Concluído |
+| 3 | Associação Tasks/Páginas | Alta | Alta | ✅ Concluído |
 | 4 | Correção Streak | Alta | Média | ✅ Concluído |
 | 5 | Notificações Achievements | Alta | Média | ✅ Concluído |
 | 6 | Remover Kanban | Baixa | Baixa | ✅ Concluído |
@@ -525,6 +654,10 @@ if (status === 'done' && currentTask.linkedTransactionId) {
 | 9 | Ordenação Tasks com Seções | Alta | Média | ✅ Concluído |
 | 10 | BalanceSummary Mês Selecionado | Alta | Baixa | ✅ Concluído |
 | 11 | Pagamento Gera Despesa | Alta | Alta | ✅ Concluído |
+| 12 | Menu Sumindo no Mobile | Alta | Baixa | Pendente |
+| 13 | Responsivo Filtros de Tasks | Alta | Média | Pendente |
+| 14 | Home Customizável | Média | Alta | Pendente |
+| 15 | Botão Decrementar Hábito | Média | Baixa | Pendente |
 
 ---
 
@@ -533,3 +666,5 @@ if (status === 'done' && currentTask.linkedTransactionId) {
 - Tasks #2 e #3 são relacionadas e devem ser implementadas juntas
 - Task #9, #10, #11 são bugs/melhorias identificados na sessão de 01/01/2026
 - Task #11 é crítica para o fluxo de finanças funcionar corretamente
+- Tasks #12 e #13 são bugs de responsividade que afetam UX mobile
+- Task #14 é uma feature de personalização que pode ser implementada incrementalmente
