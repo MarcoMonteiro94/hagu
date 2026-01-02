@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,11 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useCreateTask } from '@/hooks/queries/use-tasks'
-import { useActiveProjects } from '@/hooks/queries/use-projects'
+import { useCreateTask, useUpdateTask } from '@/hooks/queries/use-tasks'
+import { useActiveProjects, useObjectivesByProject } from '@/hooks/queries/use-projects'
 import { useOrderedAreas } from '@/hooks/queries/use-areas'
-import type { TaskPriority, RecurrencePattern } from '@/types'
-import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat } from 'lucide-react'
+import type { Task, TaskPriority, RecurrencePattern } from '@/types'
+import { Plus, Flag, Calendar, FolderOpen, Clock, Repeat, Target, Rocket } from 'lucide-react'
 import { toast } from 'sonner'
 import { PRIORITY_COLORS } from '@/config/colors'
 
@@ -34,6 +34,7 @@ const NONE_VALUE = '__none__' // Special value to represent "no selection"
 
 interface TaskFormDialogProps {
   children?: React.ReactNode
+  task?: Task // Task to edit (if provided, form is in edit mode)
   defaultAreaId?: string
   defaultDueDate?: string
   defaultTitle?: string
@@ -52,6 +53,7 @@ function getTodayString(): string {
 
 export function TaskFormDialog({
   children,
+  task,
   defaultAreaId,
   defaultDueDate,
   defaultTitle,
@@ -66,7 +68,9 @@ export function TaskFormDialog({
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
 
+  const isEditMode = !!task
   const createTaskMutation = useCreateTask()
+  const updateTaskMutation = useUpdateTask()
   const { data: projects = [] } = useActiveProjects()
   const { data: areas = [] } = useOrderedAreas()
 
@@ -81,19 +85,43 @@ export function TaskFormDialog({
   const [priority, setPriority] = useState<TaskPriority | ''>('')
   const [areaId, setAreaId] = useState(defaultAreaId || NONE_VALUE)
   const [projectId, setProjectId] = useState(NONE_VALUE)
+  const [objectiveId, setObjectiveId] = useState(NONE_VALUE)
   const [estimatedMinutes, setEstimatedMinutes] = useState('')
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
   const [recurrenceInterval, setRecurrenceInterval] = useState('1')
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
   const [tags] = useState<string[]>(defaultTags || [])
 
+  // Load objectives when a project is selected
+  const selectedProjectId = projectId !== NONE_VALUE ? projectId : ''
+  const { data: objectives = [] } = useObjectivesByProject(selectedProjectId)
+
+  // Populate form with task data when editing
+  useEffect(() => {
+    if (task && open) {
+      setTitle(task.title)
+      setDescription(task.description || '')
+      setDueDate(task.dueDate || '')
+      setPriority(task.priority || '')
+      setAreaId(task.areaId || NONE_VALUE)
+      setProjectId(task.projectId || NONE_VALUE)
+      setObjectiveId(task.objectiveId || NONE_VALUE)
+      setEstimatedMinutes(task.estimatedMinutes?.toString() || '')
+      setRecurrenceType(task.recurrence?.type || 'none')
+      setRecurrenceInterval(task.recurrence?.interval?.toString() || '1')
+      setRecurrenceEndDate(task.recurrence?.endDate || '')
+    }
+  }, [task, open])
+
   const resetForm = () => {
+    if (isEditMode) return // Don't reset in edit mode
     setTitle(defaultTitle || '')
     setDescription(defaultDescription || '')
     setDueDate(defaultDueDate || '')
     setPriority('')
     setAreaId(defaultAreaId || NONE_VALUE)
     setProjectId(NONE_VALUE)
+    setObjectiveId(NONE_VALUE)
     setEstimatedMinutes('')
     setRecurrenceType('none')
     setRecurrenceInterval('1')
@@ -115,44 +143,70 @@ export function TaskFormDialog({
         : undefined
 
     try {
-      await createTaskMutation.mutateAsync({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        dueDate: dueDate || undefined,
-        priority: priority || undefined,
-        areaId: areaId !== NONE_VALUE ? areaId : undefined,
-        projectId: projectId !== NONE_VALUE ? projectId : undefined,
-        estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
-        recurrence,
-        status: 'pending',
-        tags,
-        notebookId,
-        pageId,
-      })
+      if (isEditMode && task) {
+        // Update existing task
+        await updateTaskMutation.mutateAsync({
+          id: task.id,
+          updates: {
+            title: title.trim(),
+            description: description.trim() || undefined,
+            dueDate: dueDate || undefined,
+            priority: priority || undefined,
+            areaId: areaId !== NONE_VALUE ? areaId : undefined,
+            projectId: projectId !== NONE_VALUE ? projectId : undefined,
+            objectiveId: objectiveId !== NONE_VALUE ? objectiveId : undefined,
+            estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+            recurrence,
+            tags,
+          },
+        })
+        toast.success(t('taskUpdated'))
+      } else {
+        // Create new task
+        await createTaskMutation.mutateAsync({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          dueDate: dueDate || undefined,
+          priority: priority || undefined,
+          areaId: areaId !== NONE_VALUE ? areaId : undefined,
+          projectId: projectId !== NONE_VALUE ? projectId : undefined,
+          objectiveId: objectiveId !== NONE_VALUE ? objectiveId : undefined,
+          estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+          recurrence,
+          status: 'pending',
+          tags,
+          notebookId,
+          pageId,
+        })
+        toast.success(t('taskCreated'))
+      }
 
-      toast.success(t('taskCreated'))
       resetForm()
       setOpen(false)
       onSuccess?.()
     } catch (error) {
-      console.error('Failed to create task:', error)
-      toast.error(t('taskCreateError'))
+      console.error('Failed to save task:', error)
+      toast.error(isEditMode ? t('taskUpdateError') : t('taskCreateError'))
     }
   }
 
+  const isPending = createTaskMutation.isPending || updateTaskMutation.isPending
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button size="sm" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3">
-            <Plus className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">{t('addNew')}</span>
-          </Button>
-        )}
-      </DialogTrigger>
+      {!isEditMode && (
+        <DialogTrigger asChild>
+          {children || (
+            <Button size="sm" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3">
+              <Plus className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">{t('addNew')}</span>
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('addNew')}</DialogTitle>
+          <DialogTitle>{isEditMode ? t('editTask') : t('addNew')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
@@ -247,8 +301,17 @@ export function TaskFormDialog({
           {/* Project */}
           {projects.length > 0 && (
             <div className="space-y-2">
-              <Label>{t('project')}</Label>
-              <Select value={projectId} onValueChange={setProjectId}>
+              <Label className="flex items-center gap-2">
+                <Rocket className="h-4 w-4" />
+                {t('project')}
+              </Label>
+              <Select
+                value={projectId}
+                onValueChange={(value) => {
+                  setProjectId(value)
+                  setObjectiveId(NONE_VALUE)
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um projeto (opcional)" />
                 </SelectTrigger>
@@ -259,6 +322,31 @@ export function TaskFormDialog({
                     .map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.title}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Objective (only when project is selected) */}
+          {projectId !== NONE_VALUE && objectives.length > 0 && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                {t('objective')}
+              </Label>
+              <Select value={objectiveId} onValueChange={setObjectiveId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um objetivo (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE_VALUE}>Nenhum</SelectItem>
+                  {objectives
+                    .filter((o) => !o.completedAt)
+                    .map((objective) => (
+                      <SelectItem key={objective.id} value={objective.id}>
+                        {objective.title}
                       </SelectItem>
                     ))}
                 </SelectContent>
@@ -371,11 +459,21 @@ export function TaskFormDialog({
                 resetForm()
                 setOpen(false)
               }}
+              disabled={isPending}
             >
               {tCommon('cancel')}
             </Button>
-            <Button type="submit" className="flex-1" disabled={!title.trim()}>
-              {tCommon('create')}
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={!title.trim() || isPending}
+            >
+              {isPending
+                ? tCommon('saving')
+                : isEditMode
+                  ? tCommon('save')
+                  : tCommon('create')
+              }
             </Button>
           </div>
         </form>

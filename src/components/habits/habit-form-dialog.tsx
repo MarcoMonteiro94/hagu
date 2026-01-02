@@ -16,8 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCreateHabit, useUpdateHabit } from '@/hooks/queries/use-habits'
 import { useOrderedAreas } from '@/hooks/queries/use-areas'
 import { useNotebooks } from '@/hooks/queries/use-notebooks'
+import { useActiveProjects } from '@/hooks/queries/use-projects'
 import type { Habit, HabitFrequency, HabitTracking } from '@/types'
-import { Plus, Check, Edit, Book, X } from 'lucide-react'
+import { Plus, Check, Edit, Book, X, Rocket } from 'lucide-react'
 import { toast } from 'sonner'
 import { PICKER_COLORS, getColorName } from '@/config/colors'
 
@@ -63,6 +64,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const updateHabitMutation = useUpdateHabit()
   const { data: areas = [] } = useOrderedAreas()
   const { data: notebooks = [] } = useNotebooks()
+  const { data: projects = [] } = useActiveProjects()
 
   const isEditing = !!habit
   const defaultAreaId = propDefaultAreaId || areas[0]?.id || ''
@@ -73,6 +75,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
   const [color, setColor] = useState(habit?.color || PICKER_COLORS[3])
   const [notebookId, setNotebookId] = useState(habit?.notebookId || '')
+  const [projectId, setProjectId] = useState(habit?.projectId || '')
 
   // Update areaId when areas first load if we started with empty value
   useEffect(() => {
@@ -101,6 +104,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setAreaId(habit.areaId)
       setColor(habit.color)
       setNotebookId(habit.notebookId || '')
+      setProjectId(habit.projectId || '')
       setFrequencyType(getInitialFrequencyType(habit))
       setDaysPerWeek(getInitialDaysPerWeek(habit))
       setSpecificDays(getInitialSpecificDays(habit))
@@ -115,6 +119,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setAreaId(defaultAreaId)
       setColor(PICKER_COLORS[3])
       setNotebookId('')
+      setProjectId('')
       setFrequencyType('daily')
       setDaysPerWeek(3)
       setSpecificDays([1, 3, 5])
@@ -166,6 +171,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
             tracking,
             color,
             notebookId: notebookId || undefined,
+            projectId: projectId || undefined,
           },
         })
       } else {
@@ -177,6 +183,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
           tracking,
           color,
           notebookId: notebookId || undefined,
+          projectId: projectId || undefined,
         })
       }
 
@@ -326,6 +333,39 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
                     )}
                   </Button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Linked Project (Optional) */}
+          {projects.length > 0 && (
+            <div className="space-y-2">
+              <Label>{t('linkedProject')}</Label>
+              <p className="text-xs text-muted-foreground">{t('linkedProjectHint')}</p>
+              <div className="flex flex-wrap gap-2">
+                {projects
+                  .filter((p) => !p.archivedAt)
+                  .map((project) => (
+                    <Button
+                      key={project.id}
+                      type="button"
+                      variant={projectId === project.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setProjectId(projectId === project.id ? '' : project.id)}
+                      className="flex items-center gap-1"
+                      style={
+                        projectId === project.id
+                          ? { backgroundColor: project.color, borderColor: project.color }
+                          : {}
+                      }
+                    >
+                      <Rocket className="h-3 w-3" />
+                      {project.title}
+                      {projectId === project.id && (
+                        <X className="h-3 w-3 ml-1" />
+                      )}
+                    </Button>
+                  ))}
               </div>
             </div>
           )}

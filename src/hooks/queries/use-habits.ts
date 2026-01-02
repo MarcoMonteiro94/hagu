@@ -14,6 +14,7 @@ export const habitsKeys = {
   archived: () => [...habitsKeys.lists(), 'archived'] as const,
   byArea: (areaId: string) => [...habitsKeys.lists(), 'area', areaId] as const,
   byNotebook: (notebookId: string) => [...habitsKeys.lists(), 'notebook', notebookId] as const,
+  byProject: (projectId: string) => [...habitsKeys.lists(), 'project', projectId] as const,
   details: () => [...habitsKeys.all, 'detail'] as const,
   detail: (id: string) => [...habitsKeys.details(), id] as const,
   streaks: () => [...habitsKeys.all, 'streaks'] as const,
@@ -75,6 +76,16 @@ export function useHabitsByNotebook(notebookId: string) {
     queryKey: habitsKeys.byNotebook(notebookId),
     queryFn: () => habitsService.getByNotebook(supabase, notebookId),
     enabled: !!notebookId,
+  })
+}
+
+export function useHabitsByProject(projectId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: habitsKeys.byProject(projectId),
+    queryFn: () => habitsService.getByProject(supabase, projectId),
+    enabled: !!projectId,
   })
 }
 

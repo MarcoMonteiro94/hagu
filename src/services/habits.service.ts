@@ -6,6 +6,7 @@ interface DbHabit {
   id: string
   user_id: string
   area_id: string | null
+  project_id: string | null
   title: string
   description: string | null
   frequency_type: 'daily' | 'weekly' | 'specificDays' | 'monthly'
@@ -86,6 +87,7 @@ function toHabit(row: DbHabit, completions: HabitCompletion[] = []): Habit {
     title: row.title,
     description: row.description ?? undefined,
     areaId: row.area_id ?? '',
+    projectId: row.project_id ?? undefined,
     frequency,
     tracking,
     color: row.color,
@@ -239,6 +241,40 @@ export const habitsService = {
     return habits.map((h) => toHabit(h, completionsByHabit.get(h.id) ?? []))
   },
 
+  async getByProject(supabase: SupabaseClient, projectId: string): Promise<Habit[]> {
+    const { data: habitsData, error: habitsError } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('project_id', projectId)
+      .is('archived_at', null)
+      .order('order', { ascending: true })
+
+    if (habitsError) throw habitsError
+
+    const habits = (habitsData ?? []) as DbHabit[]
+
+    if (habits.length === 0) return []
+
+    // Get completions
+    const habitIds = habits.map((h) => h.id)
+    const { data: completionsData, error: completionsError } = await supabase
+      .from('habit_completions')
+      .select('*')
+      .in('habit_id', habitIds)
+
+    if (completionsError) throw completionsError
+
+    const completions = (completionsData ?? []) as DbHabitCompletion[]
+    const completionsByHabit = new Map<string, HabitCompletion[]>()
+    completions.forEach((c) => {
+      const existing = completionsByHabit.get(c.habit_id) ?? []
+      existing.push(toCompletion(c))
+      completionsByHabit.set(c.habit_id, existing)
+    })
+
+    return habits.map((h) => toHabit(h, completionsByHabit.get(h.id) ?? []))
+  },
+
   async create(
     supabase: SupabaseClient,
     habit: Omit<Habit, 'id' | 'createdAt' | 'completions'>
@@ -270,6 +306,7 @@ export const habitsService = {
       .insert({
         user_id: user.id,
         area_id: habit.areaId || null,
+        project_id: habit.projectId || null,
         title: habit.title,
         description: habit.description,
         frequency_type: habit.frequency.type,
@@ -310,6 +347,7 @@ export const habitsService = {
     if (updates.title !== undefined) dbUpdates.title = updates.title
     if (updates.description !== undefined) dbUpdates.description = updates.description
     if (updates.areaId !== undefined) dbUpdates.area_id = updates.areaId || null
+    if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId || null
     if (updates.color !== undefined) dbUpdates.color = updates.color
     if (updates.icon !== undefined) dbUpdates.icon = updates.icon
     if (updates.archivedAt !== undefined) dbUpdates.archived_at = updates.archivedAt

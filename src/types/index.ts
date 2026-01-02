@@ -20,6 +20,7 @@ export interface Habit {
   title: string
   description?: string
   areaId: string
+  projectId?: string // Link habit to a specific project
   frequency: HabitFrequency
   tracking: HabitTracking
   color: string
@@ -53,6 +54,7 @@ export interface Task {
   title: string
   description?: string
   projectId?: string
+  objectiveId?: string // Link task to a specific objective within a project
   areaId?: string
   notebookId?: string
   pageId?: string
@@ -68,16 +70,8 @@ export interface Task {
   completedAt?: string
 }
 
-// Project Types
-export interface Project {
-  id: string
-  title: string
-  description?: string
-  areaId?: string
-  color?: string
-  createdAt: string
-  archivedAt?: string
-}
+// Project Types - re-exported from projects.ts
+// See src/types/projects.ts for full type definitions
 
 // Life Area Types
 export interface LifeArea {
@@ -194,13 +188,43 @@ export type {
 
 export { NOTEBOOK_COLORS, NOTEBOOK_ICONS } from './studies'
 
+// Re-export project types
+export type {
+  Project,
+  ProjectStatus,
+  ProjectWithProgress,
+  ProjectSummary,
+  Objective,
+  ObjectiveStatus,
+  Milestone,
+  MilestoneStatus,
+  ProjectMetric,
+  ProjectMetricEntry,
+  CreateProjectData,
+  UpdateProjectData,
+  CreateObjectiveData,
+  UpdateObjectiveData,
+  CreateMilestoneData,
+  UpdateMilestoneData,
+  CreateProjectMetricData,
+  UpdateProjectMetricData,
+  ProjectIcon,
+  ProjectColor,
+} from './projects'
+
+export {
+  PROJECT_STATUS_OPTIONS,
+  PROJECT_ICONS,
+  PROJECT_COLORS,
+} from './projects'
+
 // App Data for Export/Import
 export interface AppData {
   version: string
   exportedAt: string
   habits: Habit[]
   tasks: Task[]
-  projects: Project[]
+  projects: import('./projects').Project[]
   areas: LifeArea[]
   metrics: MetricEntry[]
   achievements: Achievement[]
