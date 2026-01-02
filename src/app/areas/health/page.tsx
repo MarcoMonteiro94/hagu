@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useMetricsByArea, useCreateMetric } from '@/hooks/queries/use-areas'
+import { useMetricsByArea, useCreateMetric, useAreaBySlug } from '@/hooks/queries/use-areas'
 import { useActiveHabits } from '@/hooks/queries/use-habits'
 import { MetricChart } from '@/components/health/metric-chart'
 import {
@@ -111,10 +111,14 @@ export default function HealthPage() {
   const t = useTranslations('health')
   const tCommon = useTranslations('common')
 
-  const { data: allMetrics = [] } = useMetricsByArea('health')
+  // Fetch the health area to get its actual ID
+  const { data: healthArea } = useAreaBySlug('health')
+  const areaId = healthArea?.id
+
+  const { data: allMetrics = [] } = useMetricsByArea(areaId ?? '')
   const createMetricMutation = useCreateMetric()
   const { data: habits = [] } = useActiveHabits()
-  const healthHabits = habits.filter((h) => h.areaId === 'health')
+  const healthHabits = habits.filter((h) => h.areaId === areaId)
 
   // Helper to filter metrics by type
   const getMetricsByType = (type: MetricType) => {
@@ -129,11 +133,11 @@ export default function HealthPage() {
   const [metricDate, setMetricDate] = useState(getTodayString())
 
   const handleAddMetric = async () => {
-    if (!metricValue) return
+    if (!metricValue || !areaId) return
 
     try {
       await createMetricMutation.mutateAsync({
-        areaId: 'health',
+        areaId,
         type: selectedMetricType,
         value: parseFloat(metricValue),
         unit: METRIC_CONFIGS.find((c) => c.type === selectedMetricType)?.unit,
@@ -284,7 +288,7 @@ export default function HealthPage() {
                 <Button
                   className="flex-1"
                   onClick={handleAddMetric}
-                  disabled={!metricValue || createMetricMutation.isPending}
+                  disabled={!metricValue || !areaId || createMetricMutation.isPending}
                 >
                   {createMetricMutation.isPending ? tCommon('saving') : tCommon('save')}
                 </Button>

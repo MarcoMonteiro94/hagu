@@ -4,14 +4,30 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 import { Button } from '@/components/ui/button'
-import { PageTransition, StaggerContainer, StaggerItem } from '@/components/ui/motion'
-import { PageListItem } from '@/components/studies/page-list-item'
+import { PageTransition } from '@/components/ui/motion'
+import { SortablePageListItem } from '@/components/studies/sortable-page-list-item'
 import { PageFormDialog } from '@/components/studies/page-form-dialog'
 import {
   useNotebook,
   usePages,
   useDeletePage,
+  useReorderPages,
 } from '@/hooks/queries/use-notebooks'
 import { useHabitsByNotebook } from '@/hooks/queries/use-habits'
 import { useTasksByNotebook } from '@/hooks/queries/use-tasks'
@@ -35,12 +51,41 @@ export default function NotebookPage() {
   const { data: linkedHabits = [] } = useHabitsByNotebook(notebookId)
   const { data: notebookTasks = [] } = useTasksByNotebook(notebookId)
   const deleteMutation = useDeletePage()
+  const reorderMutation = useReorderPages()
 
   const pendingTasks = notebookTasks.filter(task => task.status !== 'done')
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (over && active.id !== over.id && pages) {
+      const oldIndex = pages.findIndex((p) => p.id === active.id)
+      const newIndex = pages.findIndex((p) => p.id === over.id)
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(pages, oldIndex, newIndex)
+        reorderMutation.mutate({
+          notebookId,
+          orderedIds: newOrder.map((p) => p.id),
+        })
+      }
+    }
+  }
 
   const handleDeletePage = async (id: string) => {
     try {
@@ -181,19 +226,29 @@ export default function NotebookPage() {
 
       {/* Pages List */}
       {pages && pages.length > 0 ? (
-        <StaggerContainer className="space-y-2">
-          {pages.map((page) => (
-            <StaggerItem key={page.id}>
-              <PageListItem
-                page={page}
-                notebookId={notebookId}
-                locale={locale}
-                onEdit={handleEditPage}
-                onDelete={handleDeletePage}
-              />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={pages.map((p) => p.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-2">
+              {pages.map((page) => (
+                <SortablePageListItem
+                  key={page.id}
+                  page={page}
+                  notebookId={notebookId}
+                  locale={locale}
+                  onEdit={handleEditPage}
+                  onDelete={handleDeletePage}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">

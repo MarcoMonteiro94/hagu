@@ -303,4 +303,72 @@ describe('notebooksService', () => {
       expect(result.notebookId).toBe('notebook-1')
     })
   })
+
+  describe('reorder', () => {
+    it('should update notebook order for each notebook', async () => {
+      const mockSupabase = createMockSupabase()
+      mockSupabase.mockChain.eq.mockResolvedValue({ error: null })
+
+      await notebooksService.reorder(mockSupabase, ['nb-1', 'nb-2', 'nb-3'])
+
+      expect(mockSupabase.from).toHaveBeenCalledWith('notebooks')
+      expect(mockSupabase.mockChain.update).toHaveBeenCalledTimes(3)
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(1, { order: 0 })
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(2, { order: 1 })
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(3, { order: 2 })
+    })
+
+    it('should throw error if update fails', async () => {
+      const mockSupabase = createMockSupabase()
+      mockSupabase.mockChain.eq.mockResolvedValueOnce({
+        error: { message: 'Update failed' },
+      })
+
+      await expect(
+        notebooksService.reorder(mockSupabase, ['nb-1', 'nb-2'])
+      ).rejects.toEqual({ message: 'Update failed' })
+    })
+  })
+
+  describe('reorderPages', () => {
+    it('should update page order for each page within a notebook', async () => {
+      const mockSupabase = createMockSupabase()
+      // For reorderPages, eq is called twice per page (id and notebook_id)
+      mockSupabase.mockChain.eq.mockReturnThis()
+      // Make the last call in the chain resolve
+      let callCount = 0
+      mockSupabase.mockChain.eq.mockImplementation(() => {
+        callCount++
+        // Every 2nd call completes the chain for one page
+        if (callCount % 2 === 0) {
+          return Promise.resolve({ error: null })
+        }
+        return mockSupabase.mockChain
+      })
+
+      await notebooksService.reorderPages(mockSupabase, 'notebook-1', ['page-1', 'page-2', 'page-3'])
+
+      expect(mockSupabase.from).toHaveBeenCalledWith('notebook_pages')
+      expect(mockSupabase.mockChain.update).toHaveBeenCalledTimes(3)
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(1, { order: 0 })
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(2, { order: 1 })
+      expect(mockSupabase.mockChain.update).toHaveBeenNthCalledWith(3, { order: 2 })
+    })
+
+    it('should throw error if page reorder fails', async () => {
+      const mockSupabase = createMockSupabase()
+      let callCount = 0
+      mockSupabase.mockChain.eq.mockImplementation(() => {
+        callCount++
+        if (callCount % 2 === 0) {
+          return Promise.resolve({ error: { message: 'Reorder failed' } })
+        }
+        return mockSupabase.mockChain
+      })
+
+      await expect(
+        notebooksService.reorderPages(mockSupabase, 'notebook-1', ['page-1', 'page-2'])
+      ).rejects.toEqual({ message: 'Reorder failed' })
+    })
+  })
 })

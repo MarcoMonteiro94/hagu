@@ -304,6 +304,33 @@ export function useTodayTasks() {
   return { tasks: filteredTasks, isLoading }
 }
 
+export function useTodayAndOverdueTasks() {
+  const { data: tasks, isLoading } = useTasks()
+  const today = new Date().toISOString().split('T')[0]
+
+  const todayTasks = tasks?.filter(
+    (task) => task.dueDate === today && task.status !== 'done'
+  ) ?? []
+
+  const overdueTasks = tasks?.filter(
+    (task) => task.dueDate && task.dueDate < today && task.status !== 'done'
+  ) ?? []
+
+  // Combined list with overdue tasks first (sorted by date), then today's tasks
+  const allTasks = [
+    ...overdueTasks.sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? '')),
+    ...todayTasks,
+  ]
+
+  return {
+    todayTasks,
+    overdueTasks,
+    allTasks,
+    hasOverdue: overdueTasks.length > 0,
+    isLoading,
+  }
+}
+
 export function usePendingTasks() {
   const { data: tasks } = useTasks()
 

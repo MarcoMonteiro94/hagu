@@ -25,7 +25,7 @@ import {
   useSetCompletionValue,
   useRemoveCompletion,
 } from '@/hooks/queries/use-habits'
-import { useTodayTasks, useSetTaskStatus } from '@/hooks/queries/use-tasks'
+import { useTodayAndOverdueTasks, useSetTaskStatus } from '@/hooks/queries/use-tasks'
 import {
   useUserStats,
   useUpdateGamificationStreak,
@@ -38,7 +38,7 @@ import { TaskFormDialog } from '@/components/tasks'
 import { NotebooksWidget, FinancesWidget, HealthWidget } from '@/components/home'
 import { StreakSparkline } from '@/components/charts'
 import { HabitCardSkeleton, TaskCardSkeleton } from '@/components/skeletons'
-import { Flame, Star, CheckCircle2, Plus, ChevronRight, ChevronUp, ChevronDown, Settings2 } from 'lucide-react'
+import { Flame, Star, CheckCircle2, Plus, ChevronRight, ChevronUp, ChevronDown, Settings2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { DEFAULT_HOME_WIDGETS } from '@/types'
 import type { HomeWidgetType } from '@/types'
@@ -69,7 +69,7 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false)
 
   const { data: habits = [], isLoading: isLoadingHabits } = useActiveHabits()
-  const { tasks, isLoading: isLoadingTasks } = useTodayTasks()
+  const { allTasks: tasks, overdueTasks, hasOverdue, isLoading: isLoadingTasks } = useTodayAndOverdueTasks()
   const toggleCompletionMutation = useToggleCompletion()
   const setCompletionValueMutation = useSetCompletionValue()
   const removeCompletionMutation = useRemoveCompletion()
@@ -296,6 +296,12 @@ export default function HomePage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{tNav('tasks')}</CardTitle>
                 <div className="flex items-center gap-2">
+                  {hasOverdue && (
+                    <Badge variant="destructive" className="gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      {t('overdueCount', { count: overdueTasks.length })}
+                    </Badge>
+                  )}
                   <Badge variant="secondary">
                     {t('tasksRemaining', { count: tasks.length })}
                   </Badge>
@@ -323,11 +329,15 @@ export default function HomePage() {
                       high: 'bg-orange-500',
                       urgent: 'bg-red-500',
                     }
+                    const today = getTodayString()
+                    const isOverdue = task.dueDate && task.dueDate < today
 
                     return (
                       <div
                         key={task.id}
-                        className="flex items-center gap-3 rounded-lg border p-3"
+                        className={`flex items-center gap-3 rounded-lg border p-3 ${
+                          isOverdue ? 'border-destructive/50 bg-destructive/5' : ''
+                        }`}
                       >
                         <Checkbox
                           checked={task.status === 'done'}
@@ -335,9 +345,19 @@ export default function HomePage() {
                           className="h-5 w-5"
                         />
                         <div className="flex-1">
-                          <p className={task.status === 'done' ? 'text-muted-foreground line-through' : ''}>
-                            {task.title}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className={task.status === 'done' ? 'text-muted-foreground line-through' : ''}>
+                              {task.title}
+                            </p>
+                            {isOverdue && (
+                              <AlertTriangle className="h-4 w-4 text-destructive" />
+                            )}
+                          </div>
+                          {isOverdue && task.dueDate && (
+                            <p className="text-xs text-destructive">
+                              {t('overdueSince', { date: new Date(task.dueDate + 'T12:00:00').toLocaleDateString(locale) })}
+                            </p>
+                          )}
                           {task.subtasks.length > 0 && (
                             <p className="text-xs text-muted-foreground">
                               {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length} subtarefas

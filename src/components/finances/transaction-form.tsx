@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CurrencyInput } from '@/components/ui/currency-input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -71,7 +72,7 @@ export function TransactionForm({
   const setOpen = onOpenChange || setInternalOpen
 
   const [type, setType] = useState<TransactionType>(transaction?.type || defaultType)
-  const [amount, setAmount] = useState(transaction?.amount?.toString() || '')
+  const [amount, setAmount] = useState<number>(transaction?.amount || 0)
   const [categoryId, setCategoryId] = useState(transaction?.categoryId || '')
   const [description, setDescription] = useState(transaction?.description || '')
   const [date, setDate] = useState(transaction?.date || getTodayString())
@@ -84,7 +85,7 @@ export function TransactionForm({
   useEffect(() => {
     if (transaction) {
       setType(transaction.type)
-      setAmount(transaction.amount.toString())
+      setAmount(transaction.amount)
       setCategoryId(transaction.categoryId)
       setDescription(transaction.description)
       setDate(transaction.date)
@@ -99,7 +100,7 @@ export function TransactionForm({
   function resetForm() {
     if (!isEditMode) {
       setType(defaultType)
-      setAmount('')
+      setAmount(0)
       setCategoryId('')
       setDescription('')
       setDate(getTodayString())
@@ -117,13 +118,12 @@ export function TransactionForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    const numericAmount = parseFloat(amount.replace(',', '.'))
-    if (isNaN(numericAmount) || numericAmount <= 0) return
+    if (amount <= 0) return
     if (!categoryId) return
 
     const transactionData = {
       type,
-      amount: numericAmount,
+      amount,
       categoryId,
       description,
       date,
@@ -196,21 +196,13 @@ export function TransactionForm({
           {/* Amount */}
           <div className="space-y-2">
             <Label htmlFor="amount">{t('finances.amount')}</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {currency === 'BRL' ? 'R$' : currency === 'USD' ? '$' : '€'}
-              </span>
-              <Input
-                id="amount"
-                type="text"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="pl-10 text-lg font-medium"
-                required
-              />
-            </div>
+            <CurrencyInput
+              id="amount"
+              value={amount}
+              onChange={setAmount}
+              currency={currency as 'BRL' | 'USD' | 'EUR'}
+              required
+            />
           </div>
 
           {/* Category */}

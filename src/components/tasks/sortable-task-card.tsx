@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations } from 'next-intl'
@@ -11,16 +12,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { GripVertical, Calendar, Clock, Repeat, MoreVertical, Trash2 } from 'lucide-react'
+import { GripVertical, Calendar, Clock, Repeat, MoreVertical, Trash2, Pencil } from 'lucide-react'
 import { formatLocalDate } from '@/lib/utils'
+import { TaskFormDialog } from './task-form-dialog'
 import type { Task } from '@/types'
 
 interface SortableTaskCardProps {
   task: Task
   onToggle: (taskId: string, currentStatus: string) => void
   onDelete?: (taskId: string) => void
+  onEdit?: (task: Task) => void
   selectionMode?: boolean
   selected?: boolean
   onSelect?: (taskId: string, selected: boolean) => void
@@ -50,7 +54,9 @@ export function SortableTaskCard({
   onSelect,
   isToggling = false,
 }: SortableTaskCardProps) {
+  const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const {
     attributes,
@@ -149,32 +155,45 @@ export function SortableTaskCard({
               </Badge>
             )}
 
-            {onDelete && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    aria-label="Mais opções"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => onDelete(task.id)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {tCommon('delete')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  aria-label="Mais opções"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  {t('editTask')}
+                </DropdownMenuItem>
+                {onDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(task.id)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {tCommon('delete')}
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>
+
+      <TaskFormDialog
+        task={task}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </div>
   )
 }
