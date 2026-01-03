@@ -210,7 +210,7 @@ export default function ProjectsPage() {
       {/* Tabs & Project List */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectStatus | 'all')}>
         <div className="overflow-x-auto -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:pb-0">
-          <TabsList className="inline-flex w-max sm:w-auto gap-1">
+          <TabsList className="w-full gap-1">
             <TabsTrigger value="all" className="gap-1 px-2 sm:px-3">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">{t('statusTabs.all')}</span>
