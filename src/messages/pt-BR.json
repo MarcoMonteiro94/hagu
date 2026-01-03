@@ -90,7 +90,20 @@
     "habitCreated": "Hábito criado com sucesso",
     "habitCreateError": "Erro ao criar hábito",
     "habitUpdated": "Hábito atualizado com sucesso",
-    "habitUpdateError": "Erro ao atualizar hábito"
+    "habitUpdateError": "Erro ao atualizar hábito",
+    "addPastCompletion": "Adicionar registro passado",
+    "completionDate": "Data do registro",
+    "value": "Valor",
+    "targetLabel": "Meta",
+    "cannotLogFuture": "Não é possível registrar datas futuras",
+    "invalidValue": "Valor inválido",
+    "completionAdded": "Registro adicionado com sucesso",
+    "completionAddError": "Erro ao adicionar registro",
+    "existingCompletionWarning": "Já existe um registro para esta data{value, select, other { ({value})}}.  Será substituído.",
+    "updateCompletion": "Atualizar registro",
+    "addCompletion": "Adicionar registro",
+    "done": "Feito",
+    "markToday": "Marcar hoje"
   },
   "tasks": {
     "title": "Tarefas",

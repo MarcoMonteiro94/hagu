@@ -90,7 +90,20 @@
     "habitCreated": "Habit created successfully",
     "habitCreateError": "Error creating habit",
     "habitUpdated": "Habit updated successfully",
-    "habitUpdateError": "Error updating habit"
+    "habitUpdateError": "Error updating habit",
+    "addPastCompletion": "Add past entry",
+    "completionDate": "Entry date",
+    "value": "Value",
+    "targetLabel": "Target",
+    "cannotLogFuture": "Cannot log future dates",
+    "invalidValue": "Invalid value",
+    "completionAdded": "Entry added successfully",
+    "completionAddError": "Error adding entry",
+    "existingCompletionWarning": "An entry already exists for this date{value, select, other { ({value})}}. It will be replaced.",
+    "updateCompletion": "Update entry",
+    "addCompletion": "Add entry",
+    "done": "Done",
+    "markToday": "Mark today"
   },
   "tasks": {
     "title": "Tasks",

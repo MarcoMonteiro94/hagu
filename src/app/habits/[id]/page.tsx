@@ -27,13 +27,14 @@ import {
   useIncrementHabitsCompleted,
 } from '@/hooks/queries/use-gamification'
 import { useSettingsStore } from '@/stores/settings'
-import { HabitYearHeatmap, HabitFormDialog } from '@/components/habits'
+import { HabitYearHeatmap, HabitFormDialog, AddCompletionDialog } from '@/components/habits'
 import {
   ArrowLeft,
   Flame,
   Trophy,
   TrendingUp,
   Calendar,
+  CalendarPlus,
   Trash2,
   Edit,
   CheckCircle2,
@@ -215,25 +216,35 @@ export default function HabitDetailPage({ params }: HabitDetailPageProps) {
           )}
         </div>
 
-        {/* Today's toggle button */}
-        <Button
-          variant={stats.isCompletedToday ? 'default' : 'outline'}
-          size="sm"
-          onClick={handleToggleToday}
-          className="gap-2"
-        >
-          {stats.isCompletedToday ? (
-            <>
-              <CheckCircle2 className="h-4 w-4" />
-              Feito
-            </>
-          ) : (
-            <>
-              <Circle className="h-4 w-4" />
-              Marcar hoje
-            </>
-          )}
-        </Button>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          {/* Add past completion */}
+          <AddCompletionDialog habit={habit}>
+            <Button variant="ghost" size="icon" title={t('addPastCompletion')}>
+              <CalendarPlus className="h-5 w-5" />
+            </Button>
+          </AddCompletionDialog>
+
+          {/* Today's toggle button */}
+          <Button
+            variant={stats.isCompletedToday ? 'default' : 'outline'}
+            size="sm"
+            onClick={handleToggleToday}
+            className="gap-2"
+          >
+            {stats.isCompletedToday ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                {t('done')}
+              </>
+            ) : (
+              <>
+                <Circle className="h-4 w-4" />
+                {t('markToday')}
+              </>
+            )}
+          </Button>
+        </div>
       </header>
 
       {/* Frequency and Tracking Badges */}
