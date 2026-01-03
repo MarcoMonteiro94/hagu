@@ -23,6 +23,7 @@ import {
 } from '@/components/finances'
 import { useSettings, useUpdateSettings } from '@/hooks/queries/use-settings'
 import { useSyncPaymentReminders } from '@/hooks/queries/use-finances'
+import { useSettingsStore } from '@/stores/settings'
 import { getCurrentMonth, getLastNMonths, getMonthName } from '@/lib/finances'
 import type { CurrencyCode } from '@/types/finances'
 import { CURRENCIES } from '@/types/finances'
@@ -36,6 +37,8 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Bell,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 
 export default function FinancesPage() {
@@ -44,6 +47,8 @@ export default function FinancesPage() {
   const { data: settings } = useSettings()
   const updateSettingsMutation = useUpdateSettings()
   const syncPaymentRemindersMutation = useSyncPaymentReminders()
+  const hideBalances = useSettingsStore((state) => state.hideBalances) ?? false
+  const toggleHideBalances = useSettingsStore((state) => state.toggleHideBalances)
   const currency = settings?.currency ?? 'BRL'
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
   const [activeTab, setActiveTab] = useState('transactions')
@@ -98,6 +103,27 @@ export default function FinancesPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* Hide Balances Toggle */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleHideBalances}
+            title={hideBalances ? t('finances.showBalances') : t('finances.hideBalances')}
+          >
+            {hideBalances ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+
+          {/* Sync Payment Reminders Button */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleSyncPaymentReminders}
+            disabled={syncPaymentRemindersMutation.isPending}
+            title={t('finances.paymentReminders.sync')}
+          >
+            <Bell className={`h-4 w-4 ${syncPaymentRemindersMutation.isPending ? 'animate-pulse' : ''}`} />
+          </Button>
+
           {/* Currency Selector */}
           <Select
             value={currency}
@@ -116,17 +142,6 @@ export default function FinancesPage() {
               ))}
             </SelectContent>
           </Select>
-
-          {/* Sync Payment Reminders Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleSyncPaymentReminders}
-            disabled={syncPaymentRemindersMutation.isPending}
-            title={t('finances.paymentReminders.sync')}
-          >
-            <Bell className={`h-4 w-4 ${syncPaymentRemindersMutation.isPending ? 'animate-pulse' : ''}`} />
-          </Button>
 
           {/* Add Transaction Button */}
           {activeTab === 'transactions' && (

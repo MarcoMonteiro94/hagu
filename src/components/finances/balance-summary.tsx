@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { useSettings } from '@/hooks/queries/use-settings'
 import { useSettingsStore } from '@/stores/settings'
 import { useMonthlyBalance, useTotalBalance } from '@/hooks/queries/use-finances'
@@ -14,8 +13,6 @@ import {
   ArrowDownCircle,
   TrendingUp,
   TrendingDown,
-  Eye,
-  EyeOff,
 } from 'lucide-react'
 
 const HIDDEN_VALUE = '••••••'
@@ -29,7 +26,6 @@ export function BalanceSummary({ month }: BalanceSummaryProps) {
   const { data: settings } = useSettings()
   const currency = settings?.currency ?? 'BRL'
   const hideBalances = useSettingsStore((state) => state.hideBalances) ?? false
-  const toggleHideBalances = useSettingsStore((state) => state.toggleHideBalances)
 
   const selectedMonth = month ?? getCurrentMonth()
   const { data: monthlyBalance } = useMonthlyBalance(selectedMonth)
@@ -44,23 +40,9 @@ export function BalanceSummary({ month }: BalanceSummaryProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">
-                  {t('finances.totalBalance')}
-                </p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={toggleHideBalances}
-                >
-                  {hideBalances ? (
-                    <EyeOff className="h-3.5 w-3.5" />
-                  ) : (
-                    <Eye className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {t('finances.totalBalance')}
+              </p>
               <p className="text-2xl font-bold">
                 {hideBalances ? HIDDEN_VALUE : formatCurrency(totalBalance, currency)}
               </p>

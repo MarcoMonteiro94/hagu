@@ -297,6 +297,8 @@
   "finances": {
     "title": "Finances",
     "subtitle": "Track your income and expenses",
+    "hideBalances": "Hide values",
+    "showBalances": "Show values",
     "income": "Income",
     "expense": "Expense",
     "expenses": "Expenses",

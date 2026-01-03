@@ -297,6 +297,8 @@
   "finances": {
     "title": "Finanças",
     "subtitle": "Controle suas receitas e despesas",
+    "hideBalances": "Ocultar valores",
+    "showBalances": "Mostrar valores",
     "income": "Receita",
     "expense": "Despesa",
     "expenses": "Despesas",
