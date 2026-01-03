@@ -86,7 +86,11 @@
     "noHabits": "You don't have any habits yet",
     "createFirst": "Create your first habit",
     "archived": "Archived",
-    "active": "Active"
+    "active": "Active",
+    "habitCreated": "Habit created successfully",
+    "habitCreateError": "Error creating habit",
+    "habitUpdated": "Habit updated successfully",
+    "habitUpdateError": "Error updating habit"
   },
   "tasks": {
     "title": "Tasks",

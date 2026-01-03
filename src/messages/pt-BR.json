@@ -86,7 +86,11 @@
     "noHabits": "Você ainda não tem hábitos",
     "createFirst": "Crie seu primeiro hábito",
     "archived": "Arquivados",
-    "active": "Ativos"
+    "active": "Ativos",
+    "habitCreated": "Hábito criado com sucesso",
+    "habitCreateError": "Erro ao criar hábito",
+    "habitUpdated": "Hábito atualizado com sucesso",
+    "habitUpdateError": "Erro ao atualizar hábito"
   },
   "tasks": {
     "title": "Tarefas",
