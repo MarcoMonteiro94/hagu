@@ -159,7 +159,7 @@ export function ProjectFormDialog({ children, project, onClose }: ProjectFormDia
             </Button>
           ))}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? t('editProject') : t('addNew')}</DialogTitle>
         </DialogHeader>
@@ -193,7 +193,7 @@ export function ProjectFormDialog({ children, project, onClose }: ProjectFormDia
           {/* Icon Selection */}
           <div className="space-y-2">
             <Label>{t('icon')}</Label>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('icon')}>
+            <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label={t('icon')}>
               {PROJECT_ICONS.map((iconName) => {
                 const IconComponent = ICON_MAP[iconName]
                 return (
@@ -203,14 +203,14 @@ export function ProjectFormDialog({ children, project, onClose }: ProjectFormDia
                     role="radio"
                     aria-checked={icon === iconName}
                     aria-label={iconName}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg border-2 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                    className={`flex h-9 w-full items-center justify-center rounded-lg border-2 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                       icon === iconName
                         ? 'border-primary bg-primary/10'
                         : 'border-muted hover:border-muted-foreground/50'
                     }`}
                     onClick={() => setIcon(iconName)}
                   >
-                    {IconComponent && <IconComponent className="h-5 w-5" style={{ color }} />}
+                    {IconComponent && <IconComponent className="h-4 w-4" style={{ color }} />}
                   </button>
                 )
               })}
@@ -220,18 +220,18 @@ export function ProjectFormDialog({ children, project, onClose }: ProjectFormDia
           {/* Color Selection */}
           <div className="space-y-2">
             <Label>{t('color')}</Label>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('color')}>
+            <div className="grid grid-cols-10 gap-1.5 sm:gap-2" role="radiogroup" aria-label={t('color')}>
               {PROJECT_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   role="radio"
                   aria-checked={color === c}
-                  className="flex h-8 w-8 items-center justify-center rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  className="flex aspect-square w-full items-center justify-center rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   style={{ backgroundColor: c }}
                   onClick={() => setColor(c)}
                 >
-                  {color === c && <Check className="h-4 w-4 text-white" />}
+                  {color === c && <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
                 </button>
               ))}
             </div>

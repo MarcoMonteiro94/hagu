@@ -526,7 +526,17 @@
     "complete": "concluído",
     "cancel": "Cancelar",
     "create": "Criar",
-    "save": "Salvar"
+    "save": "Salvar",
+    "addHabit": "Novo hábito",
+    "noLinkedHabits": "Nenhum hábito vinculado a este projeto",
+    "linkTasks": "Vincular tarefas",
+    "linkTasksTo": "Vincular tarefas a: {objective}",
+    "noTasksToLink": "Não há tarefas disponíveis para vincular",
+    "unlinkedTasks": "Tarefas sem objetivo",
+    "tasksFromOtherObjectives": "Tarefas de outros objetivos",
+    "tasksLinked": "{count, plural, =1 {# tarefa vinculada} other {# tarefas vinculadas}} com sucesso",
+    "tasksLinkError": "Erro ao vincular tarefas",
+    "linkSelected": "Vincular {count, plural, =0 {selecionadas} =1 {# tarefa} other {# tarefas}}"
   },
   "stats": {
     "title": "Estatísticas",

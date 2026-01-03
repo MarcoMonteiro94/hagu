@@ -30,6 +30,7 @@ import { ProjectFormDialog } from '@/components/projects/project-form-dialog'
 import { ObjectiveList } from '@/components/projects/objective-list'
 import { MilestoneTimeline } from '@/components/projects/milestone-timeline'
 import { MetricGrid } from '@/components/projects/metric-card'
+import { HabitFormDialog } from '@/components/habits/habit-form-dialog'
 import {
   useProjectWithProgress,
   useArchiveProject,
@@ -59,6 +60,7 @@ import {
   ListTodo,
   Repeat,
   BarChart3,
+  Plus,
 } from 'lucide-react'
 import {
   Target as TargetIcon,
@@ -448,15 +450,27 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Habits */}
-          {habits.length > 0 && (
-            <Card>
-              <CardHeader className="pb-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Repeat className="h-4 w-4" />
                   {t('linkedHabits')}
                 </CardTitle>
-              </CardHeader>
-              <CardContent>
+                <HabitFormDialog defaultProjectId={projectId}>
+                  <Button variant="outline" size="sm">
+                    <Plus className="mr-1 h-4 w-4" />
+                    {t('addHabit')}
+                  </Button>
+                </HabitFormDialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {habits.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-4 text-center text-muted-foreground text-sm">
+                  {t('noLinkedHabits')}
+                </div>
+              ) : (
                 <div className="space-y-2">
                   {habits.slice(0, 5).map((habit) => {
                     const todayCompletion = habit.completions.find((c) => c.date === today)
@@ -491,9 +505,9 @@ export default function ProjectDetailPage() {
                     </Button>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
 

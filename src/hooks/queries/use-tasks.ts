@@ -12,6 +12,7 @@ export const tasksKeys = {
   list: () => [...tasksKeys.lists()] as const,
   byStatus: (status: TaskStatus) => [...tasksKeys.lists(), 'status', status] as const,
   byProject: (projectId: string) => [...tasksKeys.lists(), 'project', projectId] as const,
+  byObjective: (objectiveId: string) => [...tasksKeys.lists(), 'objective', objectiveId] as const,
   byArea: (areaId: string) => [...tasksKeys.lists(), 'area', areaId] as const,
   byNotebook: (notebookId: string) => [...tasksKeys.lists(), 'notebook', notebookId] as const,
   byPage: (pageId: string) => [...tasksKeys.lists(), 'page', pageId] as const,
@@ -345,4 +346,14 @@ export function useTasksForDate(date: string) {
   if (!tasks) return []
 
   return tasks.filter((task) => task.dueDate === date)
+}
+
+export function useTasksByObjective(objectiveId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: tasksKeys.byObjective(objectiveId),
+    queryFn: () => tasksService.getByObjective(supabase, objectiveId),
+    enabled: !!objectiveId,
+  })
 }

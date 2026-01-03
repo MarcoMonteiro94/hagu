@@ -40,7 +40,6 @@ function getOverallProgress(
 export default function ProjectsPage() {
   const router = useRouter()
   const t = useTranslations('projects')
-  const tCommon = useTranslations('common')
 
   const [activeTab, setActiveTab] = useState<ProjectStatus | 'all'>('active')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
@@ -210,28 +209,35 @@ export default function ProjectsPage() {
 
       {/* Tabs & Project List */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectStatus | 'all')}>
-        <TabsList>
-          <TabsTrigger value="all" className="gap-2">
-            <LayoutGrid className="h-4 w-4" />
-            {t('statusTabs.all')} ({allProjects.length})
-          </TabsTrigger>
-          <TabsTrigger value="active" className="gap-2">
-            <Rocket className="h-4 w-4" />
-            {t('statusTabs.active')} ({activeProjects.length})
-          </TabsTrigger>
-          <TabsTrigger value="paused" className="gap-2">
-            <Pause className="h-4 w-4" />
-            {t('statusTabs.paused')} ({pausedProjects.length})
-          </TabsTrigger>
-          <TabsTrigger value="completed" className="gap-2">
-            <CheckCircle2 className="h-4 w-4" />
-            {t('statusTabs.completed')} ({completedProjects.length})
-          </TabsTrigger>
-          <TabsTrigger value="archived" className="gap-2">
-            <Archive className="h-4 w-4" />
-            {t('statusTabs.archived')} ({archivedProjects.length})
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:pb-0">
+          <TabsList className="inline-flex w-max sm:w-auto gap-1">
+            <TabsTrigger value="all" className="gap-1 px-2 sm:px-3">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('statusTabs.all')}</span>
+              ({allProjects.length})
+            </TabsTrigger>
+            <TabsTrigger value="active" className="gap-1 px-2 sm:px-3">
+              <Rocket className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('statusTabs.active')}</span>
+              ({activeProjects.length})
+            </TabsTrigger>
+            <TabsTrigger value="paused" className="gap-1 px-2 sm:px-3">
+              <Pause className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('statusTabs.paused')}</span>
+              ({pausedProjects.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="gap-1 px-2 sm:px-3">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('statusTabs.completed')}</span>
+              ({completedProjects.length})
+            </TabsTrigger>
+            <TabsTrigger value="archived" className="gap-1 px-2 sm:px-3">
+              <Archive className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('statusTabs.archived')}</span>
+              ({archivedProjects.length})
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab} className="mt-6">
           {filteredProjects.length === 0 ? (

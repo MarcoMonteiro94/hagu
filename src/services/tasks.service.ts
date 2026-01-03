@@ -10,6 +10,7 @@ interface DbTask {
   id: string
   user_id: string
   project_id: string | null
+  objective_id: string | null
   area_id: string | null
   notebook_id: string | null
   page_id: string | null
@@ -78,6 +79,7 @@ function toTask(row: DbTask, subtasks: Subtask[] = []): Task {
     title: row.title,
     description: row.description ?? undefined,
     projectId: row.project_id ?? undefined,
+    objectiveId: row.objective_id ?? undefined,
     areaId: row.area_id ?? undefined,
     notebookId: row.notebook_id ?? undefined,
     pageId: row.page_id ?? undefined,
@@ -166,6 +168,36 @@ export const tasksService = {
       .from('tasks')
       .select('*')
       .eq('project_id', projectId)
+      .order('order', { ascending: true })
+
+    if (error) throw error
+
+    const tasks = (tasksData ?? []) as DbTask[]
+    if (tasks.length === 0) return []
+
+    const taskIds = tasks.map((t) => t.id)
+    const { data: subtasksData } = await supabase
+      .from('subtasks')
+      .select('*')
+      .in('task_id', taskIds)
+      .order('order', { ascending: true })
+
+    const subtasks = (subtasksData ?? []) as DbSubtask[]
+    const subtasksByTask = new Map<string, Subtask[]>()
+    subtasks.forEach((s) => {
+      const existing = subtasksByTask.get(s.task_id) ?? []
+      existing.push(toSubtask(s))
+      subtasksByTask.set(s.task_id, existing)
+    })
+
+    return tasks.map((t) => toTask(t, subtasksByTask.get(t.id) ?? []))
+  },
+
+  async getByObjective(supabase: SupabaseClient, objectiveId: string): Promise<Task[]> {
+    const { data: tasksData, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('objective_id', objectiveId)
       .order('order', { ascending: true })
 
     if (error) throw error
@@ -332,6 +364,7 @@ export const tasksService = {
       .insert({
         user_id: user.id,
         project_id: task.projectId || null,
+        objective_id: task.objectiveId || null,
         area_id: task.areaId || null,
         notebook_id: task.notebookId || null,
         page_id: task.pageId || null,
@@ -366,6 +399,7 @@ export const tasksService = {
     if (updates.title !== undefined) dbUpdates.title = updates.title
     if (updates.description !== undefined) dbUpdates.description = updates.description
     if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId || null
+    if (updates.objectiveId !== undefined) dbUpdates.objective_id = updates.objectiveId || null
     if (updates.areaId !== undefined) dbUpdates.area_id = updates.areaId || null
     if (updates.notebookId !== undefined) dbUpdates.notebook_id = updates.notebookId || null
     if (updates.pageId !== undefined) dbUpdates.page_id = updates.pageId || null

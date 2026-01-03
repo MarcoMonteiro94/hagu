@@ -52,10 +52,11 @@ interface HabitFormDialogProps {
   children?: React.ReactNode
   habit?: Habit // If provided, edit mode
   defaultAreaId?: string // Pre-select area when creating
+  defaultProjectId?: string // Pre-select project when creating
   onClose?: () => void
 }
 
-export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAreaId, onClose }: HabitFormDialogProps) {
+export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAreaId, defaultProjectId: propDefaultProjectId, onClose }: HabitFormDialogProps) {
   const t = useTranslations('habits')
   const tDays = useTranslations('days')
   const tCommon = useTranslations('common')
@@ -68,6 +69,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
 
   const isEditing = !!habit
   const defaultAreaId = propDefaultAreaId || areas[0]?.id || ''
+  const defaultProjectId = propDefaultProjectId || ''
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState(habit?.title || '')
@@ -75,7 +77,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
   const [areaId, setAreaId] = useState(habit?.areaId || defaultAreaId)
   const [color, setColor] = useState(habit?.color || PICKER_COLORS[3])
   const [notebookId, setNotebookId] = useState(habit?.notebookId || '')
-  const [projectId, setProjectId] = useState(habit?.projectId || '')
+  const [projectId, setProjectId] = useState(habit?.projectId || defaultProjectId)
 
   // Update areaId when areas first load if we started with empty value
   useEffect(() => {
@@ -119,7 +121,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
       setAreaId(defaultAreaId)
       setColor(PICKER_COLORS[3])
       setNotebookId('')
-      setProjectId('')
+      setProjectId(defaultProjectId)
       setFrequencyType('daily')
       setDaysPerWeek(3)
       setSpecificDays([1, 3, 5])

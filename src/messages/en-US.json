@@ -526,7 +526,17 @@
     "complete": "complete",
     "cancel": "Cancel",
     "create": "Create",
-    "save": "Save"
+    "save": "Save",
+    "addHabit": "New habit",
+    "noLinkedHabits": "No habits linked to this project",
+    "linkTasks": "Link tasks",
+    "linkTasksTo": "Link tasks to: {objective}",
+    "noTasksToLink": "No tasks available to link",
+    "unlinkedTasks": "Unlinked tasks",
+    "tasksFromOtherObjectives": "Tasks from other objectives",
+    "tasksLinked": "{count, plural, =1 {# task linked} other {# tasks linked}} successfully",
+    "tasksLinkError": "Error linking tasks",
+    "linkSelected": "Link {count, plural, =0 {selected} =1 {# task} other {# tasks}}"
   },
   "stats": {
     "title": "Statistics",

@@ -40,6 +40,8 @@ interface TaskFormDialogProps {
   defaultTitle?: string
   defaultDescription?: string
   defaultTags?: string[]
+  defaultProjectId?: string
+  defaultObjectiveId?: string
   notebookId?: string
   pageId?: string
   open?: boolean
@@ -59,6 +61,8 @@ export function TaskFormDialog({
   defaultTitle,
   defaultDescription,
   defaultTags,
+  defaultProjectId,
+  defaultObjectiveId,
   notebookId,
   pageId,
   open: controlledOpen,
@@ -84,8 +88,8 @@ export function TaskFormDialog({
   const [dueDate, setDueDate] = useState(defaultDueDate || '')
   const [priority, setPriority] = useState<TaskPriority | ''>('')
   const [areaId, setAreaId] = useState(defaultAreaId || NONE_VALUE)
-  const [projectId, setProjectId] = useState(NONE_VALUE)
-  const [objectiveId, setObjectiveId] = useState(NONE_VALUE)
+  const [projectId, setProjectId] = useState(defaultProjectId || NONE_VALUE)
+  const [objectiveId, setObjectiveId] = useState(defaultObjectiveId || NONE_VALUE)
   const [estimatedMinutes, setEstimatedMinutes] = useState('')
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
   const [recurrenceInterval, setRecurrenceInterval] = useState('1')
@@ -120,8 +124,8 @@ export function TaskFormDialog({
     setDueDate(defaultDueDate || '')
     setPriority('')
     setAreaId(defaultAreaId || NONE_VALUE)
-    setProjectId(NONE_VALUE)
-    setObjectiveId(NONE_VALUE)
+    setProjectId(defaultProjectId || NONE_VALUE)
+    setObjectiveId(defaultObjectiveId || NONE_VALUE)
     setEstimatedMinutes('')
     setRecurrenceType('none')
     setRecurrenceInterval('1')

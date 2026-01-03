@@ -31,9 +31,12 @@ import {
   useReorderObjectives,
 } from '@/hooks/queries/use-projects'
 import type { Objective, ObjectiveStatus } from '@/types'
-import { Plus, GripVertical, Trash2, Circle, CheckCircle2, Clock } from 'lucide-react'
+import { Plus, GripVertical, Trash2, Circle, CheckCircle2, Clock, ListTodo, ChevronDown, ChevronRight, Link2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useTasksByObjective } from '@/hooks/queries/use-tasks'
+import { TaskFormDialog } from '@/components/tasks/task-form-dialog'
+import { LinkTasksDialog } from '@/components/projects/link-tasks-dialog'
 
 const STATUS_ICONS: Record<ObjectiveStatus, React.ElementType> = {
   pending: Circle,
@@ -57,9 +60,14 @@ function SortableObjectiveItem({
   onDelete,
 }: SortableObjectiveItemProps) {
   const t = useTranslations('projects')
+  const [isExpanded, setIsExpanded] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: objective.id,
   })
+
+  const { data: tasks = [] } = useTasksByObjective(objective.id)
+  const pendingTasks = tasks.filter((task) => task.status !== 'done')
+  const completedTasks = tasks.filter((task) => task.status === 'done')
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -83,52 +91,124 @@ function SortableObjectiveItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'group flex items-center gap-2 rounded-lg border bg-card p-3 transition-all',
+        'rounded-lg border bg-card transition-all',
         isDragging && 'opacity-50 shadow-lg',
         isCompleted && 'opacity-60'
       )}
     >
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab touch-none text-muted-foreground hover:text-foreground"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      <div className="group flex items-center gap-2 p-3">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab touch-none text-muted-foreground hover:text-foreground"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
 
-      <button
-        onClick={cycleStatus}
-        className="flex-shrink-0 transition-colors"
-        style={{ color: isCompleted ? color : undefined }}
-        aria-label={t(`objectiveStatus.${objective.status}`)}
-      >
-        <StatusIcon className={cn('h-5 w-5', isCompleted && 'fill-current')} />
-      </button>
+        <button
+          onClick={cycleStatus}
+          className="flex-shrink-0 transition-colors"
+          style={{ color: isCompleted ? color : undefined }}
+          aria-label={t(`objectiveStatus.${objective.status}`)}
+        >
+          <StatusIcon className={cn('h-5 w-5', isCompleted && 'fill-current')} />
+        </button>
 
-      <div className="flex-1 min-w-0">
-        <p className={cn('font-medium truncate', isCompleted && 'line-through')}>
-          {objective.title}
-        </p>
-        {objective.description && (
-          <p className="text-sm text-muted-foreground truncate">{objective.description}</p>
+        <div className="flex-1 min-w-0">
+          <p className={cn('font-medium truncate', isCompleted && 'line-through')}>
+            {objective.title}
+          </p>
+          {objective.description && (
+            <p className="text-sm text-muted-foreground truncate">{objective.description}</p>
+          )}
+        </div>
+
+        {/* Task count badge */}
+        {tasks.length > 0 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ListTodo className="h-3.5 w-3.5" />
+            <span>{completedTasks.length}/{tasks.length}</span>
+            {isExpanded ? (
+              <ChevronDown className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5" />
+            )}
+          </button>
         )}
+
+        {objective.dueDate && (
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
+            {new Date(objective.dueDate).toLocaleDateString()}
+          </span>
+        )}
+
+        {/* Link Existing Tasks Button */}
+        <LinkTasksDialog
+          projectId={projectId}
+          objectiveId={objective.id}
+          objectiveTitle={objective.title}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            title={t('linkTasks')}
+          >
+            <Link2 className="h-4 w-4" />
+          </Button>
+        </LinkTasksDialog>
+
+        {/* Add Task Button */}
+        <TaskFormDialog
+          defaultProjectId={projectId}
+          defaultObjectiveId={objective.id}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </TaskFormDialog>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={() => onDelete(objective.id)}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
       </div>
 
-      {objective.dueDate && (
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
-          {new Date(objective.dueDate).toLocaleDateString()}
-        </span>
+      {/* Tasks List */}
+      {isExpanded && tasks.length > 0 && (
+        <div className="border-t px-3 py-2 space-y-1">
+          {pendingTasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center gap-2 text-sm py-1 px-2 rounded hover:bg-muted/50"
+            >
+              <Circle className="h-3 w-3 text-muted-foreground" />
+              <span className="truncate">{task.title}</span>
+            </div>
+          ))}
+          {completedTasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center gap-2 text-sm py-1 px-2 rounded hover:bg-muted/50 text-muted-foreground"
+            >
+              <CheckCircle2 className="h-3 w-3" style={{ color }} />
+              <span className="truncate line-through">{task.title}</span>
+            </div>
+          ))}
+        </div>
       )}
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={() => onDelete(objective.id)}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
     </div>
   )
 }
