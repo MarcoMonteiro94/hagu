@@ -168,7 +168,7 @@ export function TransactionForm({
           )}
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? t('finances.editTransaction') : t('finances.addTransaction')}

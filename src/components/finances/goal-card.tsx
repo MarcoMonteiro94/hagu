@@ -191,7 +191,7 @@ export function GoalCard({ goal }: GoalCardProps) {
 
       {/* Contribution Dialog */}
       <Dialog open={showContribution} onOpenChange={setShowContribution}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>{t('finances.goals.addContribution')}</DialogTitle>
           </DialogHeader>

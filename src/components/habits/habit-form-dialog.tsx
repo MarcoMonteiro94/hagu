@@ -234,7 +234,7 @@ export function HabitFormDialog({ children, habit, defaultAreaId: propDefaultAre
           )
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? t('editHabit') : t('addNew')}</DialogTitle>
         </DialogHeader>

@@ -29,7 +29,7 @@ export function PomodoroSettings() {
           <Settings className="h-5 w-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Configurações do Pomodoro</DialogTitle>
         </DialogHeader>

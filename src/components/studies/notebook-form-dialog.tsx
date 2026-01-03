@@ -94,7 +94,7 @@ export function NotebookFormDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? t('editNotebook') : t('newNotebook')}
