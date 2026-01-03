@@ -92,17 +92,17 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
               style={{ backgroundColor: `${project.color}20` }}
             >
               {IconComponent && (
                 <IconComponent className="h-5 w-5" style={{ color: project.color }} />
               )}
             </div>
-            <div>
-              <CardTitle className="text-base">{project.title}</CardTitle>
+            <div className="min-w-0">
+              <CardTitle className="text-base line-clamp-2">{project.title}</CardTitle>
               {project.description && (
                 <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
                   {project.description}
