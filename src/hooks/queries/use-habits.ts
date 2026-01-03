@@ -334,8 +334,9 @@ export function useSetCompletionValue() {
         queryClient.setQueryData(habitsKeys.list(), context.previousHabits)
       }
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: habitsKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: habitsKeys.detail(variables.habitId) })
       queryClient.invalidateQueries({ queryKey: habitsKeys.streaks() })
     },
   })
