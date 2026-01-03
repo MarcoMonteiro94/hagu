@@ -62,19 +62,12 @@ export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) 
 
             <Link href={`/habits/${habit.id}`} className="flex-1">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: habit.color }}
-                    />
-                    <h3 className="font-medium">{habit.title}</h3>
-                  </div>
-                  {habit.description && (
-                    <p className="text-sm text-muted-foreground">
-                      {habit.description}
-                    </p>
-                  )}
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: habit.color }}
+                  />
+                  <h3 className="font-medium">{habit.title}</h3>
                 </div>
                 <Badge variant="secondary">
                   {habit.frequency.type === 'daily' && t('frequencyDaily')}
