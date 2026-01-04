@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { UserSettings, Theme, Locale } from '@/types'
+import type { UserSettings, Theme, Locale, HealthGoals } from '@/types'
 
 // Database row type (matching Supabase schema)
 interface DbUserSettings {
@@ -12,6 +12,7 @@ interface DbUserSettings {
   user_name: string | null
   currency: string
   pomodoro_settings: PomodoroSettings | null
+  health_goals: HealthGoals | null
   updated_at: string
 }
 
@@ -26,6 +27,7 @@ export interface PomodoroSettings {
 
 export interface FullUserSettings extends UserSettings {
   pomodoroSettings: PomodoroSettings
+  healthGoals?: HealthGoals
 }
 
 const DEFAULT_POMODORO_SETTINGS: PomodoroSettings = {
@@ -48,6 +50,7 @@ function toFullUserSettings(row: DbUserSettings): FullUserSettings {
     userName: row.user_name ?? undefined,
     currency: row.currency as import('@/types/finances').CurrencyCode | undefined,
     pomodoroSettings: row.pomodoro_settings ?? DEFAULT_POMODORO_SETTINGS,
+    healthGoals: row.health_goals ?? undefined,
   }
 }
 
@@ -87,6 +90,7 @@ export const settingsService = {
     if (updates.userName !== undefined) dbUpdates.user_name = updates.userName
     if (updates.currency !== undefined) dbUpdates.currency = updates.currency
     if (updates.pomodoroSettings !== undefined) dbUpdates.pomodoro_settings = updates.pomodoroSettings
+    if (updates.healthGoals !== undefined) dbUpdates.health_goals = updates.healthGoals
 
     const { data, error } = await supabase
       .from('user_settings')
@@ -193,5 +197,30 @@ export const settingsService = {
       .eq('user_id', user.id)
 
     if (error) throw error
+  },
+
+  async updateHealthGoals(
+    supabase: SupabaseClient,
+    goals: Partial<HealthGoals>
+  ): Promise<HealthGoals> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Get current settings first
+    const current = await this.get(supabase)
+
+    const newHealthGoals: HealthGoals = {
+      ...current?.healthGoals,
+      ...goals,
+    }
+
+    const { error } = await supabase
+      .from('user_settings')
+      .update({ health_goals: newHealthGoals })
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    return newHealthGoals
   },
 }

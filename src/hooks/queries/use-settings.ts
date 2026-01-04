@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { settingsService, type FullUserSettings, type PomodoroSettings } from '@/services/settings.service'
-import type { Theme, Locale } from '@/types'
+import type { Theme, Locale, HealthGoals, WeightGoal } from '@/types'
 
 // Query keys
 export const settingsKeys = {
@@ -284,6 +284,40 @@ export function useUpdatePomodoroSettings() {
       return { previousSettings }
     },
     onError: (_err, _settings, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(settingsKeys.user(), context.previousSettings)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.user() })
+    },
+  })
+}
+
+export function useUpdateHealthGoals() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (goals: Partial<HealthGoals>) =>
+      settingsService.updateHealthGoals(supabase, goals),
+    onMutate: async (goals) => {
+      await queryClient.cancelQueries({ queryKey: settingsKeys.user() })
+      const previousSettings = queryClient.getQueryData<FullUserSettings>(settingsKeys.user())
+
+      if (previousSettings) {
+        queryClient.setQueryData(settingsKeys.user(), {
+          ...previousSettings,
+          healthGoals: {
+            ...previousSettings.healthGoals,
+            ...goals,
+          },
+        })
+      }
+
+      return { previousSettings }
+    },
+    onError: (_err, _goals, context) => {
       if (context?.previousSettings) {
         queryClient.setQueryData(settingsKeys.user(), context.previousSettings)
       }

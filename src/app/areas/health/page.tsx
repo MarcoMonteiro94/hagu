@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select'
 import { useMetricsByArea, useCreateMetric, useAreaBySlug } from '@/hooks/queries/use-areas'
 import { useActiveHabits } from '@/hooks/queries/use-habits'
-import { MetricChart } from '@/components/health/metric-chart'
+import { MetricChart, WeightGoalDialog } from '@/components/health'
 import {
   ArrowLeft,
   Plus,
@@ -37,6 +37,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Target,
 } from 'lucide-react'
 
 type MetricType = 'weight' | 'mood' | 'energy' | 'sleep' | 'water'
@@ -358,10 +359,20 @@ export default function HealthPage() {
             <TabsContent key={config.type} value={config.type} className="mt-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    {config.icon}
-                    {t('evolution')} - {t(config.type)}
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      {config.icon}
+                      {t('evolution')} - {t(config.type)}
+                    </CardTitle>
+                    {config.type === 'weight' && (
+                      <WeightGoalDialog>
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                          <Target className="h-4 w-4" />
+                          <span className="hidden sm:inline">{t('setGoal')}</span>
+                        </Button>
+                      </WeightGoalDialog>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {typeMetrics.length === 0 ? (

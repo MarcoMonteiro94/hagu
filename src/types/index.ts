@@ -141,6 +141,18 @@ export const DEFAULT_HOME_WIDGETS: HomeWidget[] = [
   { id: 'health', visible: false, order: 4 },
 ]
 
+// Health Goals Types
+export interface WeightGoal {
+  target: number
+  unit: string
+  startWeight?: number
+  startDate?: string
+}
+
+export interface HealthGoals {
+  weight?: WeightGoal
+}
+
 export interface UserSettings {
   theme: Theme
   locale: Locale
@@ -151,6 +163,7 @@ export interface UserSettings {
   currency?: import('./finances').CurrencyCode
   homeWidgets?: HomeWidget[]
   hideBalances?: boolean
+  healthGoals?: HealthGoals
 }
 
 // Re-export finance types
