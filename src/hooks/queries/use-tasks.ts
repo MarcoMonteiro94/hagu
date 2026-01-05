@@ -305,6 +305,20 @@ export function useTodayTasks() {
   return { tasks: filteredTasks, isLoading }
 }
 
+// Priority order for sorting (lower number = higher priority)
+const PRIORITY_ORDER: Record<string, number> = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+}
+
+function sortByPriority(a: Task, b: Task): number {
+  const aPriority = PRIORITY_ORDER[a.priority ?? 'low'] ?? 4
+  const bPriority = PRIORITY_ORDER[b.priority ?? 'low'] ?? 4
+  return aPriority - bPriority
+}
+
 export function useTodayAndOverdueTasks() {
   const { data: tasks, isLoading } = useTasks()
   const today = new Date().toISOString().split('T')[0]
@@ -317,15 +331,15 @@ export function useTodayAndOverdueTasks() {
     (task) => task.dueDate && task.dueDate < today && task.status !== 'done'
   ) ?? []
 
-  // Combined list with overdue tasks first (sorted by date), then today's tasks
+  // Combined list with overdue tasks first (sorted by priority), then today's tasks (sorted by priority)
   const allTasks = [
-    ...overdueTasks.sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? '')),
-    ...todayTasks,
+    ...overdueTasks.sort(sortByPriority),
+    ...todayTasks.sort(sortByPriority),
   ]
 
   return {
-    todayTasks,
-    overdueTasks,
+    todayTasks: todayTasks.sort(sortByPriority),
+    overdueTasks: overdueTasks.sort(sortByPriority),
     allTasks,
     hasOverdue: overdueTasks.length > 0,
     isLoading,

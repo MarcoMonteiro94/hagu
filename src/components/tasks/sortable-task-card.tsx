@@ -29,6 +29,7 @@ interface SortableTaskCardProps {
   selected?: boolean
   onSelect?: (taskId: string, selected: boolean) => void
   isToggling?: boolean
+  showDragHandle?: boolean
 }
 
 const priorityColors = {
@@ -53,6 +54,7 @@ export function SortableTaskCard({
   selected = false,
   onSelect,
   isToggling = false,
+  showDragHandle = false,
 }: SortableTaskCardProps) {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
@@ -96,7 +98,7 @@ export function SortableTaskCard({
             />
           )}
 
-          {!selectionMode && (
+          {!selectionMode && showDragHandle && (
             <button
               className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
               {...attributes}
@@ -117,6 +119,12 @@ export function SortableTaskCard({
             <p className={isCompleted ? 'line-through text-muted-foreground' : ''}>
               {task.title}
             </p>
+
+            {task.description && (
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {task.description}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {task.dueDate && (

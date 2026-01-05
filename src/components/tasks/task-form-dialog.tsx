@@ -85,8 +85,8 @@ export function TaskFormDialog({
 
   const [title, setTitle] = useState(defaultTitle || '')
   const [description, setDescription] = useState(defaultDescription || '')
-  const [dueDate, setDueDate] = useState(defaultDueDate || '')
-  const [priority, setPriority] = useState<TaskPriority | ''>('')
+  const [dueDate, setDueDate] = useState(defaultDueDate || getTodayString())
+  const [priority, setPriority] = useState<TaskPriority | ''>(task?.priority || 'low')
   const [areaId, setAreaId] = useState(defaultAreaId || NONE_VALUE)
   const [projectId, setProjectId] = useState(defaultProjectId || NONE_VALUE)
   const [objectiveId, setObjectiveId] = useState(defaultObjectiveId || NONE_VALUE)
@@ -121,8 +121,8 @@ export function TaskFormDialog({
     if (isEditMode) return // Don't reset in edit mode
     setTitle(defaultTitle || '')
     setDescription(defaultDescription || '')
-    setDueDate(defaultDueDate || '')
-    setPriority('')
+    setDueDate(defaultDueDate || getTodayString())
+    setPriority('low')
     setAreaId(defaultAreaId || NONE_VALUE)
     setProjectId(defaultProjectId || NONE_VALUE)
     setObjectiveId(defaultObjectiveId || NONE_VALUE)
