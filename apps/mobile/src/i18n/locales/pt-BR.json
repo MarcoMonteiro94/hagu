@@ -1,0 +1,72 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "retry": "Tentar novamente",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "add": "Adicionar",
+    "search": "Buscar",
+    "noResults": "Nenhum resultado encontrado",
+    "confirm": "Confirmar",
+    "back": "Voltar"
+  },
+  "auth": {
+    "login": "Entrar",
+    "signup": "Criar conta",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "loginError": "E-mail ou senha inválidos",
+    "signupError": "Erro ao criar conta",
+    "passwordMismatch": "As senhas não coincidem",
+    "invalidEmail": "E-mail inválido",
+    "weakPassword": "Senha muito fraca"
+  },
+  "tabs": {
+    "home": "Início",
+    "tasks": "Tarefas",
+    "projects": "Projetos",
+    "finances": "Finanças",
+    "settings": "Ajustes"
+  },
+  "tasks": {
+    "title": "Tarefas",
+    "addTask": "Nova tarefa",
+    "noTasks": "Nenhuma tarefa",
+    "pending": "Pendente",
+    "inProgress": "Em andamento",
+    "done": "Concluída",
+    "dueDate": "Data de entrega",
+    "priority": "Prioridade",
+    "low": "Baixa",
+    "medium": "Média",
+    "high": "Alta",
+    "urgent": "Urgente"
+  },
+  "projects": {
+    "title": "Projetos",
+    "addProject": "Novo projeto",
+    "noProjects": "Nenhum projeto",
+    "objectives": "Objetivos",
+    "milestones": "Marcos",
+    "progress": "Progresso"
+  },
+  "finances": {
+    "title": "Finanças",
+    "income": "Receita",
+    "expense": "Despesa",
+    "balance": "Saldo",
+    "addTransaction": "Nova transação",
+    "noTransactions": "Nenhuma transação",
+    "categories": "Categorias",
+    "budgets": "Orçamentos",
+    "goals": "Metas"
+  }
+}

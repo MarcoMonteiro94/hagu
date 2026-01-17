@@ -386,8 +386,8 @@ eas build:configure
 
 | Fase | Duração | Status |
 |------|---------|--------|
-| Fase 0: Monorepo | 1-2 dias | ⏳ Pendente |
-| Fase 1: Fundação | 3-5 dias | ⏳ Pendente |
+| Fase 0: Monorepo | 1-2 dias | ✅ Concluída |
+| Fase 1: Fundação | 3-5 dias | ✅ Concluída |
 | Fase 2: Tarefas + Projetos | 1-2 semanas | ⏳ Pendente |
 | Fase 3: Finanças | 1-2 semanas | ⏳ Pendente |
 | Fase 4: Complementares | 2-3 semanas | ⏳ Pendente |
@@ -400,8 +400,8 @@ eas build:configure
 
 Antes de começar a implementação:
 
-- [ ] Fazer backup do código atual
-- [ ] Criar branch `feature/mobile-app`
+- [x] Fazer backup do código atual
+- [x] Criar branch `feature/mobile-app`
 - [ ] Garantir que testes passam no web atual
 - [ ] Ter conta Apple Developer ($99/ano) para iOS
 - [ ] Ter conta Google Play Console ($25 one-time) para Android

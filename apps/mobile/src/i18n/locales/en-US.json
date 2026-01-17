@@ -1,0 +1,72 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "noResults": "No results found",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "auth": {
+    "login": "Sign in",
+    "signup": "Sign up",
+    "logout": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginError": "Invalid email or password",
+    "signupError": "Error creating account",
+    "passwordMismatch": "Passwords don't match",
+    "invalidEmail": "Invalid email",
+    "weakPassword": "Password too weak"
+  },
+  "tabs": {
+    "home": "Home",
+    "tasks": "Tasks",
+    "projects": "Projects",
+    "finances": "Finances",
+    "settings": "Settings"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addTask": "New task",
+    "noTasks": "No tasks",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "done": "Done",
+    "dueDate": "Due date",
+    "priority": "Priority",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "projects": {
+    "title": "Projects",
+    "addProject": "New project",
+    "noProjects": "No projects",
+    "objectives": "Objectives",
+    "milestones": "Milestones",
+    "progress": "Progress"
+  },
+  "finances": {
+    "title": "Finances",
+    "income": "Income",
+    "expense": "Expense",
+    "balance": "Balance",
+    "addTransaction": "New transaction",
+    "noTransactions": "No transactions",
+    "categories": "Categories",
+    "budgets": "Budgets",
+    "goals": "Goals"
+  }
+}
