@@ -1,8 +1,10 @@
 import { GluestackUIProvider } from '@gluestack-ui/themed'
 import { config } from '@gluestack-ui/config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useColorScheme } from 'react-native'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import type { ReactNode } from 'react'
+import { AchievementNotificationProvider } from '@/components/AchievementNotification'
+import { ThemeProvider, useThemeContext } from '@/theme'
 
 import '@/i18n'
 
@@ -21,14 +23,28 @@ interface ProvidersProps {
   children: ReactNode
 }
 
-export function Providers({ children }: ProvidersProps) {
-  const colorScheme = useColorScheme()
+function GluestackWrapper({ children }: { children: ReactNode }) {
+  const { isDark } = useThemeContext()
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GluestackUIProvider config={config} colorMode={colorScheme || 'light'}>
-        {children}
-      </GluestackUIProvider>
-    </QueryClientProvider>
+    <GluestackUIProvider config={config} colorMode={isDark ? 'dark' : 'light'}>
+      {children}
+    </GluestackUIProvider>
+  )
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <GluestackWrapper>
+            <AchievementNotificationProvider>
+              {children}
+            </AchievementNotificationProvider>
+          </GluestackWrapper>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   )
 }

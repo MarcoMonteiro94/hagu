@@ -1,104 +1,366 @@
-import { View, Text, Pressable, Alert } from 'react-native'
+import { View, Text, Pressable, Alert, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { router } from 'expo-router'
-import { LogOut, User, Bell, Globe, Moon } from 'lucide-react-native'
+import {
+  LogOut,
+  Bell,
+  Globe,
+  Moon,
+  ChevronRight,
+  Shield,
+  HelpCircle,
+  Info,
+  Heart,
+  Trophy,
+  BarChart3,
+  Timer,
+  StickyNote,
+  LayoutGrid,
+} from 'lucide-react-native'
+import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useAuth } from '@/lib/auth'
+import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 
 interface SettingsItemProps {
   icon: React.ReactNode
   label: string
+  description?: string
   onPress?: () => void
   danger?: boolean
+  showChevron?: boolean
 }
 
-function SettingsItem({ icon, label, onPress, danger }: SettingsItemProps) {
+function SettingsItem({
+  icon,
+  label,
+  description,
+  onPress,
+  danger,
+  showChevron = true,
+}: SettingsItemProps) {
+  const { colors } = useTheme()
+
   return (
     <Pressable
-      className="flex-row items-center gap-4 rounded-lg bg-card px-4 py-4 border border-border"
-      onPress={onPress}
+      onPress={() => {
+        console.log('SettingsItem pressed:', label)
+        onPress?.()
+      }}
+      style={({ pressed }) => [
+        styles.settingsItem,
+        { backgroundColor: pressed ? colors.secondary : colors.card },
+        cardShadow,
+      ]}
     >
-      {icon}
-      <Text className={`flex-1 text-base ${danger ? 'text-destructive' : 'text-foreground'}`}>
-        {label}
-      </Text>
+      <View
+        style={[
+          styles.settingsItemIcon,
+          { backgroundColor: danger ? colors.error + '15' : colors.accent + '15' },
+        ]}
+      >
+        {icon}
+      </View>
+      <View style={styles.settingsItemContent}>
+        <Text
+          style={[
+            styles.settingsItemLabel,
+            { color: danger ? colors.error : colors.foreground },
+          ]}
+        >
+          {label}
+        </Text>
+        {description && (
+          <Text style={[styles.settingsItemDescription, { color: colors.mutedForeground }]}>
+            {description}
+          </Text>
+        )}
+      </View>
+      {showChevron && <ChevronRight size={20} color={colors.mutedForeground} />}
     </Pressable>
+  )
+}
+
+interface SettingsSectionProps {
+  title: string
+  children: React.ReactNode
+  delay: number
+}
+
+function SettingsSection({ title, children, delay }: SettingsSectionProps) {
+  const { colors } = useTheme()
+
+  return (
+    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={styles.section}>
+      <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>{title}</Text>
+      <View style={styles.sectionContent}>{children}</View>
+    </Animated.View>
   )
 }
 
 export default function SettingsScreen() {
   const { t } = useTranslation()
   const { signOut, user } = useAuth()
+  const { colors } = useTheme()
 
-  const handleLogout = () => {
-    Alert.alert(
-      t('auth.logout'),
-      'Tem certeza que deseja sair?',
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('auth.logout'),
-          style: 'destructive',
-          onPress: async () => {
-            await signOut()
-            router.replace('/(auth)/login')
-          },
-        },
-      ]
-    )
+  const handleLogout = async () => {
+    console.log('handleLogout called') // Debug
+    try {
+      await signOut()
+      console.log('signOut completed')
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      router.replace('/(auth)/login')
+    }
   }
 
-  return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="flex-1 px-4">
-        <View className="py-6">
-          <Text className="text-2xl font-bold text-foreground">
-            {t('tabs.settings')}
-          </Text>
-        </View>
+  const userName = user?.email?.split('@')[0] || 'Usuário'
 
-        {/* User info */}
-        <View className="mb-6 rounded-xl bg-card p-4 border border-border">
-          <View className="flex-row items-center gap-4">
-            <View className="h-12 w-12 items-center justify-center rounded-full bg-muted">
-              <User size={24} color="#666" />
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+          <Text style={[styles.title, { color: colors.foreground }]}>{t('tabs.settings')}</Text>
+        </Animated.View>
+
+        {/* User Profile Card */}
+        <Animated.View
+          entering={FadeInDown.delay(100).duration(400)}
+          style={[styles.profileCard, { backgroundColor: colors.card }, cardShadow]}
+        >
+          <View style={styles.profileContent}>
+            <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
+              <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
             </View>
-            <View>
-              <Text className="text-base font-semibold text-foreground">
-                {user?.email?.split('@')[0] || 'Usuário'}
-              </Text>
-              <Text className="text-sm text-muted-foreground">
+            <View style={styles.profileInfo}>
+              <Text style={[styles.profileName, { color: colors.foreground }]}>{userName}</Text>
+              <Text style={[styles.profileEmail, { color: colors.mutedForeground }]}>
                 {user?.email || ''}
               </Text>
             </View>
+            <Pressable style={[styles.editButton, { backgroundColor: colors.secondary }]}>
+              <Text style={[styles.editButtonText, { color: colors.foreground }]}>Editar</Text>
+            </Pressable>
           </View>
-        </View>
+        </Animated.View>
 
-        {/* Settings items */}
-        <View className="gap-2">
+        {/* Life & Progress */}
+        <SettingsSection title={t('settings.sections.lifeProgress')} delay={150}>
           <SettingsItem
-            icon={<Bell size={20} color="#666" />}
-            label="Notificações"
+            icon={<Heart size={20} color="#ef4444" />}
+            label={t('health.title')}
+            description={t('settings.healthDescription')}
+            onPress={() => router.push('/health')}
           />
           <SettingsItem
-            icon={<Globe size={20} color="#666" />}
-            label="Idioma"
+            icon={<Trophy size={20} color="#eab308" />}
+            label={t('gamification.achievements.title')}
+            description={t('settings.achievementsDescription')}
+            onPress={() => router.push('/achievements')}
           />
           <SettingsItem
-            icon={<Moon size={20} color="#666" />}
-            label="Tema"
+            icon={<BarChart3 size={20} color={colors.accent} />}
+            label={t('analytics.title')}
+            description={t('settings.statisticsDescription')}
+            onPress={() => router.push('/analytics')}
           />
-        </View>
+        </SettingsSection>
 
-        <View className="mt-6">
+        {/* Productivity */}
+        <SettingsSection title={t('settings.sections.productivity')} delay={175}>
           <SettingsItem
-            icon={<LogOut size={20} color="#ef4444" />}
+            icon={<Timer size={20} color="#8b5cf6" />}
+            label={t('pomodoro.title')}
+            description={t('settings.pomodoroDescription')}
+            onPress={() => router.push('/pomodoro')}
+          />
+          <SettingsItem
+            icon={<StickyNote size={20} color="#f97316" />}
+            label={t('notes.title')}
+            description={t('settings.notesDescription')}
+            onPress={() => router.push('/notes')}
+          />
+        </SettingsSection>
+
+        {/* Preferences */}
+        <SettingsSection title={t('settings.sections.preferences')} delay={200}>
+          <SettingsItem
+            icon={<Bell size={20} color={colors.accent} />}
+            label={t('settings.notifications')}
+            description={t('settings.notificationsDescription')}
+            onPress={() => router.push('/settings/notifications')}
+          />
+          <SettingsItem
+            icon={<Moon size={20} color={colors.accent} />}
+            label={t('settings.appearance')}
+            description={t('settings.themeTitle') + ' & ' + t('settings.languageTitle')}
+            onPress={() => router.push('/settings/appearance')}
+          />
+          <SettingsItem
+            icon={<LayoutGrid size={20} color={colors.accent} />}
+            label={t('widgets.title')}
+            description={t('settings.widgetsDescription')}
+            onPress={() => router.push('/settings/widgets')}
+          />
+        </SettingsSection>
+
+        {/* Security */}
+        <SettingsSection title={t('settings.sections.security')} delay={250}>
+          <SettingsItem
+            icon={<Shield size={20} color={colors.accent} />}
+            label={t('settings.privacy')}
+            description={t('settings.privacyDescription')}
+          />
+        </SettingsSection>
+
+        {/* Support */}
+        <SettingsSection title={t('settings.sections.support')} delay={300}>
+          <SettingsItem
+            icon={<HelpCircle size={20} color={colors.accent} />}
+            label={t('settings.help')}
+            description={t('settings.helpDescription')}
+          />
+          <SettingsItem
+            icon={<Info size={20} color={colors.accent} />}
+            label={t('settings.about')}
+            description={t('settings.version', { version: '1.0.0' })}
+          />
+        </SettingsSection>
+
+        {/* Logout */}
+        <Animated.View entering={FadeInDown.delay(350).duration(400)} style={styles.logoutSection}>
+          <SettingsItem
+            icon={<LogOut size={20} color={colors.error} />}
             label={t('auth.logout')}
+            description="Encerrar sessão"
             onPress={handleLogout}
             danger
+            showChevron={false}
           />
-        </View>
-      </View>
+        </Animated.View>
+      </ScrollView>
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing[8],
+    paddingHorizontal: spacing[6],
+  },
+
+  // Header
+  header: {
+    paddingTop: spacing[4],
+    paddingBottom: spacing[6],
+  },
+  title: {
+    fontSize: typography.size['2xl'],
+    fontWeight: typography.weight.bold,
+  },
+
+  // Profile Card
+  profileCard: {
+    marginBottom: spacing[6],
+    padding: spacing[5],
+    borderRadius: radius['2xl'],
+  },
+  profileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[4],
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: typography.size['2xl'],
+    fontWeight: typography.weight.bold,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.semibold,
+  },
+  profileEmail: {
+    fontSize: typography.size.sm,
+    marginTop: spacing[0.5],
+  },
+  editButton: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    borderRadius: radius.lg,
+  },
+  editButtonText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
+  },
+
+  // Section
+  section: {
+    marginBottom: spacing[6],
+  },
+  sectionTitle: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: spacing[3],
+    paddingLeft: spacing[1],
+  },
+  sectionContent: {
+    gap: spacing[2],
+  },
+
+  // Settings Item
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing[3.5],
+    borderRadius: radius.xl,
+    gap: spacing[3.5],
+  },
+  settingsItemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsItemContent: {
+    flex: 1,
+  },
+  settingsItemLabel: {
+    fontSize: typography.size.base - 1,
+    fontWeight: typography.weight.medium,
+  },
+  settingsItemDescription: {
+    fontSize: typography.size.sm - 1,
+    marginTop: spacing[0.5],
+  },
+
+  // Logout Section
+  logoutSection: {
+    marginTop: spacing[2],
+  },
+})

@@ -8,13 +8,12 @@
       "@hagu/core": ["../../packages/core/src"],
       "@hagu/core/*": ["../../packages/core/src/*"]
     },
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "expo-env.d.ts"
   ]
 }
