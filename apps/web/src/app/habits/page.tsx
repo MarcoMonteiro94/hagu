@@ -65,10 +65,15 @@ export default function HabitsPage() {
   }
 
   return (
-    <PageTransition className="container mx-auto max-w-md space-y-6 p-4 lg:max-w-4xl lg:p-6">
+    <PageTransition className="container mx-auto max-w-md space-y-6 p-4 pb-24 lg:max-w-4xl lg:p-6 lg:pb-6">
       {/* Header */}
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">{t('title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {habits.length > 0 ? `${habits.length} ${habits.length === 1 ? 'hábito' : 'hábitos'} ativos` : ''}
+          </p>
+        </div>
         <HabitFormDialog />
       </header>
 
@@ -78,11 +83,17 @@ export default function HabitsPage() {
           <HabitPageCardSkeleton count={6} />
         </div>
       ) : habits.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="mb-4 text-muted-foreground">{t('noHabits')}</p>
+        <Card variant="outlined" className="border-dashed">
+          <CardContent className="py-12 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <Plus className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="mb-1 font-semibold">{t('noHabits')}</h3>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Comece a construir hábitos saudáveis
+            </p>
             <HabitFormDialog>
-              <Button variant="outline">
+              <Button className="rounded-xl">
                 <Plus className="mr-2 h-4 w-4" />
                 {t('createFirst')}
               </Button>

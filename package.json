@@ -18,6 +18,13 @@
   "devDependencies": {
     "turbo": "^2.5.0"
   },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0",
+      "entities": "^6.0.0"
+    }
+  },
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=18"
