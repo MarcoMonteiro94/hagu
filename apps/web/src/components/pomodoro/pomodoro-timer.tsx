@@ -28,7 +28,7 @@ const PHASE_BG_COLORS: Record<PomodoroPhase, string> = {
 export function PomodoroTimer() {
   const t = useTranslations('studies')
   const [mounted, setMounted] = useState(false)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const {
     status,

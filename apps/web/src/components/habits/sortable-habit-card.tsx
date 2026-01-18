@@ -45,31 +45,39 @@ export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) 
       className={`${isDragging ? 'z-50 opacity-90' : ''}`}
     >
       <Card
-        className={`h-full cursor-pointer transition-all ${
-          isDragging ? 'scale-105 shadow-lg ring-2 ring-primary' : 'hover:scale-[1.02] hover:bg-accent/50'
+        className={`group h-full cursor-pointer overflow-hidden transition-all duration-300 ${
+          isDragging
+            ? 'scale-105 shadow-xl shadow-black/10 ring-2 ring-primary dark:shadow-black/30'
+            : 'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20'
         }`}
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-2">
+        <CardContent className="p-0">
+          {/* Color accent bar */}
+          <div
+            className="h-1 w-full"
+            style={{ backgroundColor: habit.color }}
+          />
+
+          <div className="flex items-start gap-3 p-4">
             {/* Drag handle */}
             <button
-              className="mt-1 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+              className="mt-0.5 cursor-grab touch-none rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
               {...attributes}
               {...listeners}
             >
-              <GripVertical className="h-5 w-5" />
+              <GripVertical className="h-4 w-4" />
             </button>
 
-            <Link href={`/habits/${habit.id}`} className="flex-1">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
+            <Link href={`/habits/${habit.id}`} className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className="h-3 w-3 rounded-full"
+                    className="h-4 w-4 shrink-0 rounded-lg shadow-sm"
                     style={{ backgroundColor: habit.color }}
                   />
-                  <h3 className="font-medium">{habit.title}</h3>
+                  <h3 className="font-semibold truncate">{habit.title}</h3>
                 </div>
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-medium">
                   {habit.frequency.type === 'daily' && t('frequencyDaily')}
                   {habit.frequency.type === 'weekly' &&
                     `${habit.frequency.daysPerWeek}x/sem`}
@@ -82,25 +90,31 @@ export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) 
 
               {/* Tracking info for quantitative habits */}
               {habit.tracking.type === 'quantitative' && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Meta: {habit.tracking.target} {habit.tracking.unit}
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Meta: <span className="font-medium text-foreground">{habit.tracking.target}</span> {habit.tracking.unit}
                 </p>
               )}
 
               {/* Streak and stats */}
-              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Flame className="h-4 w-4 text-orange-500" />
-                  <span>{streak?.currentStreak || 0} dias</span>
+              <div className="mt-3 flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-500/10">
+                    <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  </div>
+                  <span className="font-medium">{streak?.currentStreak || 0}</span>
+                  <span className="text-muted-foreground">dias</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>{completionRate}% esta semana</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10">
+                    <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="font-medium">{completionRate}%</span>
+                  <span className="text-muted-foreground hidden sm:inline">esta semana</span>
                 </div>
               </div>
 
               {/* Mini heatmap for last 7 days */}
-              <div className="mt-3 flex gap-1">
+              <div className="mt-4 flex gap-1.5">
                 {last7Days.map((date) => {
                   const completion = habit.completions.find((c) => c.date === date)
                   const isCompleted = !!completion
@@ -108,11 +122,14 @@ export function SortableHabitCard({ habit, last7Days }: SortableHabitCardProps) 
                   return (
                     <div
                       key={date}
-                      className={`h-6 flex-1 rounded transition-colors ${
-                        isCompleted ? '' : 'bg-muted'
+                      className={`h-7 flex-1 rounded-lg transition-all duration-200 ${
+                        isCompleted
+                          ? 'shadow-sm'
+                          : 'bg-muted/50 group-hover:bg-muted'
                       }`}
                       style={{
                         backgroundColor: isCompleted ? habit.color : undefined,
+                        opacity: isCompleted ? 1 : undefined,
                       }}
                       title={date}
                     />

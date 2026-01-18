@@ -32,10 +32,10 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card lg:hidden safe-area-inset-bottom"
       aria-label="Navegação principal"
     >
-      <div className="mx-auto flex h-16 items-center justify-around px-4 sm:max-w-md">
+      <div className="mx-auto flex h-16 items-center justify-around px-2 sm:max-w-md">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href ||
             (item.href !== '/' && pathname.startsWith(item.href))
@@ -46,13 +46,18 @@ export function BottomNav() {
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors',
+                'relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 text-[10px] font-medium transition-colors',
                 isActive
                   ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  : 'text-muted-foreground active:text-foreground'
               )}
             >
-              {item.icon}
+              <span className={cn(
+                'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
+                isActive && 'bg-primary/10'
+              )}>
+                {item.icon}
+              </span>
               <span>{t(item.labelKey)}</span>
             </Link>
           )

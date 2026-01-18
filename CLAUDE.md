@@ -267,21 +267,84 @@ function Component() {
 
 ## Testing Strategy
 
-### Unit Tests
+### Unit Tests (Vitest)
 - Zustand store logic
 - Utility functions
 - Date calculations
 - Gamification logic
+- Service layer functions
+
+```bash
+pnpm test          # Run unit tests
+pnpm test:coverage # Run with coverage report
+```
 
 ### Component Tests
 - Critical user flows
 - Form validation
 - State interactions
 
-### E2E Tests (when needed)
-- Habit creation flow
-- Task completion flow
-- Data export/import
+### E2E Tests (Playwright)
+- Authentication flows (login, signup)
+- Navigation and routing
+- Home page functionality
+- PWA features verification
+- UI quality and visual consistency
+
+```bash
+pnpm test:e2e       # Run E2E tests
+pnpm test:e2e:ui    # Interactive UI mode
+pnpm test:e2e:debug # Debug mode
+```
+
+E2E tests are located in `apps/web/e2e/`:
+- `auth.spec.ts` - Authentication flow tests
+- `home.spec.ts` - Home page tests
+- `navigation.spec.ts` - Navigation and PWA tests
+- `ui-quality.spec.ts` - UI quality, accessibility, and visual consistency tests
+
+### Playwright MCP Integration
+The project is configured with Playwright MCP for enhanced debugging:
+- Browser automation via accessibility tree
+- Visual testing and screenshot capture
+- Cross-browser testing (Chromium, Firefox, WebKit)
+- Mobile viewport testing
+
+## UI Design System
+
+### Color Scheme
+The app uses oklch color space for perceptually uniform colors:
+- **Primary**: Vibrant indigo (`oklch(0.55 0.25 270)`)
+- **Success**: Green for positive feedback
+- **Warning**: Amber for alerts
+- **Info**: Blue for informational elements
+
+### Component Variants
+Enhanced shadcn/ui components with custom variants:
+
+**Card variants**:
+- `default` - Standard card styling
+- `elevated` - Raised with shadow effect
+- `outlined` - Border only, no background
+- `glass` - Glassmorphism effect
+
+**Progress variants**:
+- `default` - Standard progress bar
+- `gradient` - Gradient fill
+- `success` - Green color
+- `warning` - Amber color
+
+### Design Tokens
+- **Border radius**: `0.75rem` (rounded-xl for cards)
+- **Shadows**: Modern soft shadows with opacity
+- **Animations**: Float, pulse-soft, shimmer, glow effects
+- **Transitions**: 200-300ms for smooth interactions
+
+### Responsive Design
+- Mobile-first approach
+- Bottom navigation on mobile
+- Sidebar navigation on desktop (lg breakpoint)
+- Consistent padding and spacing
 
 ## Performance Guidelines
 
@@ -320,17 +383,20 @@ Reference `SCOPE.md` for detailed phase breakdown:
 
 ```bash
 # Development
-npm run dev
+pnpm dev           # Start dev server
+pnpm build         # Build for production
 
-# Build
-npm run build
+# Quality
+pnpm typecheck     # TypeScript check
+pnpm lint          # ESLint
 
-# Type check
-npm run typecheck
+# Unit Tests
+pnpm test          # Run Vitest
+pnpm test:coverage # With coverage
 
-# Lint
-npm run lint
-
-# Format
-npm run format
+# E2E Tests (Playwright)
+pnpm test:e2e       # Run all E2E tests
+pnpm test:e2e:ui    # Interactive UI mode
+pnpm test:e2e:debug # Debug mode
+pnpm test:e2e:report # View HTML report
 ```
