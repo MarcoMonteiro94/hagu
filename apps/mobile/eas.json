@@ -23,6 +23,7 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "env": {
+        "NODE_OPTIONS": "--max-old-space-size=4096",
         "EXPO_PUBLIC_SUPABASE_URL": "https://shabwejzrpkqahmhntaj.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_ShiAIhM-eHjxSAbNQ8Bf9A_icp2RuNc"
       }
