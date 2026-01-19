@@ -57,12 +57,9 @@ module.exports = {
     }),
     extra: {
       router: {},
-      // Only add EAS project ID for builds
-      ...(IS_EAS_BUILD && {
-        eas: {
-          projectId: PROJECT_ID,
-        },
-      }),
+      eas: {
+        projectId: PROJECT_ID,
+      },
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
       EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     },
