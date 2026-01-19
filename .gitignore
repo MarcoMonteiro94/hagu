@@ -68,3 +68,5 @@ web-build/
 
 # Coverage
 coverage/
+eas.json
+apps/mobile/eas.json
