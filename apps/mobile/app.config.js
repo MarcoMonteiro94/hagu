@@ -1,3 +1,6 @@
+const IS_EAS_BUILD = process.env.EAS_BUILD === 'true'
+const PROJECT_ID = '0a5e7cbd-b02d-4130-9f00-f8f50bf33adf'
+
 module.exports = {
   expo: {
     name: 'Hagu',
@@ -40,20 +43,26 @@ module.exports = {
     experiments: {
       typedRoutes: true,
     },
-    runtimeVersion: {
-      policy: 'appVersion',
-    },
-    updates: {
-      url: `https://u.expo.dev/${process.env.EXPO_PUBLIC_PROJECT_ID || '0a5e7cbd-b02d-4130-9f00-f8f50bf33adf'}`,
-      enabled: false,
-      checkAutomatically: 'ON_ERROR_RECOVERY',
-      fallbackToCacheTimeout: 0,
-    },
+    // Only add runtimeVersion and updates config for EAS builds
+    ...(IS_EAS_BUILD && {
+      runtimeVersion: {
+        policy: 'appVersion',
+      },
+      updates: {
+        url: `https://u.expo.dev/${PROJECT_ID}`,
+        enabled: false,
+        checkAutomatically: 'ON_ERROR_RECOVERY',
+        fallbackToCacheTimeout: 0,
+      },
+    }),
     extra: {
       router: {},
-      eas: {
-        projectId: '0a5e7cbd-b02d-4130-9f00-f8f50bf33adf',
-      },
+      // Only add EAS project ID for builds
+      ...(IS_EAS_BUILD && {
+        eas: {
+          projectId: PROJECT_ID,
+        },
+      }),
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
       EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     },
