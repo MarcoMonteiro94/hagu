@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow } from '@/theme'
 
 interface StatCardProps {
@@ -27,8 +26,8 @@ export function StatCard({
   const { colors } = useTheme()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[
         styles.container,
         { backgroundColor: colors.card },
@@ -53,7 +52,7 @@ export function StatCard({
           )}
         </View>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 

@@ -17,7 +17,6 @@ import {
   Target,
   Folder,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useAreasQuery, useHabitsQuery, useTasksQuery } from '@/hooks'
 import { ProgressRing } from '@/components/charts'
@@ -59,7 +58,7 @@ function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
   const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
@@ -108,7 +107,7 @@ function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
           </View>
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -216,8 +215,8 @@ export default function AreasScreen() {
         }
       >
         {/* Overview Stats */}
-        <Animated.View
-          entering={FadeInDown.delay(50).duration(400)}
+        <View
+         
           style={[styles.overviewCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.overviewHeader}>
@@ -254,22 +253,22 @@ export default function AreasScreen() {
               </Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Section Title */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.sectionHeader}>
+        <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('areas.lifeAreas')}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: colors.mutedForeground }]}>
             {t('areas.lifeAreasDescription')}
           </Text>
-        </Animated.View>
+        </View>
 
         {/* Areas List */}
         {areas.length === 0 ? (
-          <Animated.View
-            entering={FadeInDown.delay(150).duration(400)}
+          <View
+           
             style={[styles.emptyCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <Folder size={48} color={colors.mutedForeground} />
@@ -286,7 +285,7 @@ export default function AreasScreen() {
               <Plus size={18} color="#fff" />
               <Text style={styles.emptyButtonText}>{t('areas.createArea')}</Text>
             </Pressable>
-          </Animated.View>
+          </View>
         ) : (
           <View style={styles.areasList}>
             {areas.map((area, index) => (

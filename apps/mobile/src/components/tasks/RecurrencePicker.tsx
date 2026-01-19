@@ -15,7 +15,6 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react-native'
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import type { RecurrencePattern } from '@hagu/core'
 
@@ -104,14 +103,14 @@ export function RecurrencePicker({ value, onChange }: RecurrencePickerProps) {
           style={styles.modalOverlay}
           onPress={() => setShowModal(false)}
         >
-          <Animated.View
-            entering={FadeIn.duration(200)}
+          <View
+           
             style={styles.modalBackdrop}
           />
         </Pressable>
 
-        <Animated.View
-          entering={SlideInDown.springify().damping(20)}
+        <View
+         
           style={[styles.modalContent, { backgroundColor: colors.background }]}
         >
           {/* Header */}
@@ -236,7 +235,7 @@ export function RecurrencePicker({ value, onChange }: RecurrencePickerProps) {
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       </Modal>
     </>
   )

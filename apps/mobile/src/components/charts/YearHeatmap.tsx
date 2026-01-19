@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTranslation } from 'react-i18next'
 import { useTheme, spacing, radius, typography } from '@/theme'
 
@@ -178,7 +177,7 @@ export function YearHeatmap({
   const dayLabelWidth = showDayLabels ? 28 : 0
 
   return (
-    <Animated.View entering={FadeIn.duration(400)} style={styles.container}>
+    <View style={styles.container}>
       {/* Month labels */}
       {showMonthLabels && (
         <ScrollView
@@ -305,7 +304,7 @@ export function YearHeatmap({
           </View>
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

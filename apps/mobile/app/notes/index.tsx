@@ -22,7 +22,6 @@ import {
   X,
   Check,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { BottomNav } from '@/components'
 import {
@@ -60,7 +59,7 @@ function NotebookCard({ notebook, onPress, delay }: NotebookCardProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <Pressable
         style={[styles.notebookCard, { backgroundColor: colors.card }, cardShadow]}
         onPress={onPress}
@@ -78,7 +77,7 @@ function NotebookCard({ notebook, onPress, delay }: NotebookCardProps) {
         </View>
         <ChevronRight size={20} color={colors.mutedForeground} />
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -284,7 +283,7 @@ export default function NotesScreen() {
         }
       >
         {/* Search Bar */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+        <View>
           <View style={[styles.searchContainer, { backgroundColor: colors.card }, cardShadow]}>
             <Search size={20} color={colors.mutedForeground} />
             <TextInput
@@ -300,7 +299,7 @@ export default function NotesScreen() {
               </Pressable>
             )}
           </View>
-        </Animated.View>
+        </View>
 
         {/* Search Results */}
         {isSearching ? (
@@ -309,15 +308,15 @@ export default function NotesScreen() {
               {t('notes.searchResults', { count: searchResults.length })}
             </Text>
             {searchResults.length === 0 ? (
-              <Animated.View
-                entering={FadeInDown.delay(100).duration(400)}
+              <View
+               
                 style={[styles.emptyState, { backgroundColor: colors.card }, cardShadow]}
               >
                 <Search size={48} color={colors.mutedForeground} />
                 <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
                   {t('notes.noSearchResults')}
                 </Text>
-              </Animated.View>
+              </View>
             ) : (
               <View style={[styles.searchResultsCard, { backgroundColor: colors.card }, cardShadow]}>
                 {searchResults.map((note, index) => (
@@ -342,8 +341,8 @@ export default function NotesScreen() {
               </Text>
 
               {notebooks.length === 0 ? (
-                <Animated.View
-                  entering={FadeInDown.delay(100).duration(400)}
+                <View
+                 
                   style={[styles.emptyState, { backgroundColor: colors.card }, cardShadow]}
                 >
                   <BookOpen size={48} color={colors.mutedForeground} />
@@ -362,7 +361,7 @@ export default function NotesScreen() {
                       {t('notes.createFirst')}
                     </Text>
                   </Pressable>
-                </Animated.View>
+                </View>
               ) : (
                 <View style={styles.notebooksList}>
                   {notebooks.map((notebook, index) => (

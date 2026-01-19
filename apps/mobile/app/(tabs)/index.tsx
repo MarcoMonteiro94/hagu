@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
-import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl } from 'react-native'
+import { useState, useMemo, useEffect } from 'react'
+import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl, BackHandler } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
 import {
   CheckCircle2,
   Circle,
@@ -24,7 +24,9 @@ import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useHomeWidgets } from '@/hooks/use-settings'
 import {
   useHabitsQuery,
+  useToggleHabitCompletion,
   useTasksQuery,
+  useUpdateTask,
   useTaskStats,
   useTransactionsQuery,
   useMonthlyStats,
@@ -85,6 +87,10 @@ export default function HomeScreen() {
   const streakData = useGlobalStreak()
   const level = useLevel()
 
+  // Mutations
+  const toggleHabitCompletion = useToggleHabitCompletion()
+  const updateTask = useUpdateTask()
+
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const handleRefresh = async () => {
@@ -98,9 +104,38 @@ export default function HomeScreen() {
     setIsRefreshing(false)
   }
 
+  const handleToggleHabit = (habitId: string) => {
+    toggleHabitCompletion.mutate({ habitId, date: today })
+  }
+
+  const handleToggleTask = (taskId: string) => {
+    const task = tasks?.find(t => t.id === taskId)
+    if (!task) return
+
+    const newStatus = task.status === 'done' ? 'pending' : 'done'
+    updateTask.mutate({
+      id: taskId,
+      updates: {
+        status: newStatus,
+        completedAt: newStatus === 'done' ? new Date().toISOString() : undefined,
+      }
+    })
+  }
+
   const userName = user?.email?.split('@')[0] || 'visitante'
   const locale = i18n.language || 'pt-BR'
   const today = getTodayDateString()
+
+  // Handle Android back button - minimize app on home screen
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Return true to prevent default back behavior (minimize instead of exit)
+      BackHandler.exitApp()
+      return true
+    })
+
+    return () => backHandler.remove()
+  }, [])
 
   // Computed stats from real data
   const activeHabits = useMemo(() =>
@@ -196,7 +231,10 @@ export default function HomeScreen() {
                       {completedHabitsToday}/{totalHabitsToday}
                     </Text>
                   </View>
-                  <Pressable style={styles.addButton}>
+                  <Pressable
+                    style={styles.addButton}
+                    onPress={() => router.push('/(tabs)/habits')}
+                  >
                     <Plus size={18} color={colors.mutedForeground} />
                   </Pressable>
                 </View>
@@ -226,6 +264,7 @@ export default function HomeScreen() {
                     return (
                       <Pressable
                         key={habit.id}
+                        onPress={() => handleToggleHabit(habit.id)}
                         style={[
                           styles.habitItem,
                           {
@@ -288,7 +327,10 @@ export default function HomeScreen() {
                       {pendingTasks} pendentes
                     </Text>
                   </View>
-                  <Pressable style={styles.addButton}>
+                  <Pressable
+                    style={styles.addButton}
+                    onPress={() => router.push('/(tabs)/tasks')}
+                  >
                     <Plus size={18} color={colors.mutedForeground} />
                   </Pressable>
                 </View>
@@ -313,6 +355,7 @@ export default function HomeScreen() {
                     return (
                       <Pressable
                         key={task.id}
+                        onPress={() => handleToggleTask(task.id)}
                         style={[styles.taskItem, { borderColor: colors.border }]}
                       >
                         {isDone ? (

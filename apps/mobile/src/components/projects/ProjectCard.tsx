@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Clock,
 } from 'lucide-react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import type { ProjectWithProgress, ProjectStatus } from '@hagu/core'
 
@@ -69,7 +68,7 @@ export function ProjectCard({ project, onPress, index = 0 }: ProjectCardProps) {
   const overdue = project.dueDate && !isCompleted && isOverdue(project.dueDate)
 
   return (
-    <Animated.View entering={FadeIn.delay(index * 50).duration(300)}>
+    <View>
       <Pressable
         onPress={() => onPress(project)}
         style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
@@ -166,7 +165,7 @@ export function ProjectCard({ project, onPress, index = 0 }: ProjectCardProps) {
         {/* Chevron */}
         <ChevronRight size={20} color={colors.mutedForeground} />
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

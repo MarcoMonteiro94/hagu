@@ -11,7 +11,6 @@ import {
   Smartphone,
   Volume2,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { usePomodoroSettings } from '@/hooks/use-pomodoro'
 
@@ -152,7 +151,7 @@ export default function PomodoroSettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Duration Settings */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+        <View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('pomodoro.settings.durations')}
           </Text>
@@ -219,10 +218,10 @@ export default function PomodoroSettingsScreen() {
               />
             </SettingRow>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Auto-start Settings */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+        <View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('pomodoro.settings.automation')}
           </Text>
@@ -245,10 +244,10 @@ export default function PomodoroSettingsScreen() {
               onValueChange={(value) => updateSettings({ autoStartWork: value })}
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Notification Settings */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)}>
+        <View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('pomodoro.settings.notifications')}
           </Text>
@@ -271,17 +270,17 @@ export default function PomodoroSettingsScreen() {
               onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Info */}
-        <Animated.View entering={FadeInDown.delay(200).duration(400)}>
+        <View>
           <View style={[styles.infoCard, { backgroundColor: colors.accent + '10' }]}>
             <Bell size={20} color={colors.accent} />
             <Text style={[styles.infoText, { color: colors.mutedForeground }]}>
               {t('pomodoro.settings.notificationNote')}
             </Text>
           </View>
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

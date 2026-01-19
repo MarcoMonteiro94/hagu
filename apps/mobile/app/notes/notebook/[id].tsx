@@ -25,7 +25,6 @@ import {
   X,
   Check,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { BottomNav } from '@/components'
 import {
@@ -83,7 +82,7 @@ function NoteCard({ note, onPress, delay, cardWidth }: NoteCardProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={{ width: cardWidth }}>
+    <View style={{ width: cardWidth }}>
       <Pressable
         style={[styles.noteCard, { backgroundColor: colors.card }, cardShadow]}
         onPress={onPress}
@@ -102,7 +101,7 @@ function NoteCard({ note, onPress, delay, cardWidth }: NoteCardProps) {
           {formatDate(note.updatedAt)}
         </Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -339,8 +338,8 @@ export default function NotebookScreen() {
         }
       >
         {/* Stats */}
-        <Animated.View
-          entering={FadeInDown.delay(50).duration(400)}
+        <View
+         
           style={[styles.statsCard, { backgroundColor: notebook.color + '15' }]}
         >
           <Text style={[styles.statsValue, { color: notebook.color }]}>
@@ -349,12 +348,12 @@ export default function NotebookScreen() {
           <Text style={[styles.statsLabel, { color: notebook.color }]}>
             {t('notes.notesCount')}
           </Text>
-        </Animated.View>
+        </View>
 
         {/* Notes Grid */}
         {sortedNotes.length === 0 ? (
-          <Animated.View
-            entering={FadeInDown.delay(100).duration(400)}
+          <View
+           
             style={[styles.emptyState, { backgroundColor: colors.card }, cardShadow]}
           >
             <FileText size={48} color={colors.mutedForeground} />
@@ -373,7 +372,7 @@ export default function NotebookScreen() {
                 {t('notes.createFirstNote')}
               </Text>
             </Pressable>
-          </Animated.View>
+          </View>
         ) : (
           <View style={styles.notesGrid}>
             {sortedNotes.map((note, index) => (

@@ -29,7 +29,6 @@ import {
   Play,
   Pause,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useProjectWithProgressQuery,
@@ -357,8 +356,8 @@ export default function ProjectDetailScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <Animated.View
-        entering={FadeIn.duration(300)}
+      <View
+       
         style={[styles.header, { borderBottomColor: colors.border }]}
       >
         <Pressable onPress={handleBack} hitSlop={8}>
@@ -375,12 +374,12 @@ export default function ProjectDetailScreen() {
             <MoreVertical size={20} color={colors.foreground} />
           </Pressable>
         </View>
-      </Animated.View>
+      </View>
 
       {/* Menu Dropdown */}
       {showMenu && (
-        <Animated.View
-          entering={SlideInRight.duration(200)}
+        <View
+         
           style={[styles.menu, { backgroundColor: colors.card }, cardShadow]}
         >
           {project.status === 'active' && (
@@ -419,7 +418,7 @@ export default function ProjectDetailScreen() {
               {t('common.delete')}
             </Text>
           </Pressable>
-        </Animated.View>
+        </View>
       )}
 
       <ScrollView
@@ -431,8 +430,8 @@ export default function ProjectDetailScreen() {
         }
       >
         {/* Project Info Card */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={[styles.infoCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={[styles.colorBar, { backgroundColor: projectColor }]} />
@@ -454,7 +453,7 @@ export default function ProjectDetailScreen() {
                 </Text>
               </View>
               <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-                <Animated.View
+                <View
                   style={[
                     styles.progressFill,
                     { backgroundColor: projectColor, width: `${project.progress}%` },
@@ -499,10 +498,10 @@ export default function ProjectDetailScreen() {
               )}
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Tabs */}
-        <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.tabsContainer}>
+        <View style={styles.tabsContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.tabs}>
               {tabs.map((tab) => {
@@ -531,12 +530,12 @@ export default function ProjectDetailScreen() {
               })}
             </View>
           </ScrollView>
-        </Animated.View>
+        </View>
 
         {/* Tab Content */}
         <View style={styles.tabContent}>
           {activeTab === 'overview' && (
-            <Animated.View entering={FadeInDown.delay(100).duration(300)}>
+            <View>
               {/* Overview shows summary of objectives and milestones */}
               <View style={styles.overviewSection}>
                 <View style={styles.sectionHeader}>
@@ -616,7 +615,7 @@ export default function ProjectDetailScreen() {
                   </Pressable>
                 )}
               </View>
-            </Animated.View>
+            </View>
           )}
 
           {activeTab === 'objectives' && (
@@ -642,7 +641,7 @@ export default function ProjectDetailScreen() {
           )}
 
           {activeTab === 'tasks' && (
-            <Animated.View entering={FadeInDown.delay(100).duration(300)} style={styles.tasksSection}>
+            <View style={styles.tasksSection}>
               {/* Quick Add Task */}
               <View
                 style={[
@@ -687,9 +686,9 @@ export default function ProjectDetailScreen() {
               ) : (
                 <View style={styles.taskList}>
                   {projectTasks.map((task, index) => (
-                    <Animated.View
+                    <View
                       key={task.id}
-                      entering={FadeIn.delay(index * 50).duration(300)}
+                     
                       style={[styles.taskItem, { backgroundColor: colors.card }, cardShadow]}
                     >
                       <Pressable
@@ -764,11 +763,11 @@ export default function ProjectDetailScreen() {
                           </Text>
                         </View>
                       )}
-                    </Animated.View>
+                    </View>
                   ))}
                 </View>
               )}
-            </Animated.View>
+            </View>
           )}
         </View>
       </ScrollView>

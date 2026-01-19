@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
 import Svg, { Path, Line, Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 interface LineChartData {
@@ -66,7 +65,7 @@ export function LineChart({
       : ''
 
   return (
-    <Animated.View entering={FadeIn.duration(400)} style={[styles.container, { height }]}>
+    <View style={[styles.container, { height }]}>
       <Svg width={chartWidth} height={height}>
         <Defs>
           <LinearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -136,7 +135,7 @@ export function LineChart({
           ))}
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

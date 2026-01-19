@@ -12,7 +12,6 @@ import {
   Clock,
   Info,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Note: expo-notifications would be imported here when needed
@@ -180,7 +179,7 @@ export default function NotificationsScreen() {
       >
         {/* Permission Banner */}
         {Platform.OS !== 'web' && permissionStatus !== 'granted' && (
-          <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+          <View>
             <Pressable
               style={[styles.permissionBanner, { backgroundColor: colors.warning + '20' }]}
               onPress={requestPermission}
@@ -195,11 +194,11 @@ export default function NotificationsScreen() {
                 </Text>
               </View>
             </Pressable>
-          </Animated.View>
+          </View>
         )}
 
         {/* Master Toggle */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+        <View>
           <View style={[styles.card, { backgroundColor: colors.card }, cardShadow]}>
             <ToggleRow
               icon={<Bell size={20} color={colors.accent} />}
@@ -209,10 +208,10 @@ export default function NotificationsScreen() {
               onValueChange={(value) => updateSettings({ enabled: value })}
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Notification Types */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)}>
+        <View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('notifications.types')}
           </Text>
@@ -244,10 +243,10 @@ export default function NotificationsScreen() {
               disabled={!notificationsAllowed}
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Reminder Time */}
-        <Animated.View entering={FadeInDown.delay(200).duration(400)}>
+        <View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('notifications.reminderTime')}
           </Text>
@@ -283,17 +282,17 @@ export default function NotificationsScreen() {
               ))}
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Info Note */}
-        <Animated.View entering={FadeInDown.delay(250).duration(400)}>
+        <View>
           <View style={[styles.infoCard, { backgroundColor: colors.accent + '10' }]}>
             <Info size={20} color={colors.accent} />
             <Text style={[styles.infoText, { color: colors.mutedForeground }]}>
               {t('notifications.infoNote')}
             </Text>
           </View>
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

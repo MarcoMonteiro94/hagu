@@ -21,7 +21,6 @@ import {
   X,
   ChevronDown,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useBudgetsQuery,
@@ -34,7 +33,7 @@ import {
   type TransactionCategory,
 } from '@/hooks'
 
-function formatCurrency(value: number): string {
+function formatCurrency(value: number, currency = 'BRL'): string {
   return value.toFixed(2).replace('.', ',')
 }
 
@@ -71,7 +70,7 @@ function BudgetItem({
     : colors.success
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <View style={[styles.budgetCard, { backgroundColor: colors.card }, cardShadow]}>
         <View style={styles.budgetHeader}>
           <View style={styles.budgetInfo}>
@@ -116,7 +115,7 @@ function BudgetItem({
 
         {/* Progress Bar */}
         <View style={[styles.progressContainer, { backgroundColor: colors.muted }]}>
-          <Animated.View
+          <View
             style={[
               styles.progressBar,
               {
@@ -141,7 +140,7 @@ function BudgetItem({
           )}
         </View>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -326,7 +325,7 @@ function EmptyState({ onAddBudget }: { onAddBudget: () => void }) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.info + '15' }]}>
         <CreditCard size={48} color={colors.info} />
       </View>
@@ -343,7 +342,7 @@ function EmptyState({ onAddBudget }: { onAddBudget: () => void }) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('finances.budget.addBudget')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

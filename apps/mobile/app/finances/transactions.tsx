@@ -22,7 +22,6 @@ import {
   Filter,
   Wallet,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useTransactionsQuery,
@@ -33,8 +32,11 @@ import {
   type TransactionType,
 } from '@/hooks'
 
-function formatCurrency(value: number): string {
-  return value.toFixed(2).replace('.', ',')
+function formatCurrency(value: number, currency = 'BRL'): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+  }).format(value)
 }
 
 function formatDate(dateString: string, t: (key: string) => string): string {
@@ -354,8 +356,8 @@ export default function TransactionsScreen() {
           data={groupedTransactions}
           keyExtractor={(item) => item.date}
           renderItem={({ item, index }) => (
-            <Animated.View
-              entering={FadeInDown.delay(index * 50).duration(300)}
+            <View
+             
               style={styles.dateGroup}
             >
               <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>
@@ -369,7 +371,7 @@ export default function TransactionsScreen() {
                   onPress={() => handleTransactionPress(transaction.id)}
                 />
               ))}
-            </Animated.View>
+            </View>
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}

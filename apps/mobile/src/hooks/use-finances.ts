@@ -125,9 +125,37 @@ export function useDeleteManyTransactions() {
 // ============ Categories Queries ============
 
 export function useCategoriesQuery() {
+  const queryClient = useQueryClient()
+  const createCategory = useCreateCategory()
+
   return useQuery({
     queryKey: CATEGORIES_KEY,
-    queryFn: () => categoriesService.getAll(supabase),
+    queryFn: async () => {
+      const categories = await categoriesService.getAll(supabase)
+
+      // Initialize default categories if none exist
+      if (categories.length === 0) {
+        const { ALL_DEFAULT_CATEGORIES } = await import('@/config/finance-categories')
+
+        // Create all default categories
+        await Promise.all(
+          ALL_DEFAULT_CATEGORIES.map((cat) =>
+            categoriesService.create(supabase, {
+              name: cat.name,
+              nameKey: `finances.categories.${cat.id}`,
+              type: cat.type,
+              icon: cat.icon,
+              color: cat.color,
+            })
+          )
+        )
+
+        // Fetch again to get the newly created categories with IDs
+        return categoriesService.getAll(supabase)
+      }
+
+      return categories
+    },
   })
 }
 

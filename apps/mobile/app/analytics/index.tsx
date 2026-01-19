@@ -15,7 +15,6 @@ import {
   Clock,
   FolderKanban,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography, chartColors } from '@/theme'
 import { useHabitsQuery, useTasksQuery, useAreasQuery } from '@/hooks'
 import { BarChart, LineChart, DonutChart, PieChart, ProgressRing } from '@/components/charts'
@@ -100,8 +99,8 @@ function StatCard({ icon, label, value, subValue, color, delay = 0 }: StatCardPr
   const { colors } = useTheme()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.statCard, { backgroundColor: colors.card }, cardShadow]}
     >
       <View style={[styles.statIcon, { backgroundColor: (color || colors.accent) + '20' }]}>
@@ -112,7 +111,7 @@ function StatCard({ icon, label, value, subValue, color, delay = 0 }: StatCardPr
       {subValue && (
         <Text style={[styles.statSubValue, { color: color || colors.accent }]}>{subValue}</Text>
       )}
-    </Animated.View>
+    </View>
   )
 }
 
@@ -437,13 +436,13 @@ export default function AnalyticsScreen() {
         }
       >
         {/* Time Range Selector */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+        <View>
           <TimeRangeSelector selected={timeRange} onSelect={setTimeRange} />
-        </Animated.View>
+        </View>
 
         {!hasData ? (
-          <Animated.View
-            entering={FadeInDown.delay(100).duration(400)}
+          <View
+           
             style={[styles.emptyCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <BarChart3 size={48} color={colors.mutedForeground} />
@@ -453,7 +452,7 @@ export default function AnalyticsScreen() {
             <Text style={[styles.emptyDescription, { color: colors.mutedForeground }]}>
               {t('analytics.noDataDesc')}
             </Text>
-          </Animated.View>
+          </View>
         ) : (
           <>
             {/* Quick Stats */}
@@ -497,8 +496,8 @@ export default function AnalyticsScreen() {
             </View>
 
             {/* Habit Completion Trend */}
-            <Animated.View
-              entering={FadeInDown.delay(300).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               <View style={styles.cardHeader}>
@@ -519,11 +518,11 @@ export default function AnalyticsScreen() {
                   showGrid
                 />
               </View>
-            </Animated.View>
+            </View>
 
             {/* Daily Completions */}
-            <Animated.View
-              entering={FadeInDown.delay(350).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               <View style={styles.cardHeader}>
@@ -551,12 +550,12 @@ export default function AnalyticsScreen() {
                   {analytics.bestDay}
                 </Text>
               </View>
-            </Animated.View>
+            </View>
 
             {/* Tasks by Priority */}
             {analytics.tasksByPriority.length > 0 && (
-              <Animated.View
-                entering={FadeInDown.delay(400).duration(400)}
+              <View
+               
                 style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
               >
                 <View style={styles.cardHeader}>
@@ -576,13 +575,13 @@ export default function AnalyticsScreen() {
                     centerLabel={t('tasks.title')}
                   />
                 </View>
-              </Animated.View>
+              </View>
             )}
 
             {/* Tasks by Status */}
             {analytics.tasksByStatus.length > 0 && (
-              <Animated.View
-                entering={FadeInDown.delay(425).duration(400)}
+              <View
+               
                 style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
               >
                 <View style={styles.cardHeader}>
@@ -598,13 +597,13 @@ export default function AnalyticsScreen() {
                     showLegend
                   />
                 </View>
-              </Animated.View>
+              </View>
             )}
 
             {/* Tasks by Area */}
             {analytics.tasksByArea.length > 0 && (
-              <Animated.View
-                entering={FadeInDown.delay(450).duration(400)}
+              <View
+               
                 style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
               >
                 <View style={styles.cardHeader}>
@@ -624,13 +623,13 @@ export default function AnalyticsScreen() {
                     centerLabel={t('tasks.title')}
                   />
                 </View>
-              </Animated.View>
+              </View>
             )}
 
             {/* Task Completion Trend */}
             {tasks.length > 0 && (
-              <Animated.View
-                entering={FadeInDown.delay(475).duration(400)}
+              <View
+               
                 style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
               >
                 <View style={styles.cardHeader}>
@@ -671,12 +670,12 @@ export default function AnalyticsScreen() {
                     </View>
                   )}
                 </View>
-              </Animated.View>
+              </View>
             )}
 
             {/* Insights */}
-            <Animated.View
-              entering={FadeInDown.delay(500).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               <View style={styles.cardHeader}>
@@ -729,7 +728,7 @@ export default function AnalyticsScreen() {
                   </View>
                 )}
               </View>
-            </Animated.View>
+            </View>
           </>
         )}
       </ScrollView>

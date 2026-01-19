@@ -15,7 +15,6 @@ import {
   Trash2,
   Target,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeIn, Layout } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import type { Objective, ObjectiveStatus } from '@hagu/core'
 
@@ -56,7 +55,7 @@ export function ObjectivesList({
   const completedCount = objectives.filter((o) => o.status === 'completed').length
 
   return (
-    <Animated.View entering={FadeInDown.delay(100).duration(300)} style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.foreground }]}>
@@ -81,10 +80,8 @@ export function ObjectivesList({
       ) : (
         <View style={styles.list}>
           {objectives.map((objective, index) => (
-            <Animated.View
+            <View
               key={objective.id}
-              entering={FadeIn.delay(index * 50).duration(300)}
-              layout={Layout.springify()}
               style={[styles.item, { backgroundColor: colors.card }, cardShadow]}
             >
               <Pressable
@@ -124,15 +121,15 @@ export function ObjectivesList({
               <Pressable onPress={() => onDelete(objective.id)} hitSlop={8}>
                 <Trash2 size={18} color={colors.mutedForeground} />
               </Pressable>
-            </Animated.View>
+            </View>
           ))}
         </View>
       )}
 
       {/* Add Input */}
       {showInput ? (
-        <Animated.View
-          entering={FadeIn.duration(200)}
+        <View
+         
           style={[styles.inputContainer, { backgroundColor: colors.card }, cardShadow]}
         >
           <TextInput
@@ -171,7 +168,7 @@ export function ObjectivesList({
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       ) : (
         <Pressable
           onPress={() => setShowInput(true)}
@@ -183,7 +180,7 @@ export function ObjectivesList({
           </Text>
         </Pressable>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

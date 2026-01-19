@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
 import Svg, { Path, G } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 interface PieChartData {
@@ -103,7 +102,7 @@ export function PieChart({
   })
 
   return (
-    <Animated.View entering={FadeIn.duration(400)} style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.chartContainer}>
         <Svg width={size} height={size}>
           <G>
@@ -166,7 +165,7 @@ export function PieChart({
           ))}
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

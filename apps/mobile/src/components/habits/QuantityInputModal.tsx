@@ -9,7 +9,6 @@ import {
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { X, Minus, Plus } from 'lucide-react-native'
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 
 interface QuantityInputModalProps {
@@ -70,8 +69,8 @@ export function QuantityInputModal({
         style={styles.overlay}
         onPress={onClose}
       >
-        <Animated.View
-          entering={SlideInDown.duration(300)}
+        <View
+         
           style={[styles.container, { backgroundColor: colors.card }]}
         >
           <Pressable>
@@ -195,7 +194,7 @@ export function QuantityInputModal({
               </Pressable>
             </View>
           </Pressable>
-        </Animated.View>
+        </View>
       </Pressable>
     </Modal>
   )

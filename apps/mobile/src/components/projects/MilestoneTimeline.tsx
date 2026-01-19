@@ -18,7 +18,6 @@ import {
   Trash2,
   Clock,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeIn, Layout } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import type { Milestone, MilestoneStatus } from '@hagu/core'
 
@@ -97,7 +96,7 @@ export function MilestoneTimeline({
   const completedCount = milestones.filter((m) => m.status === 'completed').length
 
   return (
-    <Animated.View entering={FadeInDown.delay(100).duration(300)} style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.foreground }]}>
@@ -128,10 +127,8 @@ export function MilestoneTimeline({
             const isLast = index === milestones.length - 1
 
             return (
-              <Animated.View
+              <View
                 key={milestone.id}
-                entering={FadeIn.delay(index * 50).duration(300)}
-                layout={Layout.springify()}
                 style={styles.timelineItem}
               >
                 {/* Timeline line */}
@@ -247,7 +244,7 @@ export function MilestoneTimeline({
                     )}
                   </View>
                 </View>
-              </Animated.View>
+              </View>
             )
           })}
         </View>
@@ -255,8 +252,8 @@ export function MilestoneTimeline({
 
       {/* Add Input */}
       {showInput ? (
-        <Animated.View
-          entering={FadeIn.duration(200)}
+        <View
+         
           style={[styles.inputContainer, { backgroundColor: colors.card }, cardShadow]}
         >
           <TextInput
@@ -325,7 +322,7 @@ export function MilestoneTimeline({
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       ) : (
         <Pressable
           onPress={() => setShowInput(true)}
@@ -337,7 +334,7 @@ export function MilestoneTimeline({
           </Text>
         </Pressable>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

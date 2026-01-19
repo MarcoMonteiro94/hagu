@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from 'react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 
 interface BarChartData {
@@ -32,9 +31,9 @@ export function BarChart({
         {data.map((item, index) => {
           const barHeight = (item.value / maxValue) * (height - 40)
           return (
-            <Animated.View
+            <View
               key={item.label}
-              entering={FadeInDown.delay(index * 100).duration(400)}
+             
               style={styles.barWrapper}
             >
               <View style={styles.barContainer}>
@@ -56,7 +55,7 @@ export function BarChart({
                   {item.label}
                 </Text>
               )}
-            </Animated.View>
+            </View>
           )
         })}
       </View>

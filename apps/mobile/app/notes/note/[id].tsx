@@ -23,7 +23,6 @@ import {
   Clock,
   Check,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import {
   useNoteQuery,
@@ -257,15 +256,15 @@ export default function NoteEditorScreen() {
         >
           {/* Pin indicator */}
           {note.isPinned && (
-            <Animated.View
-              entering={FadeInDown.delay(50).duration(300)}
+            <View
+             
               style={[styles.pinnedBadge, { backgroundColor: colors.accent + '20' }]}
             >
               <Pin size={14} color={colors.accent} />
               <Text style={[styles.pinnedText, { color: colors.accent }]}>
                 {t('notes.pinned')}
               </Text>
-            </Animated.View>
+            </View>
           )}
 
           {/* Title Input */}

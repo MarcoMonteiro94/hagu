@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import { View, StyleSheet, useWindowDimensions } from 'react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import type { WidgetSize } from '@/types'
 
 interface BentoWidgetProps {
@@ -69,8 +68,8 @@ export function BentoWidget({
   const animationDelay = index * 80
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(animationDelay).duration(400)}
+    <View
+     
       style={[
         styles.widget,
         {
@@ -80,7 +79,7 @@ export function BentoWidget({
       ]}
     >
       {children}
-    </Animated.View>
+    </View>
   )
 }
 

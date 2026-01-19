@@ -13,7 +13,6 @@ import {
   Timer,
   Target,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { usePomodoroSessions, usePomodoroStats, TimerMode, PomodoroSession } from '@/hooks/use-pomodoro'
 
@@ -151,7 +150,7 @@ function DayGroup({ date, sessions, delay }: DayGroupProps) {
   }
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={styles.dayGroup}>
+    <View style={styles.dayGroup}>
       <View style={styles.dayHeader}>
         <View style={styles.dayHeaderLeft}>
           <Calendar size={16} color={colors.mutedForeground} />
@@ -172,7 +171,7 @@ function DayGroup({ date, sessions, delay }: DayGroupProps) {
           </View>
         ))}
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -236,7 +235,7 @@ export default function PomodoroHistoryScreen() {
         }
       >
         {/* Summary Stats */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.statsSection}>
+        <View style={styles.statsSection}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('pomodoro.history.summary')}
           </Text>
@@ -266,7 +265,7 @@ export default function PomodoroHistoryScreen() {
               color="#3b82f6"
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Session History */}
         <View style={styles.historySection}>
@@ -275,8 +274,8 @@ export default function PomodoroHistoryScreen() {
           </Text>
 
           {dateGroups.length === 0 ? (
-            <Animated.View
-              entering={FadeInDown.delay(100).duration(400)}
+            <View
+             
               style={[styles.emptyState, { backgroundColor: colors.card }, cardShadow]}
             >
               <Timer size={48} color={colors.mutedForeground} />
@@ -286,7 +285,7 @@ export default function PomodoroHistoryScreen() {
               <Text style={[styles.emptyDescription, { color: colors.mutedForeground }]}>
                 {t('pomodoro.history.noSessionsDesc')}
               </Text>
-            </Animated.View>
+            </View>
           ) : (
             dateGroups.map(([date, daySessions], index) => (
               <DayGroup

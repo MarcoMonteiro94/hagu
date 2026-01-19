@@ -14,7 +14,6 @@ import {
   Calendar,
   CheckCircle2,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useHabitQuery,
@@ -315,7 +314,7 @@ export default function HabitDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
+        <View style={styles.header}>
           <Pressable onPress={handleBack} style={styles.headerButton} hitSlop={8}>
             <ArrowLeft size={24} color={colors.foreground} />
           </Pressable>
@@ -334,10 +333,10 @@ export default function HabitDetailScreen() {
               <Trash2 size={20} color={colors.error} />
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Habit Info */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.infoSection}>
+        <View style={styles.infoSection}>
           <View style={[styles.colorIndicator, { backgroundColor: habit.color }]} />
           <Text style={[styles.habitTitle, { color: colors.foreground }]}>{habit.title}</Text>
           {habit.description && (
@@ -353,12 +352,12 @@ export default function HabitDetailScreen() {
               </Text>
             </View>
           )}
-        </Animated.View>
+        </View>
 
         {/* Today's Progress */}
         {!isArchived && (
-          <Animated.View
-            entering={FadeInDown.delay(150).duration(400)}
+          <View
+           
             style={[styles.todayCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -415,12 +414,12 @@ export default function HabitDetailScreen() {
                   : t('habits.markComplete')}
               </Text>
             </Pressable>
-          </Animated.View>
+          </View>
         )}
 
         {/* Statistics */}
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(400)}
+        <View
+         
           style={[styles.statsCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -459,11 +458,11 @@ export default function HabitDetailScreen() {
               </Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Year Heatmap */}
-        <Animated.View
-          entering={FadeInDown.delay(250).duration(400)}
+        <View
+         
           style={[styles.heatmapCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -475,7 +474,7 @@ export default function HabitDetailScreen() {
             isQuantitative={isQuantitative}
             target={target}
           />
-        </Animated.View>
+        </View>
       </ScrollView>
 
       {/* Edit Modal */}

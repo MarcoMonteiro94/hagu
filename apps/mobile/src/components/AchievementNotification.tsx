@@ -8,15 +8,6 @@ import {
   Platform,
   Vibration,
 } from 'react-native'
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSequence,
-  withSpring,
-  runOnJS,
-  Easing,
-} from 'react-native-reanimated'
 import { Trophy, Zap, X, Sparkles } from 'lucide-react-native'
 import { useTheme, spacing, radius, typography } from '@/theme'
 
@@ -66,34 +57,10 @@ export function AchievementNotificationProvider({ children }: AchievementNotific
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Animation values
-  const translateY = useSharedValue(-200)
-  const scale = useSharedValue(0.8)
-  const opacity = useSharedValue(0)
-  const starScale = useSharedValue(0)
-  const glowOpacity = useSharedValue(0)
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }, { scale: scale.value }],
-    opacity: opacity.value,
-  }))
-
-  const animatedStarStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: starScale.value }],
-  }))
-
-  const animatedGlowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }))
-
   const hideNotification = useCallback(() => {
-    translateY.value = withTiming(-200, { duration: 300, easing: Easing.inOut(Easing.ease) })
-    scale.value = withTiming(0.8, { duration: 300 })
-    opacity.value = withTiming(0, { duration: 300 }, () => {
-      runOnJS(setIsVisible)(false)
-      runOnJS(setNotification)(null)
-    })
-  }, [translateY, scale, opacity])
+    setIsVisible(false)
+    setNotification(null)
+  }, [])
 
   const showAchievement = useCallback(
     (achievement: AchievementNotification) => {
@@ -110,30 +77,12 @@ export function AchievementNotificationProvider({ children }: AchievementNotific
         Vibration.vibrate([0, 50, 100, 50])
       }
 
-      // Animate in
-      translateY.value = withSpring(0, { damping: 15, stiffness: 150 })
-      scale.value = withSpring(1, { damping: 12, stiffness: 150 })
-      opacity.value = withTiming(1, { duration: 300 })
-
-      // Star animation
-      starScale.value = withSequence(
-        withTiming(0, { duration: 0 }),
-        withSpring(1.2, { damping: 8, stiffness: 200 }),
-        withSpring(1, { damping: 10 })
-      )
-
-      // Glow animation
-      glowOpacity.value = withSequence(
-        withTiming(0.8, { duration: 200 }),
-        withTiming(0.3, { duration: 300 })
-      )
-
       // Auto hide after 4 seconds
       timeoutRef.current = setTimeout(() => {
         hideNotification()
       }, 4000)
     },
-    [translateY, scale, opacity, starScale, glowOpacity, hideNotification]
+    [hideNotification]
   )
 
   // Cleanup on unmount
@@ -154,13 +103,12 @@ export function AchievementNotificationProvider({ children }: AchievementNotific
       {/* Notification Toast */}
       {isVisible && notification && (
         <View style={styles.overlay} pointerEvents="box-none">
-          <Animated.View style={[styles.container, animatedContainerStyle]}>
+          <View style={styles.container}>
             {/* Glow effect */}
-            <Animated.View
+            <View
               style={[
                 styles.glow,
                 { backgroundColor: rarityColor },
-                animatedGlowStyle,
               ]}
             />
 
@@ -173,9 +121,9 @@ export function AchievementNotificationProvider({ children }: AchievementNotific
               {/* Icon */}
               <View style={styles.iconContainer}>
                 <View style={[styles.iconBg, { backgroundColor: rarityColor + '20' }]}>
-                  <Animated.View style={animatedStarStyle}>
+                  <View>
                     <Trophy size={32} color={rarityColor} />
-                  </Animated.View>
+                  </View>
                 </View>
                 {/* Sparkle decorations */}
                 <Sparkles
@@ -214,7 +162,7 @@ export function AchievementNotificationProvider({ children }: AchievementNotific
               {/* Rarity indicator */}
               <View style={[styles.rarityBar, { backgroundColor: rarityColor }]} />
             </View>
-          </Animated.View>
+          </View>
         </View>
       )}
     </AchievementNotificationContext.Provider>

@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import Svg, { Path, Line, Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 // =============================================================================
@@ -102,8 +101,8 @@ export function LineChart({
       : ''
 
   return (
-    <Animated.View
-      entering={animated ? FadeIn.duration(400) : undefined}
+    <View
+     
       style={[styles.container, { height }]}
     >
       <Svg width={chartWidth} height={height}>
@@ -204,7 +203,7 @@ export function LineChart({
           ))}
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

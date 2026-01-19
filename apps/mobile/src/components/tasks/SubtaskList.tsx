@@ -9,11 +9,6 @@ import {
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { Plus, Check, X, Trash2, Edit3 } from 'lucide-react-native'
-import Animated, {
-  FadeInDown,
-  FadeOut,
-  Layout,
-} from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import type { Subtask } from '@hagu/core'
 
@@ -126,11 +121,8 @@ export function SubtaskList({
       {/* Subtask List */}
       <View style={styles.list}>
         {subtasks.map((subtask, index) => (
-          <Animated.View
+          <View
             key={subtask.id}
-            entering={FadeInDown.delay(index * 50).duration(300)}
-            exiting={FadeOut.duration(200)}
-            layout={Layout.springify()}
             style={[styles.subtaskItem, { backgroundColor: colors.secondary }]}
           >
             {editingId === subtask.id ? (
@@ -208,14 +200,14 @@ export function SubtaskList({
                 </View>
               </View>
             )}
-          </Animated.View>
+          </View>
         ))}
       </View>
 
       {/* Add Subtask */}
       {showAddInput ? (
-        <Animated.View
-          entering={FadeInDown.duration(200)}
+        <View
+         
           style={[styles.addInputContainer, { backgroundColor: colors.secondary }]}
         >
           <TextInput
@@ -254,7 +246,7 @@ export function SubtaskList({
           >
             <X size={18} color={colors.foreground} />
           </Pressable>
-        </Animated.View>
+        </View>
       ) : (
         <Pressable
           onPress={() => setShowAddInput(true)}

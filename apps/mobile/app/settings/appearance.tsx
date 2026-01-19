@@ -10,7 +10,6 @@ import {
   Globe,
   Palette,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, useThemeContext, cardShadow, spacing, radius, typography, ThemeMode } from '@/theme'
 import i18n from '@/i18n'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -141,7 +140,7 @@ export default function AppearanceScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Theme Section */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+        <View>
           <View style={styles.sectionHeader}>
             <Palette size={20} color={colors.accent} />
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -166,10 +165,10 @@ export default function AppearanceScreen() {
               )
             })}
           </View>
-        </Animated.View>
+        </View>
 
         {/* Language Section */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.section}>
+        <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Globe size={20} color={colors.accent} />
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -191,10 +190,10 @@ export default function AppearanceScreen() {
               />
             ))}
           </View>
-        </Animated.View>
+        </View>
 
         {/* Preview */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)} style={styles.section}>
+        <View style={styles.section}>
           <View style={[styles.previewCard, { backgroundColor: colors.card }, cardShadow]}>
             <Text style={[styles.previewTitle, { color: colors.foreground }]}>
               {t('settings.preview')}
@@ -217,7 +216,7 @@ export default function AppearanceScreen() {
               </View>
             </View>
           </View>
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

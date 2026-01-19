@@ -21,7 +21,6 @@ import {
   X,
   Calendar,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import { DatePicker } from '@/components/tasks/DatePicker'
 import {
@@ -47,7 +46,7 @@ const GOAL_COLORS = [
   '#ec4899', // pink
 ]
 
-function formatCurrency(value: number): string {
+function formatCurrency(value: number, currency = 'BRL'): string {
   return value.toFixed(2).replace('.', ',')
 }
 
@@ -67,7 +66,7 @@ function GoalItem({ goal, onDelete, onAddContribution, delay }: GoalItemProps) {
   const isCompleted = goal.completedAt !== null && goal.completedAt !== undefined
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <View style={[styles.goalCard, { backgroundColor: colors.card }, cardShadow]}>
         {/* Header */}
         <View style={styles.goalHeader}>
@@ -115,7 +114,7 @@ function GoalItem({ goal, onDelete, onAddContribution, delay }: GoalItemProps) {
 
         {/* Progress Bar */}
         <View style={[styles.progressContainer, { backgroundColor: colors.muted }]}>
-          <Animated.View
+          <View
             style={[
               styles.progressBar,
               {
@@ -163,7 +162,7 @@ function GoalItem({ goal, onDelete, onAddContribution, delay }: GoalItemProps) {
           </View>
         )}
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -460,7 +459,7 @@ function EmptyState({ onAddGoal }: { onAddGoal: () => void }) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.success + '15' }]}>
         <Target size={48} color={colors.success} />
       </View>
@@ -477,7 +476,7 @@ function EmptyState({ onAddGoal }: { onAddGoal: () => void }) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('finances.goal.addGoal')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

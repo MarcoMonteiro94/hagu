@@ -15,7 +15,6 @@ import {
   EyeOff,
   RotateCcw,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useHomeWidgets, AppSettings } from '@/hooks/use-settings'
@@ -93,8 +92,8 @@ function WidgetRow({ widget, isVisible, onToggle, index }: WidgetRowProps) {
   const Icon = widget.icon
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(index * 50).duration(400)}
+    <View
+     
       style={[
         styles.widgetRow,
         {
@@ -134,7 +133,7 @@ function WidgetRow({ widget, isVisible, onToggle, index }: WidgetRowProps) {
           <EyeOff size={18} color={colors.mutedForeground} />
         )}
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -207,7 +206,7 @@ export default function WidgetsScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Header Info */}
-          <Animated.View entering={FadeInDown.delay(50).duration(400)}>
+          <View>
             <View style={[styles.headerCard, { backgroundColor: colors.accent + '10' }]}>
               <LayoutGrid size={24} color={colors.accent} />
               <View style={styles.headerContent}>
@@ -219,10 +218,10 @@ export default function WidgetsScreen() {
                 </Text>
               </View>
             </View>
-          </Animated.View>
+          </View>
 
           {/* Visibility Summary */}
-          <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+          <View>
             <View style={[styles.summaryCard, { backgroundColor: colors.card }, cardShadow]}>
               <Text style={[styles.summaryLabel, { color: colors.mutedForeground }]}>
                 {t('widgets.visibleWidgets')}
@@ -231,17 +230,17 @@ export default function WidgetsScreen() {
                 {visibleCount} / {WIDGET_INFO.length}
               </Text>
             </View>
-          </Animated.View>
+          </View>
 
           {/* Section Title */}
-          <Animated.View entering={FadeInDown.delay(150).duration(400)}>
+          <View>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               {t('widgets.homeWidgets')}
             </Text>
             <Text style={[styles.sectionDescription, { color: colors.mutedForeground }]}>
               {t('widgets.dragToReorder')}
             </Text>
-          </Animated.View>
+          </View>
 
           {/* Widget List */}
           <View style={styles.widgetList}>
@@ -257,11 +256,11 @@ export default function WidgetsScreen() {
           </View>
 
           {/* Info Note */}
-          <Animated.View entering={FadeInDown.delay(400).duration(400)}>
+          <View>
             <Text style={[styles.infoNote, { color: colors.mutedForeground }]}>
               {t('widgets.infoNote')}
             </Text>
-          </Animated.View>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </GestureHandlerRootView>

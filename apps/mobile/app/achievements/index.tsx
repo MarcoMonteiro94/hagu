@@ -24,7 +24,6 @@ import {
   Calendar,
   Sparkles,
 } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeIn, ZoomIn } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useAchievements,
@@ -114,7 +113,7 @@ function AchievementCard({ achievement, onPress, index }: AchievementCardProps) 
   const rarityColor = RARITY_COLORS[achievement.rarity]
 
   return (
-    <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
+    <View>
       <Pressable onPress={onPress}>
         <View
           style={[
@@ -179,7 +178,7 @@ function AchievementCard({ achievement, onPress, index }: AchievementCardProps) 
           )}
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -202,8 +201,8 @@ function AchievementDetailModal({ achievement, visible, onClose }: AchievementDe
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View
-          entering={ZoomIn.duration(300)}
+        <View
+         
           style={[styles.modalContent, { backgroundColor: colors.card }]}
         >
           <Pressable style={styles.modalClose} onPress={onClose}>
@@ -273,7 +272,7 @@ function AchievementDetailModal({ achievement, visible, onClose }: AchievementDe
               </View>
             )
           )}
-        </Animated.View>
+        </View>
       </View>
     </Modal>
   )
@@ -337,8 +336,8 @@ export default function AchievementsScreen() {
         }
       >
         {/* Header Stats */}
-        <Animated.View
-          entering={FadeIn.duration(400)}
+        <View
+         
           style={[styles.headerCard, { backgroundColor: colors.accent }]}
         >
           <Trophy size={40} color="#fff" />
@@ -355,10 +354,10 @@ export default function AchievementsScreen() {
               })}
             </Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Filter Tabs */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.filterTabs}>
+        <View style={styles.filterTabs}>
           {(['all', 'unlocked', 'locked'] as const).map((f) => (
             <Pressable
               key={f}
@@ -382,7 +381,7 @@ export default function AchievementsScreen() {
               </Text>
             </Pressable>
           ))}
-        </Animated.View>
+        </View>
 
         {/* Achievements Grid */}
         <View style={styles.achievementsGrid}>

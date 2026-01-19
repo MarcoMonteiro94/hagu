@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import Svg, { Path, G } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 // =============================================================================
@@ -92,8 +91,8 @@ export function DonutChart({
 
   if (total === 0) {
     return (
-      <Animated.View
-        entering={animated ? FadeIn.duration(400) : undefined}
+      <View
+       
         style={styles.emptyContainer}
       >
         <Svg width={size} height={size}>
@@ -107,7 +106,7 @@ export function DonutChart({
             {emptyText}
           </Text>
         </View>
-      </Animated.View>
+      </View>
     )
   }
 
@@ -126,8 +125,8 @@ export function DonutChart({
   })
 
   return (
-    <Animated.View
-      entering={animated ? FadeIn.duration(400) : undefined}
+    <View
+     
       style={styles.container}
     >
       <View style={styles.chartContainer}>
@@ -212,7 +211,7 @@ export function DonutChart({
           ))}
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

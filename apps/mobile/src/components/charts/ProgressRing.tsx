@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
 import Svg, { Circle, G } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 // =============================================================================
@@ -46,8 +45,8 @@ export function ProgressRing({
   const strokeDashoffset = circumference - (Math.min(progress, 100) / 100) * circumference
 
   return (
-    <Animated.View
-      entering={animated ? FadeIn.duration(400) : undefined}
+    <View
+     
       style={styles.container}
     >
       <View style={{ width: size, height: size }}>
@@ -96,7 +95,7 @@ export function ProgressRing({
           )}
         </View>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 

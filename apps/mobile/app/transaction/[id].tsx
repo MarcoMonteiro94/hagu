@@ -21,7 +21,6 @@ import {
   Tag,
   Repeat,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import { TransactionForm, type TransactionFormData } from '@/components/finances'
 import {
@@ -193,8 +192,8 @@ export default function TransactionModal() {
         {transaction && (
           <>
             {/* Amount Card */}
-            <Animated.View
-              entering={FadeInDown.delay(100).duration(400)}
+            <View
+             
               style={[
                 styles.amountCard,
                 {
@@ -218,11 +217,11 @@ export default function TransactionModal() {
               >
                 {isIncome ? '+' : '-'}R$ {formatCurrency(transaction.amount)}
               </Text>
-            </Animated.View>
+            </View>
 
             {/* Description */}
-            <Animated.View
-              entering={FadeInDown.delay(150).duration(400)}
+            <View
+             
               style={[styles.detailCard, { backgroundColor: colors.card }, cardShadow]}
             >
               <Text style={[styles.detailLabel, { color: colors.mutedForeground }]}>
@@ -231,11 +230,11 @@ export default function TransactionModal() {
               <Text style={[styles.detailValue, { color: colors.foreground }]}>
                 {transaction.description}
               </Text>
-            </Animated.View>
+            </View>
 
             {/* Category */}
-            <Animated.View
-              entering={FadeInDown.delay(200).duration(400)}
+            <View
+             
               style={[styles.detailCard, { backgroundColor: colors.card }, cardShadow]}
             >
               <View style={styles.detailRow}>
@@ -258,11 +257,11 @@ export default function TransactionModal() {
                   </View>
                 </View>
               </View>
-            </Animated.View>
+            </View>
 
             {/* Date */}
-            <Animated.View
-              entering={FadeInDown.delay(250).duration(400)}
+            <View
+             
               style={[styles.detailCard, { backgroundColor: colors.card }, cardShadow]}
             >
               <View style={styles.detailRow}>
@@ -280,12 +279,12 @@ export default function TransactionModal() {
                   </Text>
                 </View>
               </View>
-            </Animated.View>
+            </View>
 
             {/* Recurring */}
             {transaction.isRecurring && transaction.recurrence && (
-              <Animated.View
-                entering={FadeInDown.delay(300).duration(400)}
+              <View
+               
                 style={[styles.detailCard, { backgroundColor: colors.card }, cardShadow]}
               >
                 <View style={styles.detailRow}>
@@ -299,7 +298,7 @@ export default function TransactionModal() {
                     </Text>
                   </View>
                 </View>
-              </Animated.View>
+              </View>
             )}
           </>
         )}

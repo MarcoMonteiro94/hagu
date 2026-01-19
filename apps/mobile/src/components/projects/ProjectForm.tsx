@@ -13,7 +13,6 @@ import {
 import { useTranslation } from 'react-i18next'
 import { X, Calendar, Check } from 'lucide-react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import { PROJECT_COLORS } from '@hagu/core'
 import type { Project, CreateProjectData, UpdateProjectData } from '@hagu/core'
@@ -111,8 +110,8 @@ export function ProjectForm({
   return (
     <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
       <View style={styles.overlay}>
-        <Animated.View
-          entering={SlideInDown.springify().damping(20)}
+        <View
+         
           style={[styles.container, { backgroundColor: colors.background }]}
         >
           {/* Header */}
@@ -141,7 +140,7 @@ export function ProjectForm({
             keyboardShouldPersistTaps="handled"
           >
             {/* Title */}
-            <Animated.View entering={FadeInDown.delay(100).duration(300)}>
+            <View>
               <Text style={[styles.label, { color: colors.foreground }]}>
                 {t('projects.form.titleLabel')} *
               </Text>
@@ -160,10 +159,10 @@ export function ProjectForm({
               {errors.title && (
                 <Text style={[styles.errorText, { color: colors.error }]}>{errors.title}</Text>
               )}
-            </Animated.View>
+            </View>
 
             {/* Description */}
-            <Animated.View entering={FadeInDown.delay(150).duration(300)}>
+            <View>
               <Text style={[styles.label, { color: colors.foreground }]}>
                 {t('projects.form.descriptionLabel')}
               </Text>
@@ -181,10 +180,10 @@ export function ProjectForm({
                 numberOfLines={3}
                 textAlignVertical="top"
               />
-            </Animated.View>
+            </View>
 
             {/* Color picker */}
-            <Animated.View entering={FadeInDown.delay(200).duration(300)}>
+            <View>
               <Text style={[styles.label, { color: colors.foreground }]}>
                 {t('projects.form.colorLabel')}
               </Text>
@@ -203,10 +202,10 @@ export function ProjectForm({
                   </Pressable>
                 ))}
               </View>
-            </Animated.View>
+            </View>
 
             {/* Due Date */}
-            <Animated.View entering={FadeInDown.delay(250).duration(300)}>
+            <View>
               <Text style={[styles.label, { color: colors.foreground }]}>
                 {t('projects.form.dueDateLabel')}
               </Text>
@@ -231,7 +230,7 @@ export function ProjectForm({
                   </Pressable>
                 )}
               </Pressable>
-            </Animated.View>
+            </View>
 
             {showDatePicker && (
               <View style={styles.datePickerContainer}>
@@ -253,7 +252,7 @@ export function ProjectForm({
               </View>
             )}
           </ScrollView>
-        </Animated.View>
+        </View>
       </View>
     </Modal>
   )

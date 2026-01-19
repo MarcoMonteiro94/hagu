@@ -2,39 +2,6 @@
 jest.mock('expo/src/winter/runtime.native', () => ({}), { virtual: true })
 jest.mock('expo/src/winter/installGlobal', () => ({}), { virtual: true })
 
-// Mock react-native-reanimated
-jest.mock('react-native-reanimated', () => ({
-  default: {
-    View: require('react-native').View,
-    Text: require('react-native').Text,
-    call: jest.fn(),
-    createAnimatedComponent: (component) => component,
-    addWhitelistedNativeProps: jest.fn(),
-    addWhitelistedUIProps: jest.fn(),
-  },
-  FadeInDown: {
-    delay: jest.fn(() => ({
-      duration: jest.fn(() => ({})),
-    })),
-  },
-  Easing: {
-    linear: jest.fn(),
-    ease: jest.fn(),
-    in: jest.fn(),
-    out: jest.fn(),
-    inOut: jest.fn(),
-  },
-  useAnimatedStyle: jest.fn(() => ({})),
-  useSharedValue: jest.fn((initial) => ({ value: initial })),
-  withTiming: jest.fn(),
-  withSpring: jest.fn(),
-  withDelay: jest.fn(),
-  withSequence: jest.fn(),
-  withRepeat: jest.fn(),
-  runOnUI: jest.fn(),
-  runOnJS: jest.fn(),
-}))
-
 // Mock expo-router
 jest.mock('expo-router', () => ({
   Link: ({ children, ...props }) => children,

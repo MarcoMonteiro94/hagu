@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { QuantityInputModal } from './QuantityInputModal'
 import type { Habit, HabitCompletion } from '@hagu/core'
@@ -69,8 +68,8 @@ export function HabitCard({ habit, last7Days, onToggle, onPress, index }: HabitC
   return (
     <>
       <Pressable onPress={() => onPress?.(habit)}>
-        <Animated.View
-          entering={FadeInDown.delay(100 + index * 50).duration(400)}
+        <View
+         
           style={[styles.habitCard, { backgroundColor: colors.card }, cardShadow]}
         >
           {/* Color accent */}
@@ -208,7 +207,7 @@ export function HabitCard({ habit, last7Days, onToggle, onPress, index }: HabitC
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       </Pressable>
 
       {/* Quantity Input Modal */}

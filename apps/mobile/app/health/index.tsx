@@ -30,7 +30,6 @@ import {
   Calendar,
   ChevronDown,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useHealthArea,
@@ -89,8 +88,8 @@ function MetricCard({ type, metrics, delay, onPress }: MetricCardProps) {
   const trend = useMetricTrend(metrics)
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={styles.metricCardContainer}
     >
       <Pressable
@@ -116,7 +115,7 @@ function MetricCard({ type, metrics, delay, onPress }: MetricCardProps) {
           {latestMetric ? formatMetricValue(type, latestMetric.value) : '-'}
         </Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -125,7 +124,7 @@ function EmptyState({ onAddMetric }: { onAddMetric: () => void }) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.success + '15' }]}>
         <Heart size={48} color={colors.success} />
       </View>
@@ -142,7 +141,7 @@ function EmptyState({ onAddMetric }: { onAddMetric: () => void }) {
         <Plus size={20} color="#fff" />
         <Text style={styles.emptyButtonText}>{t('health.addMetric')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -430,7 +429,7 @@ export default function HealthScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={8}>
             <ArrowLeft size={24} color={colors.foreground} />
           </Pressable>
@@ -449,7 +448,7 @@ export default function HealthScreen() {
           >
             <Plus size={20} color="#fff" />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Quick Stats Grid */}
         {metrics.length === 0 ? (
@@ -470,8 +469,8 @@ export default function HealthScreen() {
 
         {/* Quick Actions */}
         {metrics.length > 0 && (
-          <Animated.View
-            entering={FadeInDown.delay(350).duration(400)}
+          <View
+           
             style={styles.quickActionsSection}
           >
             <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
@@ -497,7 +496,7 @@ export default function HealthScreen() {
                 </Pressable>
               ))}
             </View>
-          </Animated.View>
+          </View>
         )}
       </ScrollView>
 

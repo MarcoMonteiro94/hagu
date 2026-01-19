@@ -13,7 +13,6 @@ import {
   Trophy,
   Calendar,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useUserStats,
@@ -64,13 +63,13 @@ function StatsSection({ title, icon, children, delay }: StatsSectionProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={styles.section}>
+    <View style={styles.section}>
       <View style={styles.sectionHeader}>
         {icon}
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{title}</Text>
       </View>
       <View style={styles.sectionContent}>{children}</View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -118,8 +117,8 @@ export default function StatisticsScreen() {
         }
       >
         {/* Level & XP Overview */}
-        <Animated.View
-          entering={FadeInDown.delay(50).duration(400)}
+        <View
+         
           style={[styles.levelCard, { backgroundColor: colors.accent }]}
         >
           <View style={styles.levelHeader}>
@@ -147,10 +146,10 @@ export default function StatisticsScreen() {
               {Math.round(xpProgress * 100)}%
             </Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Quick Stats */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.quickStats}>
+        <View style={styles.quickStats}>
           <View style={[styles.quickStatItem, { backgroundColor: colors.card }, cardShadow]}>
             <Flame size={24} color="#ef4444" />
             <Text style={[styles.quickStatValue, { color: colors.foreground }]}>
@@ -169,7 +168,7 @@ export default function StatisticsScreen() {
               {t('gamification.achievements.title')}
             </Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Habits Stats */}
         <StatsSection

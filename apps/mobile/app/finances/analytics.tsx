@@ -19,7 +19,6 @@ import {
   BarChart3,
   LineChart as LineChartIcon,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useTransactionsQuery,
@@ -35,7 +34,7 @@ type TimeRange = 'week' | 'month' | 'year'
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
-function formatCurrency(value: number): string {
+function formatCurrency(value: number, currency = 'BRL'): string {
   return value.toFixed(2).replace('.', ',')
 }
 
@@ -264,7 +263,7 @@ export default function AnalyticsScreen() {
         }
       >
         {/* Summary Cards */}
-        <Animated.View entering={FadeInDown.delay(0).duration(400)} style={styles.summaryRow}>
+        <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: colors.card }, cardShadow]}>
             <View style={[styles.summaryIcon, { backgroundColor: colors.success + '15' }]}>
               <TrendingUp size={20} color={colors.success} />
@@ -288,11 +287,11 @@ export default function AnalyticsScreen() {
               R$ {formatCurrency(monthlyStats.totalExpenses)}
             </Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Income vs Expense Chart */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={[styles.chartCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.chartHeader}>
@@ -346,11 +345,11 @@ export default function AnalyticsScreen() {
               )
             })}
           </View>
-        </Animated.View>
+        </View>
 
         {/* Category Breakdown */}
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(400)}
+        <View
+         
           style={[styles.chartCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.chartHeader}>
@@ -370,11 +369,11 @@ export default function AnalyticsScreen() {
               </View>
             )}
           </View>
-        </Animated.View>
+        </View>
 
         {/* Spending Trends */}
-        <Animated.View
-          entering={FadeInDown.delay(300).duration(400)}
+        <View
+         
           style={[styles.chartCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.chartHeader}>
@@ -394,7 +393,7 @@ export default function AnalyticsScreen() {
               </View>
             )}
           </View>
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

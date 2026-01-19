@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import Svg, { Path, G } from 'react-native-svg'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, typography } from '@/theme'
 
 // =============================================================================
@@ -92,8 +91,8 @@ export function PieChart({
 
   if (total === 0) {
     return (
-      <Animated.View
-        entering={animated ? FadeIn.duration(400) : undefined}
+      <View
+       
         style={styles.emptyContainer}
       >
         <Svg width={size} height={size}>
@@ -111,7 +110,7 @@ export function PieChart({
         <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
           {emptyText}
         </Text>
-      </Animated.View>
+      </View>
     )
   }
 
@@ -130,8 +129,8 @@ export function PieChart({
   })
 
   return (
-    <Animated.View
-      entering={animated ? FadeIn.duration(400) : undefined}
+    <View
+     
       style={styles.container}
     >
       <View style={styles.chartContainer}>
@@ -197,7 +196,7 @@ export function PieChart({
           ))}
         </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 

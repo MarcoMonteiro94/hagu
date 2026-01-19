@@ -18,7 +18,6 @@ import {
   TrendingUp,
   Plus,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useAreaQuery, useHabitsQuery, useTasksQuery } from '@/hooks'
 import { ProgressRing, DonutChart } from '@/components/charts'
@@ -39,8 +38,8 @@ function StatCard({ icon, label, value, color, delay }: StatCardProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.statCard, { backgroundColor: colors.card }, cardShadow]}
     >
       <View style={[styles.statIcon, { backgroundColor: (color || colors.accent) + '15' }]}>
@@ -48,7 +47,7 @@ function StatCard({ icon, label, value, color, delay }: StatCardProps) {
       </View>
       <Text style={[styles.statValue, { color: colors.foreground }]}>{value}</Text>
       <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{label}</Text>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -233,8 +232,8 @@ export default function AreaDetailScreen() {
         }
       >
         {/* Area Header */}
-        <Animated.View
-          entering={FadeInDown.delay(50).duration(400)}
+        <View
+         
           style={[styles.headerCard, { backgroundColor: area?.color || colors.accent }]}
         >
           <View style={styles.headerContent}>
@@ -253,7 +252,7 @@ export default function AreaDetailScreen() {
               showPercentage
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Quick Stats */}
         <View style={styles.statsGrid}>
@@ -289,8 +288,8 @@ export default function AreaDetailScreen() {
 
         {/* Task Status Chart */}
         {stats.tasksByStatus.length > 0 && (
-          <Animated.View
-            entering={FadeInDown.delay(300).duration(400)}
+          <View
+           
             style={[styles.chartCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -307,11 +306,11 @@ export default function AreaDetailScreen() {
                 centerLabel={t('tasks.title')}
               />
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Habits Section */}
-        <Animated.View entering={FadeInDown.delay(350).duration(400)} style={styles.section}>
+        <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               {t('habits.title')}
@@ -361,10 +360,10 @@ export default function AreaDetailScreen() {
               )}
             </View>
           )}
-        </Animated.View>
+        </View>
 
         {/* Tasks Section */}
-        <Animated.View entering={FadeInDown.delay(400).duration(400)} style={styles.section}>
+        <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               {t('tasks.title')}
@@ -413,7 +412,7 @@ export default function AreaDetailScreen() {
               )}
             </View>
           )}
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

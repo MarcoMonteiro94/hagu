@@ -8,7 +8,6 @@ import {
   ChevronRight,
   Repeat,
 } from 'lucide-react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography, priorityColors } from '@/theme'
 import type { Task, TaskPriority, TaskStatus } from '@hagu/core'
 
@@ -94,7 +93,7 @@ export function TaskCard({
   const priorityColor = task.priority ? priorityColors[task.priority].hex : undefined
 
   return (
-    <Animated.View entering={FadeIn.delay(index * 50).duration(300)}>
+    <View>
       <Pressable
         onPress={handlePress}
         onLongPress={handleLongPress}
@@ -192,7 +191,7 @@ export function TaskCard({
         {/* Chevron */}
         <ChevronRight size={20} color={colors.mutedForeground} />
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

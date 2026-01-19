@@ -21,7 +21,6 @@ import {
   Tag,
   X,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useCategoriesQuery,
@@ -75,7 +74,7 @@ function CategoryItem({ category, usageCount, onDelete, delay }: CategoryItemPro
   const isIncome = category.type === 'income'
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <View style={[styles.categoryCard, { backgroundColor: colors.card }, cardShadow]}>
         <View style={[styles.categoryIcon, { backgroundColor: category.color + '20' }]}>
           {isIncome ? (
@@ -104,7 +103,7 @@ function CategoryItem({ category, usageCount, onDelete, delay }: CategoryItemPro
           </Pressable>
         )}
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -273,7 +272,7 @@ function EmptyState({ onAddCategory }: { onAddCategory: () => void }) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.accent + '15' }]}>
         <Tag size={48} color={colors.accent} />
       </View>
@@ -290,7 +289,7 @@ function EmptyState({ onAddCategory }: { onAddCategory: () => void }) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('finances.category.addCategory')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

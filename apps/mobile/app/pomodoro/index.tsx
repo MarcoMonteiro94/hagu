@@ -27,14 +27,6 @@ import {
   Link2Off,
   ChevronRight,
 } from 'lucide-react-native'
-import Animated, {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-  useAnimatedProps,
-} from 'react-native-reanimated'
 import Svg, { Circle } from 'react-native-svg'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
@@ -59,8 +51,6 @@ const MODE_COLORS: Record<TimerMode, string> = {
   shortBreak: '#22c55e', // Green for short break
   longBreak: '#3b82f6',  // Blue for long break
 }
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle)
 
 // =============================================================================
 // Components
@@ -230,18 +220,8 @@ export default function PomodoroScreen() {
 
   const modeColor = MODE_COLORS[mode]
 
-  // Animated progress
-  const strokeDashoffset = useSharedValue(CIRCLE_CIRCUMFERENCE)
-
-  // Update animation when progress changes
-  strokeDashoffset.value = withTiming(
-    CIRCLE_CIRCUMFERENCE * (1 - progress),
-    { duration: 300, easing: Easing.linear }
-  )
-
-  const animatedCircleProps = useAnimatedProps(() => ({
-    strokeDashoffset: strokeDashoffset.value,
-  }))
+  // Calculate progress
+  const strokeDashoffset = CIRCLE_CIRCUMFERENCE * (1 - progress)
 
   const handlePlayPause = () => {
     if (state === 'running') {
@@ -278,7 +258,7 @@ export default function PomodoroScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Mode Tabs */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.modeTabs}>
+        <View style={styles.modeTabs}>
           <ModeTab
             mode="work"
             currentMode={mode}
@@ -297,11 +277,11 @@ export default function PomodoroScreen() {
             label={t('pomodoro.modes.longBreak')}
             onPress={() => changeMode('longBreak')}
           />
-        </Animated.View>
+        </View>
 
         {/* Timer Circle */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={styles.timerContainer}
         >
           <View style={styles.timerCircle}>
@@ -316,7 +296,7 @@ export default function PomodoroScreen() {
                 fill="transparent"
               />
               {/* Progress circle */}
-              <AnimatedCircle
+              <Circle
                 cx={CIRCLE_SIZE / 2}
                 cy={CIRCLE_SIZE / 2}
                 r={CIRCLE_RADIUS}
@@ -325,7 +305,7 @@ export default function PomodoroScreen() {
                 fill="transparent"
                 strokeLinecap="round"
                 strokeDasharray={CIRCLE_CIRCUMFERENCE}
-                animatedProps={animatedCircleProps}
+                strokeDashoffset={strokeDashoffset}
                 transform={`rotate(-90 ${CIRCLE_SIZE / 2} ${CIRCLE_SIZE / 2})`}
               />
             </Svg>
@@ -349,10 +329,10 @@ export default function PomodoroScreen() {
               )}
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Linked Task */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)}>
+        <View>
           <Pressable
             style={[styles.linkedTask, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() => setShowTaskSelector(true)}
@@ -377,11 +357,11 @@ export default function PomodoroScreen() {
             )}
             <ChevronRight size={18} color={colors.mutedForeground} />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Controls */}
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(400)}
+        <View
+         
           style={styles.controls}
         >
           <Pressable
@@ -408,10 +388,10 @@ export default function PomodoroScreen() {
           >
             <SkipForward size={24} color={colors.mutedForeground} />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Today's Stats */}
-        <Animated.View entering={FadeInDown.delay(250).duration(400)} style={styles.statsSection}>
+        <View style={styles.statsSection}>
           <View style={styles.sectionHeader}>
             <TrendingUp size={20} color={colors.accent} />
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -445,10 +425,10 @@ export default function PomodoroScreen() {
               color="#3b82f6"
             />
           </View>
-        </Animated.View>
+        </View>
 
         {/* View History Link */}
-        <Animated.View entering={FadeInDown.delay(300).duration(400)}>
+        <View>
           <Pressable
             style={[styles.historyLink, { backgroundColor: colors.card }, cardShadow]}
             onPress={() => router.push('/pomodoro/history')}
@@ -459,7 +439,7 @@ export default function PomodoroScreen() {
             </Text>
             <ChevronRight size={20} color={colors.mutedForeground} />
           </Pressable>
-        </Animated.View>
+        </View>
       </ScrollView>
 
       {/* Task Selector Modal */}

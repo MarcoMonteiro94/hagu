@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 
 // =============================================================================
@@ -46,8 +45,8 @@ export function BarChart({
 
   if (horizontal) {
     return (
-      <Animated.View
-        entering={animated ? FadeIn.duration(400) : undefined}
+      <View
+       
         style={styles.horizontalContainer}
       >
         {data.map((item, index) => {
@@ -57,7 +56,7 @@ export function BarChart({
           return (
             <Wrapper
               key={item.label}
-              entering={animated ? FadeInDown.delay(index * 80).duration(400) : undefined}
+             
               style={styles.horizontalRow}
             >
               {showLabels && (
@@ -89,13 +88,13 @@ export function BarChart({
             </Wrapper>
           )
         })}
-      </Animated.View>
+      </View>
     )
   }
 
   return (
-    <Animated.View
-      entering={animated ? FadeIn.duration(400) : undefined}
+    <View
+     
       style={[styles.container, { height }]}
     >
       <View style={styles.barsContainer}>
@@ -106,7 +105,7 @@ export function BarChart({
           return (
             <Wrapper
               key={item.label}
-              entering={animated ? FadeInDown.delay(index * 80).duration(400) : undefined}
+             
               style={[
                 styles.barWrapper,
                 barWidth !== 'auto' && { width: barWidth, flex: 0 },
@@ -145,7 +144,7 @@ export function BarChart({
           )
         })}
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
