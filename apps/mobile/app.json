@@ -40,6 +40,10 @@
     "experiments": {
       "typedRoutes": true
     },
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0
+    },
     "extra": {
       "router": {},
       "eas": {
