@@ -40,10 +40,14 @@ module.exports = {
     experiments: {
       typedRoutes: true,
     },
+    runtimeVersion: {
+      policy: 'appVersion',
+    },
     updates: {
+      url: `https://u.expo.dev/${process.env.EXPO_PUBLIC_PROJECT_ID || '0a5e7cbd-b02d-4130-9f00-f8f50bf33adf'}`,
       enabled: false,
+      checkAutomatically: 'ON_ERROR_RECOVERY',
       fallbackToCacheTimeout: 0,
-      checkAutomatically: 'NEVER',
     },
     extra: {
       router: {},
