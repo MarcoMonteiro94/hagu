@@ -7,6 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "postinstall": "cd ../.. && pnpm install --frozen-lockfile",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
