@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { router } from 'expo-router'
 import {
@@ -11,7 +11,6 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { HabitCard, HabitFormModal } from '@/components/habits'
 import {
@@ -66,9 +65,10 @@ function calculateStreak(completions: Array<{ date: string }>): number {
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: `${colors.accent}15` }]}>
         <Target size={48} color={colors.accent} />
       </View>
@@ -85,13 +85,14 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('habits.createFirst')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
 export default function HabitsScreen() {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const [showFormModal, setShowFormModal] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [showArchived, setShowArchived] = useState(false)
@@ -165,7 +166,7 @@ export default function HabitsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -176,7 +177,7 @@ export default function HabitsScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <View>
             <Text style={[styles.title, { color: colors.foreground }]}>
               {t('habits.title')}
@@ -193,12 +194,12 @@ export default function HabitsScreen() {
           >
             <Plus size={22} color={colors.white} />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Progress Card */}
         {activeHabits.length > 0 && (
-          <Animated.View
-            entering={FadeInDown.delay(100).duration(400)}
+          <View
+           
             style={[styles.progressCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <View style={styles.progressRow}>
@@ -236,7 +237,7 @@ export default function HabitsScreen() {
                 ]}
               />
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Habits List or Empty State */}
@@ -278,7 +279,7 @@ export default function HabitsScreen() {
             </Pressable>
 
             {showArchived && (
-              <Animated.View entering={FadeInDown.duration(300)} style={styles.archivedList}>
+              <View style={styles.archivedList}>
                 {archivedHabits.map((habit, index) => (
                   <Pressable
                     key={habit.id}
@@ -299,7 +300,7 @@ export default function HabitsScreen() {
                     </View>
                   </Pressable>
                 ))}
-              </Animated.View>
+              </View>
             )}
           </View>
         )}
@@ -320,7 +321,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: spacing[8],
   },
 
   // Header

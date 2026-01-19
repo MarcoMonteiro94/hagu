@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'expo-router'
 import {
@@ -26,7 +26,6 @@ import {
   EyeOff,
   AlertCircle,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useTransactionsQuery,
@@ -73,10 +72,11 @@ interface TransactionItemProps {
 
 function TransactionItem({ transaction, category, delay, onPress }: TransactionItemProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const isIncome = transaction.type === 'income'
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <Pressable onPress={onPress}>
         <View style={[styles.transactionCard, { backgroundColor: colors.card }, cardShadow]}>
           <View
@@ -109,7 +109,7 @@ function TransactionItem({ transaction, category, delay, onPress }: TransactionI
           </Text>
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -131,6 +131,7 @@ function DateGroup({
   t,
 }: DateGroupProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   const categoryMap = useMemo(() => {
     const map = new Map<string, TransactionCategory>()
@@ -159,10 +160,11 @@ function DateGroup({
 function EmptyState() {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const router = useRouter()
 
   return (
-    <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.accent + '15' }]}>
         <Wallet size={48} color={colors.accent} />
       </View>
@@ -179,12 +181,13 @@ function EmptyState() {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('finances.addTransaction')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
 function LoadingState() {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
     <View style={styles.loadingContainer}>
@@ -196,9 +199,10 @@ function LoadingState() {
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.errorState}>
+    <View style={styles.errorState}>
       <View style={[styles.errorIconContainer, { backgroundColor: colors.error + '15' }]}>
         <AlertCircle size={48} color={colors.error} />
       </View>
@@ -208,7 +212,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       <Pressable style={[styles.retryButton, { backgroundColor: colors.accent }]} onPress={onRetry}>
         <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -222,23 +226,25 @@ interface QuickActionProps {
 
 function QuickAction({ icon, label, iconBgColor, delay, onPress }: QuickActionProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.quickAction, { backgroundColor: colors.card }, cardShadow]}
     >
       <Pressable style={styles.quickActionPressable} onPress={onPress}>
         <View style={[styles.quickActionIcon, { backgroundColor: iconBgColor }]}>{icon}</View>
         <Text style={[styles.quickActionLabel, { color: colors.foreground }]}>{label}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
 export default function FinancesScreen() {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const router = useRouter()
 
   const [hideBalance, setHideBalance] = useState(false)
@@ -321,7 +327,7 @@ export default function FinancesScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -333,7 +339,7 @@ export default function FinancesScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <View>
             <Text style={[styles.title, { color: colors.foreground }]}>
               {t('finances.title')}
@@ -348,11 +354,11 @@ export default function FinancesScreen() {
           >
             <Plus size={22} color={colors.white} />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Balance Card */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={[styles.balanceCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.balanceHeader}>
@@ -386,7 +392,7 @@ export default function FinancesScreen() {
               <Text style={[styles.balanceStatValue, { color: colors.foreground }]}>{displayExpense}</Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Quick Actions */}
         <View style={styles.quickActionsGrid}>
@@ -425,8 +431,8 @@ export default function FinancesScreen() {
         </View>
 
         {/* Recent Transactions Section */}
-        <Animated.View
-          entering={FadeInDown.delay(300).duration(400)}
+        <View
+         
           style={styles.sectionHeader}
         >
           <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
@@ -439,7 +445,7 @@ export default function FinancesScreen() {
               </Text>
             </Pressable>
           )}
-        </Animated.View>
+        </View>
 
         {/* Transactions List or Empty State */}
         {!transactions || transactions.length === 0 ? (
@@ -473,7 +479,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: spacing[8],
   },
 
   // Loading & Error

@@ -34,7 +34,6 @@ import {
   Check,
   Activity,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import {
   useHealthArea,
@@ -177,8 +176,8 @@ function WeightGoalModal({ visible, onClose, currentGoal, onSave }: WeightGoalMo
         style={styles.modalOverlay}
       >
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View
-          entering={FadeInDown.duration(300)}
+        <View
+         
           style={[styles.modalContent, { backgroundColor: colors.card }]}
         >
           <View style={styles.modalHeader}>
@@ -229,7 +228,7 @@ function WeightGoalModal({ visible, onClose, currentGoal, onSave }: WeightGoalMo
               <Text style={styles.saveButtonText}>{t('health.goal.setGoal')}</Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   )
@@ -246,15 +245,15 @@ function StatCard({ label, value, color, delay }: StatCardProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.statCard, { backgroundColor: colors.card }, cardShadow]}
     >
       <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{label}</Text>
       <Text style={[styles.statValue, { color: color || colors.foreground }]}>
         {value ?? '-'}
       </Text>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -442,7 +441,7 @@ export default function MetricDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <Stack.Screen options={{ headerShown: false, animation: 'slide_from_right' }} />
 
       <ScrollView
@@ -459,7 +458,7 @@ export default function MetricDetailScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={8}>
             <ArrowLeft size={24} color={colors.foreground} />
           </Pressable>
@@ -490,11 +489,11 @@ export default function MetricDetailScreen() {
               <Plus size={20} color="#fff" />
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Period Selector */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={styles.periodContainer}
         >
           <ScrollView
@@ -525,7 +524,7 @@ export default function MetricDetailScreen() {
               </Pressable>
             ))}
           </ScrollView>
-        </Animated.View>
+        </View>
 
         {/* Stats for Weight */}
         {type === 'weight' && metrics.length > 0 && (
@@ -565,8 +564,8 @@ export default function MetricDetailScreen() {
 
         {/* Goal Progress Card */}
         {type === 'weight' && weightGoal && goalProgress && (
-          <Animated.View
-            entering={FadeInDown.delay(320).duration(400)}
+          <View
+           
             style={[styles.goalCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <View style={styles.goalCardHeader}>
@@ -616,13 +615,13 @@ export default function MetricDetailScreen() {
                 </Text>
               </View>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* BMI Card */}
         {type === 'weight' && bmi && (
-          <Animated.View
-            entering={FadeInDown.delay(340).duration(400)}
+          <View
+           
             style={[styles.bmiCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <View style={styles.bmiHeader}>
@@ -651,12 +650,12 @@ export default function MetricDetailScreen() {
               <Text style={[styles.bmiLabelText, { color: colors.mutedForeground }]}>25-30</Text>
               <Text style={[styles.bmiLabelText, { color: colors.mutedForeground }]}>{'>30'}</Text>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Chart */}
-        <Animated.View
-          entering={FadeInDown.delay(350).duration(400)}
+        <View
+         
           style={[styles.chartCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <Text style={[styles.chartTitle, { color: colors.foreground }]}>
@@ -671,12 +670,12 @@ export default function MetricDetailScreen() {
               </Text>
             </View>
           )}
-        </Animated.View>
+        </View>
 
         {/* Recent Entries */}
         {recentEntries.length > 0 && (
-          <Animated.View
-            entering={FadeInDown.delay(400).duration(400)}
+          <View
+           
             style={styles.entriesSection}
           >
             <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
@@ -693,7 +692,7 @@ export default function MetricDetailScreen() {
                 />
               ))}
             </View>
-          </Animated.View>
+          </View>
         )}
       </ScrollView>
 

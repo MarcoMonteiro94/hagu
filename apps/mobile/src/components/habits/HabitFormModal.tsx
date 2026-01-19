@@ -12,7 +12,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { X, Check } from 'lucide-react-native'
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, pickerColors, getColorName } from '@/theme'
 import { useAreasQuery } from '@/hooks/use-areas'
 import { useCreateHabit, useUpdateHabit } from '@/hooks/use-habits'
@@ -213,11 +212,11 @@ export function HabitFormModal({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-        <Animated.View
-          entering={SlideInDown.duration(300)}
+        <View
+         
           style={[styles.modalContainer, { backgroundColor: colors.background }]}
         >
-          <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+          <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
             {/* Header */}
             <View style={[styles.header, { borderBottomColor: colors.border }]}>
               <Pressable onPress={onClose} style={styles.headerButton}>
@@ -639,7 +638,7 @@ export function HabitFormModal({
               <View style={{ height: spacing[8] }} />
             </ScrollView>
           </SafeAreaView>
-        </Animated.View>
+        </View>
       </View>
     </Modal>
   )

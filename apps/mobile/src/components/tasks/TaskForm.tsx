@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { Calendar, X, FolderKanban, ChevronDown } from 'lucide-react-native'
 import { useTheme } from '@/theme'
@@ -46,6 +47,7 @@ interface TaskFormProps {
 export function TaskForm({ task, onSubmit, onCancel, isLoading, defaultProjectId }: TaskFormProps) {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const { data: projects = [] } = useActiveProjectsQuery()
 
   const [title, setTitle] = useState(task?.title ?? '')
@@ -100,7 +102,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading, defaultProjectId
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) }]}
       keyboardShouldPersistTaps="handled"
     >
       {/* Title */}

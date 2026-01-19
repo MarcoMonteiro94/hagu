@@ -7,7 +7,7 @@ import {
   Pressable,
   RefreshControl,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'expo-router'
 import {
@@ -21,7 +21,6 @@ import {
   BookOpen,
   Palette,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useAreasQuery, useHabitsQuery, useTasksQuery } from '@/hooks'
 import { ProgressRing } from '@/components/charts'
@@ -96,6 +95,7 @@ interface AreaCardProps {
 
 function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const { t } = useTranslation()
 
   const totalItems = stats.habitsCount + stats.tasksCount
@@ -103,7 +103,7 @@ function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
   const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)}>
+    <View>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
@@ -154,7 +154,7 @@ function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
           </View>
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -165,6 +165,7 @@ function AreaCard({ area, stats, onPress, delay }: AreaCardProps) {
 export default function AreasTab() {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const router = useRouter()
 
   const { data: areas = [], isLoading: areasLoading, refetch: refetchAreas } = useAreasQuery()
@@ -235,7 +236,7 @@ export default function AreasTab() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -246,18 +247,18 @@ export default function AreasTab() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <Text style={[styles.title, { color: colors.foreground }]}>
             {t('areas.title')}
           </Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
             {t('areas.lifeAreasDescription')}
           </Text>
-        </Animated.View>
+        </View>
 
         {/* Overview Stats */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={[styles.overviewCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.overviewStats}>
@@ -288,7 +289,7 @@ export default function AreasTab() {
               </Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Areas List */}
         <View style={styles.areasList}>
@@ -305,8 +306,8 @@ export default function AreasTab() {
 
         {/* Empty State */}
         {areas.length === 0 && !isLoading && (
-          <Animated.View
-            entering={FadeInDown.delay(150).duration(400)}
+          <View
+           
             style={[styles.emptyCard, { backgroundColor: colors.card }, cardShadow]}
           >
             <Folder size={48} color={colors.mutedForeground} />
@@ -316,7 +317,7 @@ export default function AreasTab() {
             <Text style={[styles.emptyDescription, { color: colors.mutedForeground }]}>
               {t('areas.noAreasDescription')}
             </Text>
-          </Animated.View>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -337,7 +338,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: spacing[4],
-    paddingBottom: spacing[8],
   },
 
   // Header

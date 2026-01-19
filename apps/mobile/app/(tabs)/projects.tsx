@@ -11,7 +11,6 @@ import {
   Briefcase,
   Archive,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
   useProjectsWithProgressQuery,
@@ -34,8 +33,8 @@ function StatMiniCard({ value, label, icon, iconBgColor, delay }: StatMiniCardPr
   const { colors } = useTheme()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.statMiniCard, { backgroundColor: colors.card }, cardShadow]}
     >
       <View style={[styles.statMiniIcon, { backgroundColor: iconBgColor }]}>
@@ -45,7 +44,7 @@ function StatMiniCard({ value, label, icon, iconBgColor, delay }: StatMiniCardPr
         <Text style={[styles.statMiniValue, { color: colors.foreground }]}>{value}</Text>
         <Text style={[styles.statMiniLabel, { color: colors.mutedForeground }]}>{label}</Text>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -58,7 +57,7 @@ function EmptyState({ onCreatePress }: EmptyStateProps) {
   const { colors } = useTheme()
 
   return (
-    <Animated.View entering={FadeInDown.delay(250).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.primary + '15' }]}>
         <FolderKanban size={48} color={colors.primary} />
       </View>
@@ -75,7 +74,7 @@ function EmptyState({ onCreatePress }: EmptyStateProps) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('projects.createFirst')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -171,7 +170,7 @@ export default function ProjectsScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <View>
             <Text style={[styles.title, { color: colors.foreground }]}>
               {t('projects.title')}
@@ -187,7 +186,7 @@ export default function ProjectsScreen() {
           >
             <Plus size={22} color={colors.white} />
           </Pressable>
-        </Animated.View>
+        </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
@@ -232,8 +231,8 @@ export default function ProjectsScreen() {
 
         {/* Archived Section */}
         {archivedProjects.length > 0 && (
-          <Animated.View
-            entering={FadeInDown.delay(300).duration(400)}
+          <View
+           
             style={styles.archivedSection}
           >
             <Pressable onPress={toggleArchived} style={styles.archivedHeader}>
@@ -277,7 +276,7 @@ export default function ProjectsScreen() {
                 ))}
               </View>
             )}
-          </Animated.View>
+          </View>
         )}
       </ScrollView>
 

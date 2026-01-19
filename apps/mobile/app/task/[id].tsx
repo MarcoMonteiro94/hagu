@@ -20,7 +20,6 @@ import {
   Circle,
   Clock,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography, cardShadow } from '@/theme'
 import { TaskForm, type TaskFormData, SubtaskList } from '@/components/tasks'
 import {
@@ -176,7 +175,7 @@ export default function TaskModal() {
 
   if (!isNew && isLoadingTask) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
         <Stack.Screen
           options={{
             presentation: 'modal',
@@ -195,7 +194,7 @@ export default function TaskModal() {
   // Show form when editing or creating new
   if (isEditing) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
         <Stack.Screen
           options={{
             presentation: 'modal',
@@ -232,7 +231,7 @@ export default function TaskModal() {
 
   // Show detail view
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
       <Stack.Screen
         options={{
           presentation: 'modal',
@@ -263,8 +262,8 @@ export default function TaskModal() {
         {task && (
           <>
             {/* Task Info Card */}
-            <Animated.View
-              entering={FadeInDown.delay(50).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               {/* Title */}
@@ -308,11 +307,11 @@ export default function TaskModal() {
                   </View>
                 )}
               </View>
-            </Animated.View>
+            </View>
 
             {/* Status Selector */}
-            <Animated.View
-              entering={FadeInDown.delay(100).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -356,11 +355,11 @@ export default function TaskModal() {
                   )
                 })}
               </View>
-            </Animated.View>
+            </View>
 
             {/* Subtasks */}
-            <Animated.View
-              entering={FadeInDown.delay(150).duration(400)}
+            <View
+             
               style={[styles.card, { backgroundColor: colors.card }, cardShadow]}
             >
               <SubtaskList
@@ -373,10 +372,10 @@ export default function TaskModal() {
                 isAdding={addSubtask.isPending}
                 isToggling={toggleSubtask.isPending}
               />
-            </Animated.View>
+            </View>
 
             {/* Delete Button */}
-            <Animated.View entering={FadeInDown.delay(200).duration(400)}>
+            <View>
               <Pressable
                 onPress={handleDelete}
                 style={[styles.deleteButton, { backgroundColor: colors.error + '15' }]}
@@ -386,7 +385,7 @@ export default function TaskModal() {
                   {t('tasks.deleteTask')}
                 </Text>
               </Pressable>
-            </Animated.View>
+            </View>
           </>
         )}
       </ScrollView>

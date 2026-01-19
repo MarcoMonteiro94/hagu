@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'expo-router'
 import {
@@ -19,7 +19,6 @@ import {
   EyeOff,
   FolderKanban,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useAuth } from '@/lib/auth'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import { useHomeWidgets } from '@/hooks/use-settings'
@@ -71,6 +70,7 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const { widgets } = useHomeWidgets()
   const [hideBalances, setHideBalances] = useState(false)
 
@@ -132,7 +132,7 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -143,7 +143,7 @@ export default function HomeScreen() {
         }
       >
         {/* Header - Date + Quick Stats */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <View>
             <Text style={[styles.date, { color: colors.foreground }]}>
               {formatDate(locale)}
@@ -152,12 +152,12 @@ export default function HomeScreen() {
               {getGreeting()}, {userName}
             </Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Quick Stats Bar (like web) */}
         {widgets.quickStats && (
-          <Animated.View
-            entering={FadeInDown.delay(100).duration(400)}
+          <View
+           
             style={styles.statsBar}
           >
             <View style={styles.statItem}>
@@ -172,13 +172,13 @@ export default function HomeScreen() {
                 Nível {level}
               </Text>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Habits Widget (like web) */}
         {widgets.habits && (
-          <Animated.View
-            entering={FadeInDown.delay(150).duration(400)}
+          <View
+           
             style={styles.widgetContainer}
           >
             <View style={[styles.widget, { backgroundColor: colors.card }, cardShadow]}>
@@ -264,13 +264,13 @@ export default function HomeScreen() {
                 </Pressable>
               </Link>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Tasks Widget (like web) */}
         {widgets.tasks && (
-          <Animated.View
-            entering={FadeInDown.delay(200).duration(400)}
+          <View
+           
             style={styles.widgetContainer}
           >
             <View style={[styles.widget, { backgroundColor: colors.card }, cardShadow]}>
@@ -354,13 +354,13 @@ export default function HomeScreen() {
                 </Pressable>
               </Link>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Finances Widget (like web) */}
         {widgets.finances && (
-          <Animated.View
-            entering={FadeInDown.delay(250).duration(400)}
+          <View
+           
             style={styles.widgetContainer}
           >
             <View style={[styles.widget, { backgroundColor: colors.card }, cardShadow]}>
@@ -453,13 +453,13 @@ export default function HomeScreen() {
                 </Pressable>
               </Link>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* Projects Widget (like web) */}
         {widgets.projects && (
-          <Animated.View
-            entering={FadeInDown.delay(300).duration(400)}
+          <View
+           
             style={styles.widgetContainer}
           >
             <View style={[styles.widget, { backgroundColor: colors.card }, cardShadow]}>
@@ -530,22 +530,22 @@ export default function HomeScreen() {
                 </Pressable>
               </Link>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {/* All done message (like web) */}
         {completedHabitsToday === totalHabitsToday &&
           totalHabitsToday > 0 &&
           pendingTasks === 0 && (
-            <Animated.View
-              entering={FadeInDown.delay(250).duration(400)}
+            <View
+             
               style={[styles.allDoneCard, { backgroundColor: `${colors.success}15` }]}
             >
               <CheckCircle2 size={32} color={colors.success} />
               <Text style={[styles.allDoneText, { color: colors.success }]}>
                 Tudo concluído por hoje! 🎉
               </Text>
-            </Animated.View>
+            </View>
           )}
       </ScrollView>
     </SafeAreaView>
@@ -559,9 +559,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: spacing[8],
-  },
+  scrollContent: {},
 
   // Header
   header: {

@@ -1,7 +1,7 @@
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { X, CheckCircle2, Trash2, Clock } from 'lucide-react-native'
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import type { TaskStatus } from '@hagu/core'
 
@@ -24,6 +24,7 @@ export function BatchActionsBar({
 }: BatchActionsBarProps) {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   const handleDelete = () => {
     Alert.alert(
@@ -41,10 +42,11 @@ export function BatchActionsBar({
   }
 
   return (
-    <Animated.View
-      entering={SlideInDown.springify().damping(20)}
-      exiting={SlideOutDown.springify().damping(20)}
-      style={[styles.container, { backgroundColor: colors.card }]}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, paddingBottom: Math.max(insets.bottom, spacing[8]) },
+      ]}
     >
       {/* Selection count */}
       <View style={styles.countSection}>
@@ -85,7 +87,7 @@ export function BatchActionsBar({
           <Trash2 size={18} color={colors.error} />
         </Pressable>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -100,7 +102,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing[6],
     paddingVertical: spacing[4],
-    paddingBottom: spacing[8],
     borderTopLeftRadius: radius['2xl'],
     borderTopRightRadius: radius['2xl'],
     shadowColor: '#000',

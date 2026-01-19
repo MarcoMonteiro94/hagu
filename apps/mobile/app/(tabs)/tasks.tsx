@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl, Alert } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { router } from 'expo-router'
 import {
@@ -11,7 +11,6 @@ import {
   Filter,
   SlidersHorizontal,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 import {
@@ -50,6 +49,7 @@ interface FilterChipProps {
 
 function FilterChip({ label, active, onPress }: FilterChipProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
     <Pressable
@@ -83,10 +83,11 @@ interface StatMiniCardProps {
 
 function StatMiniCard({ value, label, icon, iconBgColor, delay }: StatMiniCardProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).duration(400)}
+    <View
+     
       style={[styles.statMiniCard, { backgroundColor: colors.card }, cardShadow]}
     >
       <View style={[styles.statMiniIcon, { backgroundColor: iconBgColor }]}>
@@ -94,16 +95,17 @@ function StatMiniCard({ value, label, icon, iconBgColor, delay }: StatMiniCardPr
       </View>
       <Text style={[styles.statMiniValue, { color: colors.foreground }]}>{value}</Text>
       <Text style={[styles.statMiniLabel, { color: colors.mutedForeground }]}>{label}</Text>
-    </Animated.View>
+    </View>
   )
 }
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.emptyState}>
+    <View style={styles.emptyState}>
       <View style={[styles.emptyIconContainer, { backgroundColor: colors.accent + '15' }]}>
         <CheckCircle2 size={48} color={colors.accent} />
       </View>
@@ -120,7 +122,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <Plus size={20} color={colors.white} />
         <Text style={styles.emptyButtonText}>{t('tasks.addTask')}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -148,6 +150,7 @@ const STATUS_ORDER: Record<TaskStatus, number> = {
 export default function TasksScreen() {
   const { t } = useTranslation()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const [quickFilter, setQuickFilter] = useState<FilterType>('all')
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS)
@@ -357,7 +360,7 @@ export default function TasksScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -368,7 +371,7 @@ export default function TasksScreen() {
         }
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <View>
             <Text style={[styles.title, { color: colors.foreground }]}>
               {t('tasks.title')}
@@ -401,7 +404,7 @@ export default function TasksScreen() {
               <Plus size={22} color={colors.white} />
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
@@ -429,11 +432,11 @@ export default function TasksScreen() {
         </View>
 
         {/* Quick Filters */}
-        <Animated.View entering={FadeInDown.delay(250).duration(400)} style={styles.filtersContainer}>
+        <View style={styles.filtersContainer}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContent}
+            contentContainerStyle={[styles.filtersContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
           >
             <FilterChip
               label={t('tasks.all')}
@@ -456,7 +459,7 @@ export default function TasksScreen() {
               onPress={() => handleQuickFilterPress('done')}
             />
           </ScrollView>
-        </Animated.View>
+        </View>
 
         {/* Tasks List or Empty State */}
         {sortedTasks.length === 0 ? (
@@ -514,7 +517,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: spacing[8],
   },
 
   // Header

@@ -15,7 +15,6 @@ import { Link, router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Mail, Lock, UserPlus, ShieldCheck } from 'lucide-react-native'
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/theme'
 
@@ -70,7 +69,7 @@ export default function SignupScreen() {
     focusedInput === inputName ? colors.accent : colors.mutedForeground
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -82,7 +81,7 @@ export default function SignupScreen() {
         >
           <View style={styles.content}>
             {/* Header with logo/brand */}
-            <Animated.View entering={FadeInDown.delay(100).duration(500)} style={styles.header}>
+            <View style={styles.header}>
               <View style={[styles.logoMark, { backgroundColor: colors.accent }]}>
                 <Text style={styles.logoText}>H</Text>
               </View>
@@ -92,10 +91,10 @@ export default function SignupScreen() {
               <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
                 {t('auth.signupSubtitle')}
               </Text>
-            </Animated.View>
+            </View>
 
             {/* Form */}
-            <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.form}>
+            <View style={styles.form}>
               {/* Email Input */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.foreground }]}>
@@ -205,19 +204,19 @@ export default function SignupScreen() {
                   </View>
                 )}
               </Pressable>
-            </Animated.View>
+            </View>
 
             {/* Terms note */}
-            <Animated.View entering={FadeInUp.delay(300).duration(500)} style={styles.terms}>
+            <View style={styles.terms}>
               <Text style={[styles.termsText, { color: colors.mutedForeground }]}>
                 Ao criar uma conta, você concorda com nossos{' '}
                 <Text style={{ color: colors.accent }}>Termos de Uso</Text> e{' '}
                 <Text style={{ color: colors.accent }}>Política de Privacidade</Text>
               </Text>
-            </Animated.View>
+            </View>
 
             {/* Sign In Link */}
-            <Animated.View entering={FadeInUp.delay(400).duration(500)} style={styles.footer}>
+            <View style={styles.footer}>
               <View style={styles.footerContent}>
                 <Text style={[styles.footerText, { color: colors.mutedForeground }]}>
                   {t('auth.hasAccount')}
@@ -230,7 +229,7 @@ export default function SignupScreen() {
                   </Pressable>
                 </Link>
               </View>
-            </Animated.View>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Alert, ScrollView, StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { router } from 'expo-router'
 import {
@@ -18,7 +18,6 @@ import {
   StickyNote,
   LayoutGrid,
 } from 'lucide-react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useAuth } from '@/lib/auth'
 import { useTheme, cardShadow, spacing, radius, typography } from '@/theme'
 
@@ -40,6 +39,7 @@ function SettingsItem({
   showChevron = true,
 }: SettingsItemProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
     <Pressable
@@ -89,12 +89,13 @@ interface SettingsSectionProps {
 
 function SettingsSection({ title, children, delay }: SettingsSectionProps) {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay).duration(400)} style={styles.section}>
+    <View style={styles.section}>
       <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>{title}</Text>
       <View style={styles.sectionContent}>{children}</View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -102,6 +103,7 @@ export default function SettingsScreen() {
   const { t } = useTranslation()
   const { signOut, user } = useAuth()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
 
   const handleLogout = async () => {
     console.log('handleLogout called') // Debug
@@ -121,17 +123,17 @@ export default function SettingsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, spacing[8]) }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.header}>
+        <View style={styles.header}>
           <Text style={[styles.title, { color: colors.foreground }]}>{t('tabs.settings')}</Text>
-        </Animated.View>
+        </View>
 
         {/* User Profile Card */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
+        <View
+         
           style={[styles.profileCard, { backgroundColor: colors.card }, cardShadow]}
         >
           <View style={styles.profileContent}>
@@ -148,7 +150,7 @@ export default function SettingsScreen() {
               <Text style={[styles.editButtonText, { color: colors.foreground }]}>Editar</Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Life & Progress */}
         <SettingsSection title={t('settings.sections.lifeProgress')} delay={150}>
@@ -234,7 +236,7 @@ export default function SettingsScreen() {
         </SettingsSection>
 
         {/* Logout */}
-        <Animated.View entering={FadeInDown.delay(350).duration(400)} style={styles.logoutSection}>
+        <View style={styles.logoutSection}>
           <SettingsItem
             icon={<LogOut size={20} color={colors.error} />}
             label={t('auth.logout')}
@@ -243,7 +245,7 @@ export default function SettingsScreen() {
             danger
             showChevron={false}
           />
-        </Animated.View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -258,7 +260,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: spacing[8],
     paddingHorizontal: spacing[6],
   },
 

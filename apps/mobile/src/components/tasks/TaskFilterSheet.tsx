@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
+import { SafeAreaModalFooter } from '../shared'
 import {
   X,
   Check,
@@ -19,7 +20,6 @@ import {
   SortAsc,
   SortDesc,
 } from 'lucide-react-native'
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated'
 import { useTheme, spacing, radius, typography } from '@/theme'
 import type { TaskStatus, TaskPriority } from '@hagu/core'
 
@@ -148,11 +148,11 @@ export function TaskFilterSheet({
       onRequestClose={onClose}
     >
       <Pressable style={styles.modalOverlay} onPress={onClose}>
-        <Animated.View entering={FadeIn.duration(200)} style={styles.modalBackdrop} />
+        <View style={styles.modalBackdrop} />
       </Pressable>
 
-      <Animated.View
-        entering={SlideInDown.springify().damping(20)}
+      <View
+       
         style={[styles.modalContent, { backgroundColor: colors.background }]}
       >
         {/* Header */}
@@ -375,7 +375,7 @@ export function TaskFilterSheet({
         </ScrollView>
 
         {/* Apply Button */}
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+        <SafeAreaModalFooter style={[styles.footer, { borderTopColor: colors.border }]}>
           <Pressable
             onPress={onClose}
             style={[styles.applyButton, { backgroundColor: colors.accent }]}
@@ -385,8 +385,8 @@ export function TaskFilterSheet({
               {t('tasks.filterSort.apply')}
             </Text>
           </Pressable>
-        </View>
-      </Animated.View>
+        </SafeAreaModalFooter>
+      </View>
     </Modal>
   )
 }
@@ -500,8 +500,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   footer: {
-    padding: spacing[6],
-    paddingTop: spacing[4],
     borderTopWidth: 1,
   },
   applyButton: {
