@@ -1,6 +1,7 @@
 import { View, Pressable, Text, StyleSheet, Platform } from 'react-native'
 import { useRouter, usePathname } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Home, Target, CheckSquare, LayoutGrid, Settings } from 'lucide-react-native'
 import { useTheme, spacing, typography } from '@/theme'
 
@@ -26,6 +27,7 @@ export function BottomNav() {
   const { colors } = useTheme()
   const router = useRouter()
   const pathname = usePathname()
+  const insets = useSafeAreaInsets()
 
   // Determine active tab based on current path
   const getActiveTab = () => {
@@ -45,8 +47,15 @@ export function BottomNav() {
     router.push(tab.path as any)
   }
 
+  const containerStyle = {
+    backgroundColor: colors.background,
+    borderTopColor: colors.border,
+    height: Platform.OS === 'ios' ? 88 : 64 + insets.bottom,
+    paddingBottom: Platform.OS === 'ios' ? 28 : Math.max(insets.bottom, 8),
+  }
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+    <View style={[styles.container, containerStyle]}>
       {TABS.map((tab) => {
         const isActive = activeTab === tab.name
         const Icon = tab.icon
@@ -73,9 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 88 : 64,
     paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
   },
   tab: {
     flex: 1,

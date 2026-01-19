@@ -1,6 +1,7 @@
 import { Tabs, Redirect } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useColorScheme, Platform, View, ActivityIndicator, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Home, Target, CheckSquare, LayoutGrid, Settings } from 'lucide-react-native'
 import { colors } from '@/theme'
 import { useAuth } from '@/lib/auth'
@@ -11,6 +12,7 @@ export default function TabsLayout() {
   const { t } = useTranslation()
   const colorScheme = useColorScheme()
   const { isLoading, isAuthenticated } = useAuth()
+  const insets = useSafeAreaInsets()
 
   const isDark = colorScheme === 'dark'
   const theme = isDark ? colors.dark : colors.light
@@ -44,9 +46,9 @@ export default function TabsLayout() {
           backgroundColor,
           borderTopColor: borderColor,
           borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 88 : 64,
+          height: Platform.OS === 'ios' ? 88 : 64 + insets.bottom,
           paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          paddingBottom: Platform.OS === 'ios' ? 28 : Math.max(insets.bottom, 8),
         },
         tabBarLabelStyle: {
           fontSize: 11,
