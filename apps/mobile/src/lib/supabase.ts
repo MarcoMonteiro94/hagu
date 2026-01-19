@@ -2,6 +2,7 @@ import 'react-native-url-polyfill/auto'
 import { createClient } from '@supabase/supabase-js'
 import * as SecureStore from 'expo-secure-store'
 import { Platform } from 'react-native'
+import { ENV } from '@/config/env'
 
 // Web storage adapter using localStorage
 const WebStorageAdapter = {
@@ -47,10 +48,7 @@ const NativeStorageAdapter = {
 // Use appropriate adapter based on platform
 const StorageAdapter = Platform.OS === 'web' ? WebStorageAdapter : NativeStorageAdapter
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY, {
   auth: {
     storage: StorageAdapter,
     autoRefreshToken: true,
